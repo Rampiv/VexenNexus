@@ -7,13 +7,26 @@ import { DataFutureResonators } from "../../data"
 const CardMemo = React.memo(Card)
 
 export const Main = () => {
-
-
   return (
     <>
       <main className="main">
         <div className="container">
           <div className="main__content">
+            <section className="main__pasta">
+              <div className="container">
+                <div className="main__pasta-container">
+                  <p className="main__pasta-text">место для пасты</p>
+                </div>
+              </div>
+            </section>
+            <section className="main__pasta">
+              {/* временно */}
+              <div className="container">
+                <div className="main__pasta-container">
+                  <p className="main__pasta-text">место для чиби чиби чапа чапа руби руби даба даба</p>
+                </div>
+              </div>
+            </section>
             <section className="main__future">
               {" "}
               {/* Секция будущих персонажей */}

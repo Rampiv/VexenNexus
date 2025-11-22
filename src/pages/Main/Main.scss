@@ -3,6 +3,21 @@
 .main {
   width: 100%;
 
+  // СЕКЦИЯ ПАСТЫ
+  &__pasta-container {
+    width: 100%;
+    min-height: 300px;
+    border: 1px solid $color1;
+    border-radius: $standartborder;
+    color: $white;
+    margin-bottom: 20px;
+  }
+  &__pasta-text {
+    @include textReset();
+    padding: 15px 20px;
+  }
+
+  // СЕКЦИЯ БУДУЩИХ ПЕРСОВ
   &__h2 {
     color: $white;
     text-align: center;

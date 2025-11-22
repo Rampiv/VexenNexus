@@ -36,10 +36,6 @@ export const Burger = () => {
   // Анимация blob (без изменений)
   useEffect(() => {
     const height = window.innerHeight
-    const hoverZone = 150
-    const expandAmount = 20
-    const anchorDistance = 200
-    const curviness = anchorDistance - 40
 
     let x = 0
     let y = height / 2
@@ -70,11 +66,6 @@ export const Burger = () => {
           targetX = 0
         } else {
           xIteration = 0
-          if (x > hoverZone) {
-            targetX = 0
-          } else {
-            targetX = -(((60 + expandAmount) / 100) * (x - hoverZone))
-          }
         }
         xIteration++
       }
@@ -87,15 +78,6 @@ export const Burger = () => {
 
       curveX = easeOutExpo(xIteration, curveX, targetX - curveX, 100)
       curveY = easeOutExpo(yIteration, curveY, y - curveY, 100)
-
-      if (blobPathRef.current) {
-        const newPath = `M60,${height}H0V0h60v${
-          curveY - anchorDistance
-        }c0,${curviness},${curveX},${curviness},${curveX},${anchorDistance}S60,${
-          curveY
-        },60,${curveY + anchorDistance * 2}V${height}z`
-        blobPathRef.current.setAttribute("d", newPath)
-      }
 
       if (hamburgerRef.current) {
         hamburgerRef.current.style.transform = `translate(${curveX}px, ${curveY}px)`
@@ -130,38 +112,63 @@ export const Burger = () => {
       aria-expanded={menuExpanded}
       aria-label="Navigation menu"
     >
-      {/* Визуальный бургер — НЕ кликабельный */}
       <div
         className="burger-section__hamburger"
         ref={hamburgerRef}
         role="img"
         aria-label="Menu icon"
+        onClick={() => toggleMenu()}
       >
-        <div className="line"></div>
-        <div className="line"></div>
-        <div className="line"></div>
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="burger__arrow-svg"
+          style={{
+            transform: menuExpanded ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.3s ease",
+          }}
+        >
+          <path
+            d="M8 6L8 2L10 2L16 8L10 14L8 14L8 10L-1.74845e-07 10L-3.01991e-07 6L8 6Z"
+            fill="#fff"
+            className="burger__arrow-path"
+          />
+        </svg>
       </div>
 
       {/* Меню */}
       <div className="burger-section__inner">
         <ul className="burger-section__list">
           <li className="burger-section__item">
-            <Link to="/" onClick={()=>toggleMenu()}>На главную страницу</Link>
+            <Link to="/" onClick={() => toggleMenu()}>
+              На главную страницу
+            </Link>
           </li>
           <li className="burger-section__item">
-            <Link to="/" onClick={()=>toggleMenu()}>Тир-лист</Link>
+            <Link to="/" onClick={() => toggleMenu()}>
+              Тир-лист
+            </Link>
           </li>
           <li className="burger-section__item">
-            <Link to="/resonators" onClick={()=>toggleMenu()}>Персонажи</Link>
+            <Link to="/resonators" onClick={() => toggleMenu()}>
+              Персонажи
+            </Link>
           </li>
           <li className="burger-section__item">
-            <Link to="/team" onClick={()=>toggleMenu()}>Отряды</Link>
+            <Link to="/team" onClick={() => toggleMenu()}>
+              Отряды
+            </Link>
           </li>
           <li className="burger-section__item">
-            <Link to="/glossary" onClick={()=>toggleMenu()}>Глоссарий</Link>
+            <Link to="/glossary" onClick={() => toggleMenu()}>
+              Глоссарий
+            </Link>
           </li>
           <li className="burger-section__item">
-            <Link to="/changelog" onClick={()=>toggleMenu()}>Последние изменения</Link>
+            <Link to="/changelog" onClick={() => toggleMenu()}>
+              Последние изменения
+            </Link>
           </li>
         </ul>
       </div>
