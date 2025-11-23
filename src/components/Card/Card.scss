@@ -1,13 +1,5 @@
 @use "../../styles/style.scss" as *;
 
-@font-face {
-  font-family: "Ustrok";
-  src: url("../../assets/fonts/Ustroke_Regular.woff") format("woff2");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
 .card {
   @include flexible();
   flex-direction: column;
@@ -40,8 +32,6 @@
     left: 50%;
     transform: translate(-50%, -5%);
     font-size: 4em;
-
-    font-family: Ustrok;
     letter-spacing: 5px;
     font-weight: lighter;
   }

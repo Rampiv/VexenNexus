@@ -2,27 +2,43 @@
 
 .footer {
   margin-top: auto;
+  width: 100%;
+  background: $color1;
 }
 
 .navigation {
+  @include flexible();
+  align-items: flex-start;
   width: 100%;
   height: fit-content;
-  padding: 5px 10px;
-  background: $color1;
-  border-radius:$standartborder $standartborder 0 0;
-  padding: 15px 20px;
+  padding: 26px 0 5px;
 
+  &__h2 {
+    margin-bottom: 10px;
+    color: $color3;
+    font-size: 24px;
+    font-weight: lighter;
+  }
+
+  &__container {
+    @include flexible();
+    flex-direction: column;
+    &:first-child{
+      margin-right: 20px;
+    }
+  }
   &__list {
     @include listReset();
     @include flexible();
-    gap: 30px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 
   &__link {
     @include flexible();
     @include standartTransition();
     gap: 5px;
-    color: $white;
     @media (hover) {
       &:hover {
         transform: scale(1.2);
@@ -33,6 +49,15 @@
       transform: scale(1.1);
       z-index: 2;
     }
+    svg {
+      width: 23px;
+    }
+    img {
+      width: 23px;
+    }
+  }
+  &__text{
+    color: $white;
   }
 }
 

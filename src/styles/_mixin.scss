@@ -26,6 +26,13 @@
   outline: none;
 }
 
-@mixin standartTransition(){
+@mixin standartTransition() {
   transition: all ease-out 0.3s;
+}
+
+@mixin textType1() {
+  font-size: 32px;
+  line-height: 46px;
+  letter-spacing: 0.5px;
+  text-align: center;
 }

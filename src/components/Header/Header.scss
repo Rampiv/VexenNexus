@@ -1,26 +1,20 @@
 @use "../../styles/style.scss" as *;
 
 .header {
-  margin-bottom: 20px;
   &__content {
     display: flex;
+    justify-content: center;
     align-items: center;
-    padding: 15px 20px;
-
-    background: radial-gradient(ellipse at center, #5e5d5d 0%, $main 100%);
-    background-position: 0 1vw;
-    border-radius: 0 0 $standartborder $standartborder;
-    color: $white;
+    max-height: 110px;
+    position: relative;
   }
-
-  &__h1 {
-    margin-right: 10px;
-    font-size: 3em;
-
-    background: linear-gradient(to bottom, #cccccc 22%, #474747 13%, #b8b8b8 10%, #b8b8b8 27%, #d9d9d9 40%, #3e3e3e 78%);
-    background-position: 0 1vw;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: #fff;
+  &__logo{
+    overflow: hidden;
+    height: 345px;
+  }
+  &__game{
+    position: absolute;
+    max-width: 45%;
+    right: -30%;
   }
 }

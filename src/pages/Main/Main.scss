@@ -3,20 +3,6 @@
 .main {
   width: 100%;
 
-  // СЕКЦИЯ ПАСТЫ
-  &__pasta-container {
-    width: 100%;
-    min-height: 300px;
-    border: 1px solid $color1;
-    border-radius: $standartborder;
-    color: $white;
-    margin-bottom: 20px;
-  }
-  &__pasta-text {
-    @include textReset();
-    padding: 15px 20px;
-  }
-
   // СЕКЦИЯ БУДУЩИХ ПЕРСОВ
   &__h2 {
     color: $white;
@@ -55,5 +41,139 @@
         z-index: 2;
       }
     }
+  }
+}
+
+// СЕКЦИЯ ПАСТЫ
+.pasta {
+  margin-bottom: 15px;
+  &__container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__content {
+    max-width: 740px;
+    border: 1px solid $color2;
+    border-radius: 25px;
+    color: $white;
+    background-color: $color1;
+    padding: 44px 15px;
+  }
+  &__text {
+    @include textReset();
+    @include textType1();
+    user-select: none;
+  }
+}
+
+// СЕКЦИЯ ССЫЛОК
+.links {
+  margin-bottom: 54px;
+  &__list {
+    @include listReset();
+    @include flexible();
+    gap: 40px;
+  }
+  &__item {
+    @include standartTransition();
+    background-color: $color1;
+    border: 1px solid $color2;
+    border-radius: 7px;
+    color: $white;
+    min-width: 183px;
+    text-align: center;
+
+    @media (hover) {
+      &:hover {
+        transform: scale(1.02);
+      }
+    }
+    &:focus,
+    &:active {
+      transform: scale(1.03);
+      z-index: 2;
+    }
+
+    a {
+      @include textType1();
+      display: block;
+      padding: 3px 18px;
+      outline: none;
+      user-select: none;
+    }
+  }
+}
+
+// СЕКЦИЯ ЧИБИ
+.chibi {
+  .container {
+    display: flex;
+    justify-content: center;
+  }
+  &__content {
+    @include flexible();
+    flex-direction: column;
+    position: relative;
+    max-width: 740px;
+  }
+  &__btn {
+    @include btnReset();
+  }
+
+  &__cloud-container {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
+    &.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  &__cloud-img {
+    transform: scaleX(-1) rotate(18deg);
+    max-width: 140%;
+    position: absolute;
+    top: -16%;
+    left: -101%;
+    z-index: 0;
+  }
+  &__cloud-text {
+    @include textReset();
+    position: absolute;
+    max-width: 310px;
+    top: 90px;
+    left: -52.5%;
+    transform: rotate(-8deg);
+    font-family: fascinate;
+    font-size: 30px;
+    font-weight: 900;
+    z-index: 1;
+    text-align: center;
+    line-height: 24px;
+  }
+
+  &__hint {
+    position: absolute;
+    left: -5%;
+    top: 20%;
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
+    &.hide-chibi {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+  &__hint-text {
+    @include textReset();
+    font-weight: 900;
+    font-size: 40px;
   }
 }
