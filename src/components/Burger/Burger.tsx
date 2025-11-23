@@ -146,18 +146,19 @@ export const Burger = () => {
             </Link>
           </li>
           <li className="burger-section__item">
-            <Link to="/" onClick={() => toggleMenu()}>
-              Тир-лист
-            </Link>
-          </li>
-          <li className="burger-section__item">
             <Link to="/resonators" onClick={() => toggleMenu()}>
               Персонажи
             </Link>
           </li>
           <li className="burger-section__item">
-            <Link to="/team" onClick={() => toggleMenu()}>
-              Отряды
+            <Link to="/" onClick={() => toggleMenu()}>
+              Тир-лист
+            </Link>
+          </li>
+
+          <li className="burger-section__item">
+            <Link to="/banners" onClick={() => toggleMenu()}>
+              Баннеры
             </Link>
           </li>
           <li className="burger-section__item">

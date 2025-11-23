@@ -2,13 +2,14 @@ import ResonarotChisa from "../assets/image/Resonators/Resonator_Chisa.webp"
 import ResonatorBuling from "../assets/image/Resonators/Resonator_Buling.webp"
 import Electro from "../assets/image/Element/Electro.webp"
 import Havoc from "../assets/image/Element/Havoc.webp"
-import Aero from "../assets/image/Element/Aero.webp"
-import Spectro from "../assets/image/Element/Spectro.webp"
-import Glacio from "../assets/image/Element/Glacio.webp"
+// import Aero from "../assets/image/Element/Aero.webp"
+// import Spectro from "../assets/image/Element/Spectro.webp"
+// import Glacio from "../assets/image/Element/Glacio.webp"
 
 export const DataResonators = [
   {
     name: "ЧИСА",
+    engName: "Chisa",
     role: "САП",
     resonator: ResonarotChisa,
     elementIMG: Havoc,
@@ -20,6 +21,7 @@ export const DataResonators = [
   },
   {
     name: "БУЛИНГ",
+    engName: "Byling",
     role: "САП-ДД / САП",
     resonator: ResonatorBuling,
     elementIMG: Electro,

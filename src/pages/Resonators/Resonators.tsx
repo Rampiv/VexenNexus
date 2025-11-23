@@ -4,6 +4,13 @@ import { DataResonators } from "../../data"
 import { Link } from "react-router"
 import React from "react"
 import { Card } from "../../components"
+import Electro from "@assets/image/Element/Electro.webp"
+import Havoc from "@assets/image/Element/Havoc.webp"
+import Aero from "@assets/image/Element/Aero.webp"
+import Fusion from "@assets/image/Element/Fusion.webp"
+import Spectro from "@assets/image/Element/Spectro.webp"
+import Glacio from "@assets/image/Element/Glacio.webp"
+import Lupa from "@assets/icons/Lupa.webp"
 
 const CardMemo = React.memo(Card)
 
@@ -13,15 +20,15 @@ export const Resonators = () => {
   const [selectedElement, setSelectedElement] = useState("all")
 
   // Получаем уникальные значения для фильтров
-  const roles = useMemo(() => {
-    const allRoles = DataResonators.map(item => item.role)
-    return ["all", ...Array.from(new Set(allRoles))]
-  }, [])
+  // const roles = useMemo(() => {
+  //   const allRoles = DataResonators.map(item => item.role)
+  //   return ["all", ...Array.from(new Set(allRoles))]
+  // }, [])
 
-  const elements = useMemo(() => {
-    const allElements = DataResonators.map(item => item.element)
-    return ["all", ...Array.from(new Set(allElements))]
-  }, [])
+  // const elements = useMemo(() => {
+  //   const allElements = DataResonators.map(item => item.element)
+  //   return ["all", ...Array.from(new Set(allElements))]
+  // }, [])
 
   // Обработка фильтрации и сортировки
   const filteredAndSortedResonators = useMemo(() => {
@@ -30,7 +37,11 @@ export const Resonators = () => {
     // Поиск по имени (регистронезависимый)
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
-      result = result.filter(item => item.name.toLowerCase().includes(term))
+      result = result.filter(
+        item =>
+          item.name.toLowerCase().includes(term) ||
+          item.engName.toLowerCase().includes(term),
+      )
     }
 
     // Фильтр по роли
@@ -46,20 +57,108 @@ export const Resonators = () => {
     // Сортировка по имени
     return result.sort((a, b) => a.name.localeCompare(b.name, "ru"))
   }, [searchTerm, selectedRole, selectedElement])
+
+  // Выбор элемента для фильтра
+  const handleSelectElement = (element: string) => {
+    setSelectedElement(element)
+  }
+
   return (
     <section className="resonators">
       <div className="container">
-        <h2 className="resonators__h2">Все персонажи</h2>
-        <div className="resonators__controls">
+        <h2 className="resonators__h2">фильтр</h2>
+        <ul className="resonators__elements-list">
+          <li className="resonators__elements-item">
+            <button
+              className="resonators__elements-btn"
+              onClick={e => handleSelectElement("Havoc")}
+            >
+              <img
+                src={Havoc}
+                alt="Elemet Havoc"
+                className="resonators__elements-img"
+              />
+            </button>
+          </li>
+          <li className="resonators__elements-item">
+            <button
+              className="resonators__elements-btn"
+              onClick={e => handleSelectElement("Aero")}
+            >
+              <img
+                src={Aero}
+                alt="Elemet Aero"
+                className="resonators__elements-img"
+              />
+            </button>
+          </li>
+          <li className="resonators__elements-item">
+            <button
+              className="resonators__elements-btn"
+              onClick={e => handleSelectElement("Fusion")}
+            >
+              <img
+                src={Fusion}
+                alt="Elemet Fusion"
+                className="resonators__elements-img"
+              />
+            </button>
+          </li>
+          <li className="resonators__elements-item">
+            <button
+              className="resonators__elements-btn"
+              onClick={e => handleSelectElement("Spectro")}
+            >
+              <img
+                src={Spectro}
+                alt="Elemet Spectro"
+                className="resonators__elements-img"
+              />
+            </button>
+          </li>
+          <li className="resonators__elements-item">
+            <button
+              className="resonators__elements-btn"
+              onClick={e => handleSelectElement("Glacio")}
+            >
+              <img
+                src={Glacio}
+                alt="Elemet Glacio"
+                className="resonators__elements-img"
+              />
+            </button>
+          </li>
+          <li className="resonators__elements-item">
+            <button
+              className="resonators__elements-btn"
+              onClick={e => handleSelectElement("Electro")}
+            >
+              <img
+                src={Electro}
+                alt="Elemet Electro"
+                className="resonators__elements-img"
+              />
+            </button>
+          </li>
+          <li className="resonators__elements-item">
+            <button className="resonator__elements-btn_reset" onClick={e => handleSelectElement("all")}>
+              Сброс
+            </button>
+          </li>
+        </ul>
+
+        <div className="resonators__search-container">
           <input
             type="text"
-            placeholder="Поиск по имени..."
+            placeholder="поиск"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             className="resonators__search"
+            maxLength={18}
           />
+          <img src={Lupa} alt="лупа" className="resonators__search-lupa" />
 
-          <select
+          {/* <select
             value={selectedRole}
             onChange={e => setSelectedRole(e.target.value)}
             className="resonators__select resonators__role"
@@ -69,9 +168,9 @@ export const Resonators = () => {
                 {role === "all" ? "Все роли" : role}
               </option>
             ))}
-          </select>
+          </select> */}
 
-          <select
+          {/* <select
             value={selectedElement}
             onChange={e => setSelectedElement(e.target.value)}
             className="resonators__select resonators__elements"
@@ -81,7 +180,7 @@ export const Resonators = () => {
                 {element === "all" ? "Все элементы" : element}
               </option>
             ))}
-          </select>
+          </select> */}
         </div>
         <ul className="resonators__list">
           {filteredAndSortedResonators.map(item => (

@@ -27,7 +27,7 @@ img {
 }
 body {
   margin: 0;
-  font-family: "Play", sans-serif;
+  font-family: "bebas", sans-serif;
   font-weight: 400;
   font-style: normal;
   margin: 0;
@@ -37,8 +37,15 @@ body {
 }
 
 @font-face {
-  font-family: "Marutya";
-  src: url("./assets/fonts/marutya.woff2") format("woff2");
+  font-family: "bebas";
+  src: url("./assets/fonts/BebasNeueCyrillic.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "fascinate";
+  src: url("./assets/fonts/Fascinate-Regular.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -46,7 +53,7 @@ body {
 
 /* Global class*/
 .container {
-  max-width: 700px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 .main {
@@ -61,10 +68,21 @@ body {
 .opacity {
   opacity: 1;
 }
+.opacityHide{
+  opacity: 0;
+}
 
 .h1 {
   @include textReset();
   text-align: center;
+  display: none;
+}
+.customBackground{
+  background: $color4;
+}
+
+section{
+  z-index: 1
 }
 
 .App {
