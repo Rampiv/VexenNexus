@@ -33,7 +33,7 @@ body {
   margin: 0;
   padding: 0;
   border: 0;
-  background-color: $main;
+  background: $main;
 }
 
 @font-face {
@@ -60,7 +60,8 @@ body {
   position: relative;
 }
 .hide {
-  display: none;
+  opacity: 0 !important;
+  visibility: hidden !important;
 }
 .visible {
   display: flex;
@@ -68,7 +69,7 @@ body {
 .opacity {
   opacity: 1;
 }
-.opacityHide{
+.opacityHide {
   opacity: 0;
 }
 
@@ -77,13 +78,24 @@ body {
   text-align: center;
   display: none;
 }
-.customBackground{
-  background: $color4;
+
+section {
+  z-index: 1;
 }
 
-section{
-  z-index: 1
+.red{
+  color: $red;
 }
+.green{
+  color: $green;
+}
+.purple{
+  color: $purple;
+}
+.cian{
+  color: $cian;
+}
+
 
 .App {
   @include flexible();

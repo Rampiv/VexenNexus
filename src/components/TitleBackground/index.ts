@@ -1,0 +1,1 @@
+export { TitleBackground } from "./TitleBackground"

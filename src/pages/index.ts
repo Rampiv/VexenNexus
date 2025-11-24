@@ -1,3 +1,4 @@
 export { Main } from "./Main"
 export { Resonators } from "./Resonators"
 export { Banners } from "./Banners"
+export { Resonator } from "./Resonator"
