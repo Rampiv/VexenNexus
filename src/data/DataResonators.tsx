@@ -1,30 +1,57 @@
-import ResonarotChisa from "../assets/image/Resonators/Resonator_Chisa.webp"
-import ResonatorBuling from "../assets/image/Resonators/Resonator_Buling.webp"
-import Electro from "../assets/image/Element/Electro.webp"
-import Havoc from "../assets/image/Element/Havoc.webp"
-// import Aero from "../assets/image/Element/Aero.webp"
-// import Spectro from "../assets/image/Element/Spectro.webp"
-// import Glacio from "../assets/image/Element/Glacio.webp"
+import ResonarotChisa from "@assets/image/Resonators/Resonator_Chisa.webp"
+import ResonatorBuling from "@assets/image/Resonators/Resonator_Buling.webp"
+import chisaPreview from '@assets/image/Resonators/Chisa/chisaPreview.webp'
+import chisaMiniGuide from '@assets/image/Resonators/Chisa/chisaMiniGuide.webp'
+import chisaYTPreview from '@assets/image/Resonators/Chisa/chisaYTPreview.webp'
+import chisaUtility from '@assets/image/Resonators/Chisa/chisaUtility.webp'
+import chisaPumping from '@assets/image/Resonators/Chisa/chisaPumping.webp'
+import chisaWeaponPreview from '@assets/image/Resonators/Chisa/chisaWeaponPreview.webp'
+import chisaGlossary from '@assets/image/Resonators/Chisa/chisaGlossary.webp'
+
+
+
 
 export const DataResonators = [
   {
     name: "ЧИСА",
     engName: "Chisa",
-    role: "САП",
+    role: "Саппорт",
     resonator: ResonarotChisa,
-    elementIMG: Havoc,
     element: "Havoc",
     id: "ResonatorChisa",
-    link: "",
+    link: "/resonator/Chisa",
     rarity: "5",
     weapon: "Broadblade",
+    previewImg: chisaPreview,
+    youtubeVideoId: "eTMD3m6xFf4",
+    youtubeVideoPreview: chisaYTPreview,
+    MiniGuideImg: chisaMiniGuide,
+    BaseDescr:
+      "Чиса - в чистом виде сапорт с довольно неплохим уроном в рамках роли",
+    BasePlus: [
+      "сносный урон",
+      "быстрая ротация",
+      "большой потенциал",
+      "удобна в квик-свапе",
+      "атк/деф/хп толерантна",
+    ],
+    BaseMinus: [
+      "мало отрядов",
+      "слабо-разитый архетип",
+      "не универсальные бафы",
+      "зависима от нег.статусов",
+    ],
+    Utility: chisaUtility,
+    PumpingImg: chisaPumping,
+    DamageImg: "[]",
+    WeaponPreview: chisaWeaponPreview,
+    Glossary: chisaGlossary,
   },
   {
     name: "БУЛИНГ",
     engName: "Byling",
     role: "САП-ДД / САП",
     resonator: ResonatorBuling,
-    elementIMG: Electro,
     element: "Electro",
     id: "ResonatorBuling",
     link: "",

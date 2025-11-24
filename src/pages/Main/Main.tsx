@@ -1,15 +1,63 @@
 import { Link } from "react-router"
 import "./Main.scss"
 import { DataLinks } from "../../data"
-import Chibi from "../../assets/image/main_chibi.webp"
+import Chibi1 from "../../assets/image/Chibi/chibi1.webp"
+import Chibi2 from "../../assets/image/Chibi/chibi2.webp"
+import Chibi3 from "../../assets/image/Chibi/chibi3.webp"
+import Chibi4 from "../../assets/image/Chibi/chibi4.webp"
+import Chibi5 from "../../assets/image/Chibi/chibi5.webp"
+
 import Cloud from "../../assets/image/cloud.webp"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { Arrow } from "@assets/icons"
+
+const chibiImages = [Chibi1, Chibi2, Chibi3, Chibi4, Chibi5]
+
+const chibiText = [
+  "",
+  <>
+    Привет! я помогу тебе разобраться куда тут жмать <br /> кликни на меня еще
+    раз
+  </>,
+  "3й!",
+  "Эээй!",
+  "Эй, ты, да ты!",
+  "Эй...",
+  "Ну хватит...",
+  "А если на тебя так будут тыкать?!",
+  "У тебя точно мышка не сломалась?",
+  "Ты безнадежен...",
+]
 
 export const Main = () => {
   const [visible, setVisible] = useState(false)
+  const [currentChibiIndex, setCurrentChibiIndex] = useState(0)
+  const [textIndex, setTextIndex] = useState(0)
+  const [cloudOffset, setCloudOffset] = useState(0)
 
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * chibiImages.length)
+    setCurrentChibiIndex(randomIndex)
+  }, [])
+
+  // 2. Обработчик клика по чиби
   const handleChibiClick = () => {
+    // Меняем чиби на случайную
+    const randomIndex = Math.floor(Math.random() * chibiImages.length)
+    setCurrentChibiIndex(randomIndex)
+
+    // Генерируем случайный сдвиг от -10 до +10 (%)
+    const offset = (Math.random() - 0.5) * 20 // → от -10 до +10
+    setCloudOffset(offset)
+
+    // Показываем облачко
     setVisible(true)
+
+    // Меняем текст, но не дальше последнего
+    if (textIndex < chibiText.length - 1) {
+      setTextIndex(prev => prev + 1)
+    }
+    // Если уже на последнем — остаёмся на нём
   }
 
   return (
@@ -34,7 +82,7 @@ export const Main = () => {
               <div className="container">
                 <ul className="links__list">
                   <li className="links__item">
-                    <Link to="">ПОДДЕРЖАТЬ</Link>
+                    <Link to={"/"}>ПОДДЕРЖАТЬ</Link>
                   </li>
                   <li className="links__item">
                     <Link to={DataLinks[1].link}>YT VEXEN</Link>
@@ -48,16 +96,21 @@ export const Main = () => {
             <section className="chibi">
               <div className="container">
                 <div className="chibi__content">
-                  <button className="chibi__btn" onClick={handleChibiClick}>
-                    <img src={Chibi} alt="Чиби" className="chibi__chibi" />
+                  <button
+                    className="chibi__btn"
+                    onClick={handleChibiClick}
+                  >
+                    <img
+                      src={chibiImages[currentChibiIndex]}
+                      alt="Чиби"
+                      className="chibi__chibi"
+                    />
                   </button>
                   <div
                     className={`chibi__cloud-container ${visible ? "visible" : ""}`.trim()}
+                    style={{ transform: `translateY(${cloudOffset}%)` }}
                   >
-                    <p className="chibi__cloud-text">
-                      Привет! я помогу тебе разобраться куда тут жмать <br />
-                      кликни на меня еще раз!
-                    </p>
+                    <p className="chibi__cloud-text">{chibiText[textIndex]}</p>
                     <img
                       src={Cloud}
                       alt="Облачко с надписью"
@@ -65,19 +118,10 @@ export const Main = () => {
                     />
                   </div>
                   <div
-                    className={`chibi__hint ${visible ? "hide-chibi" : ""}`.trim()}
+                    className={`chibi__hint ${visible ? "hide" : ""}`.trim()}
                   >
                     <p className="chibi__hint-text">Тык</p>
-                    <svg
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M9.66411 6.8359L3.414 0.585785L0.585571 3.41421L6.83568 9.66432L4.00002 12.5L5.50002 14H14V5.49999L12.5 3.99999L9.66411 6.8359Z"
-                        fill="#212121"
-                      />
-                    </svg>
+                    <Arrow />
                   </div>
                 </div>
               </div>

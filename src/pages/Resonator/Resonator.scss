@@ -1,0 +1,154 @@
+@use "../../styles/style.scss" as *;
+
+.resonator {
+  color: $white;
+
+  &__container {
+    @include flexible();
+    flex-direction: column;
+  }
+
+  &__common-container {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  &__name {
+    @include textReset();
+    font-weight: 400;
+    font-size: 96px;
+    letter-spacing: 0.5px;
+    overflow: hidden;
+  }
+  &__role {
+    font-weight: 400;
+    font-size: 40px;
+    letter-spacing: 0.5px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  // preview
+  &__contents-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  &__contents-h2 {
+    margin-bottom: 10px;
+    font-weight: 400;
+    font-size: 45px;
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+
+  &__contents-list {
+    @include listReset();
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  &__contents-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 400;
+    font-size: 32px;
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+  &__h2-container {
+    margin-bottom: 15px;
+    position: relative;
+    width: 100%;
+    height: auto;
+    display: inline-block;
+    line-height: 1;
+    svg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: auto;
+      z-index: -1;
+    }
+  }
+
+  &__h2 {
+    @include textReset();
+    font-weight: 400;
+    font-size: 128px;
+    letter-spacing: 0.5px;
+    text-align: center;
+    line-height: 1;
+  }
+  // ютуб ролик
+  &__ytguide {
+    @include flexible();
+    width: 100%;
+    flex-direction: column;
+    iframe {
+      overflow: hidden;
+    }
+  }
+
+  // мини-гайд
+  &__miniguide {
+    @include flexible();
+    flex-direction: column;
+  }
+
+  //   база
+  &__base-descr {
+    @include textReset();
+    font-weight: 400;
+    font-size: 36px;
+    letter-spacing: 0.5px;
+    text-align: center;
+    &:nth-child(3) {
+      margin-bottom: 15px;
+    }
+  }
+  &__h3 {
+    @include textReset();
+    font-weight: 400;
+    font-size: 36px;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+
+  &__plusminus-container {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    font-weight: 400;
+    font-size: 36px;
+    letter-spacing: 0.5px;
+  }
+
+  &__plusminus-list {
+    @include listReset();
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  &__plus-list {
+    color: $color6;
+  }
+
+  &__minus-list {
+    color: $color7;
+  }
+
+  // утилити
+  &__utility-img {
+    width: 100%;
+  }
+
+  // прокачка
+  &__pumping-img {
+    width: 100%;
+  }
+
+  
+}

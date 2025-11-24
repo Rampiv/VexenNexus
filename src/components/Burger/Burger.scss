@@ -20,12 +20,28 @@
 
   &__hamburger {
     @include standartTransition();
-    right: 20px;
+    right: 30px;
     position: absolute;
     width: 20px;
     height: 20px;
     margin-top: -10px;
     cursor: pointer;
+    &.active {
+      span:nth-of-type(1) {
+        transform: rotate(45deg) translate(10px, 10px);
+        width: 40px;
+      }
+
+      span:nth-of-type(2) {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      span:nth-of-type(3) {
+        transform: rotate(-45deg) translate(7px, -7px);
+        width: 40px;
+      }
+    }
   }
 
   &__svg {
@@ -66,10 +82,39 @@
   &.expanded {
     transform: translateX(0);
   }
+
+  &__span {
+    display: block;
+    width: 40px;
+    height: 5px;
+    margin-bottom: 7px;
+    background-color: $white;
+    position: relative;
+  }
   &__arrow-svg {
     width: 100%;
     height: 4px;
     background-color: $white;
     position: absolute;
+  }
+}
+
+// СТРЕЛОЧКА НА МЕНЮ
+.arrow {
+  @include standartTransition();
+  position: absolute;
+  top: -43px;
+  left: 60px;
+  user-select: none;
+  visibility: visible;
+  opacity: 1;
+  filter: invert(1);
+
+  &__text {
+    @include textReset();
+    font-size: 24px;
+  }
+  svg {
+    transform: rotate(135deg);
   }
 }

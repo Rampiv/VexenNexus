@@ -1,5 +1,17 @@
 @use "../../styles/style.scss" as *;
 
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.01);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .main {
   width: 100%;
 
@@ -117,14 +129,26 @@
     flex-direction: column;
     position: relative;
     max-width: 740px;
+    width: 100%;
+    max-height: 650px;
   }
   &__btn {
     @include btnReset();
+
+    animation: pulse 1.5s infinite;
   }
 
   &__cloud-container {
+    @include standartTransition();
+    position: absolute;
+    top: -13%;
+    left: -49%;
+    z-index: -1;
     opacity: 0;
     visibility: hidden;
+    user-select: none;
+    transform: rotate(-5deg);
+    height: 72%;
     transition:
       opacity 0.3s ease,
       visibility 0.3s ease;
@@ -135,20 +159,15 @@
   }
 
   &__cloud-img {
-    transform: scaleX(-1) rotate(18deg);
-    max-width: 140%;
-    position: absolute;
-    top: -16%;
-    left: -101%;
     z-index: 0;
   }
   &__cloud-text {
     @include textReset();
     position: absolute;
     max-width: 310px;
-    top: 90px;
-    left: -52.5%;
-    transform: rotate(-8deg);
+    top: 45%;
+    left: 50%;
+    transform: rotate(-8deg) translate(-50%, -50%);
     font-family: fascinate;
     font-size: 30px;
     font-weight: 900;
@@ -159,17 +178,15 @@
 
   &__hint {
     position: absolute;
-    left: -5%;
+    left: 4%;
     top: 20%;
+    filter: invert(1);
+
     opacity: 1;
     visibility: visible;
     transition:
       opacity 0.3s ease,
       visibility 0.3s ease;
-    &.hide-chibi {
-      opacity: 0;
-      visibility: hidden;
-    }
   }
   &__hint-text {
     @include textReset();

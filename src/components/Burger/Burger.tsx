@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react"
 import "./Burger.scss"
 import { Link } from "react-router"
+import { Arrow } from "@assets/icons"
 
 export const Burger = () => {
   const [menuExpanded, setMenuExpanded] = useState(false)
@@ -113,13 +114,13 @@ export const Burger = () => {
       aria-label="Navigation menu"
     >
       <div
-        className="burger-section__hamburger"
+        className={`burger-section__hamburger ${menuExpanded ? "active" : ""}`.trim()}
         ref={hamburgerRef}
         role="img"
         aria-label="Menu icon"
         onClick={() => toggleMenu()}
       >
-        <svg
+        {/* <svg
           viewBox="0 0 16 16"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -134,7 +135,15 @@ export const Burger = () => {
             fill="#fff"
             className="burger__arrow-path"
           />
-        </svg>
+        </svg> */}
+        <span className="burger-section__span" />
+        <span className="burger-section__span">
+          <div className={`arrow ${menuExpanded ? "hide" : ""}`.trim()}>
+            <p className="arrow__text">Меню</p>
+            <Arrow />
+          </div>
+        </span>
+        <span className="burger-section__span" />
       </div>
 
       {/* Меню */}
