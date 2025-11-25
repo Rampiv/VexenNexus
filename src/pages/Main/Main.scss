@@ -250,3 +250,17 @@
     min-width: 130px;
   }
 }
+
+@media (max-width: 570px) {
+  .chibi__cloud-text{
+    font-size: 10px;
+    line-height: 10px;
+  }
+}
+
+@media (max-width: 370px) {
+  .chibi__cloud-text{
+    font-size: 8px;
+    line-height: 8px;
+  }
+}
