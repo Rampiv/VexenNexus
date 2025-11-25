@@ -1,11 +1,23 @@
 import { useParams } from "react-router"
 import { DataResonators } from "../../data"
-
 import "./Resonator.scss"
-import { TitleBackground, YouTubePlayer } from "../../components"
+import { Accordion, TitleBackground, YouTubePlayer } from "../../components"
+
+const contentsList = [
+  { title: "Ролик по базе", href: "YTGuide" },
+  { title: "мини-гайд", href: "miniGuide" },
+  { title: "База", href: "base" },
+  { title: "какое утилити есть у чисы?", href: "utility" },
+  { title: "порядок прокачки", href: "pumping" },
+  { title: "распределение урона чисы", href: "damage" },
+  { title: "оружие", href: "weapon" },
+  { title: "созвездия", href: "constellation" },
+  { title: "отряды", href: "team" },
+]
 
 export const Resonator = () => {
   const { id } = useParams<{ id: string }>()
+
   const resonator = DataResonators.find(
     res => res.engName.toLocaleLowerCase() === id?.toLocaleLowerCase(),
   )
@@ -13,22 +25,15 @@ export const Resonator = () => {
   if (!id || !resonator) {
     return <div>Резонатор не указан</div>
   }
-  const contentsList = [
-    { title: "Ролик по базе", href: "#YTGuide" },
-    { title: "мини-гайд", href: "#miniGuide" },
-    { title: "База", href: "#base" },
-    { title: "какое утилити есть у чисы?", href: "#utility" },
-    { title: "порядок прокачки", href: "#pumping" },
-    { title: "распределение урона чисы", href: "#damage" },
-    { title: "оружие", href: "#weapon" },
-  ]
 
   return (
     <section className="resonator">
       <div className="container">
         {/* Содержание */}
         <div className="resonator__container">
-          <h1 className="resonator__name">{resonator.name}</h1>
+          <h1 className="resonator__name" id="up">
+            {resonator.name}
+          </h1>
           <p className="resonator__role">Роль: {resonator.role}</p>
           <div className="resonator__common-container resonator__contents-container">
             <img
@@ -55,7 +60,7 @@ export const Resonator = () => {
                       >
                         <circle cx="10.5" cy="10.5" r="10.5" fill="#D9D9D9" />
                       </svg>
-                      <a href={item.href}>{item.title}</a>
+                      <a href={`#${item.href}`}>{item.title}</a>
                     </li>
                   )
                 })}
@@ -179,7 +184,7 @@ export const Resonator = () => {
               <h2 className="resonator__h2">{contentsList[5].title}</h2>
             </div>
             <img
-              src={resonator.PumpingImg}
+              src={resonator.DamageImg}
               alt="Прокачка резонатора"
               className="resonator__pumping-img"
             />
@@ -192,18 +197,116 @@ export const Resonator = () => {
             <img
               src={resonator.WeaponPreview}
               alt="Превью оружия"
-              className="resonator__weapon-preview"
+              className="resonator__common-preview"
             />
             <div className="resonator__h2-container">
               <TitleBackground />
               <h2 className="resonator__h2">{contentsList[6].title}</h2>
             </div>
-            <img src={resonator.Glossary} alt="глоссарий" className="resonator__glossary"/>
+            <img
+              src={resonator.Glossary}
+              alt="глоссарий"
+              className="resonator__glossary"
+            />
             <ul className="resonator__weapon-list">
-                
+              {resonator.Weapon &&
+                resonator.Weapon.map((item, index) => {
+                  return (
+                    <li
+                      className="resonato__weapon-item"
+                      key={`weapon - ${index}`}
+                    >
+                      <img src={item} alt="Оружие" />
+                    </li>
+                  )
+                })}
+            </ul>
+            <div className="resonator__weapon-descr-container">
+              {resonator.WeaponDescr?.map((item, index) => {
+                return <p key={index}>{item}</p>
+              })}
+            </div>
+          </div>
+          {/* созвездия */}
+          <div
+            className="resonator__common-container resonator__constellation"
+            id={contentsList[7].href}
+          >
+            <img
+              src={resonator.СonstellationPreview}
+              alt="Превью созвездий"
+              className="resonator__common-preview"
+            />
+            <div className="resonator__h2-container">
+              <TitleBackground />
+              <h2 className="resonator__h2">{contentsList[7].title}</h2>
+            </div>
+
+            <div className="resonator__constellation-descr">
+              {resonator.ConstellarionDescr?.map((item, index) => {
+                return <p key={`${item} ${index}`}>{item}</p>
+              })}
+              <img src={resonator.ConstellarionTeamDamage} alt="Урон Team" />
+              <p>Персональный урон ${resonator.name} за 3 ротации</p>
+              <img src={resonator.ConstellarionSoloDamage} alt="Урон Solo" />
+              <p>
+                Табличка с инвестицией в разных персонажей на примере лучшего
+                отряда
+              </p>
+              <img
+                src={resonator.InvestmentsDamage}
+                alt="Урон при инвестициях"
+              />
+              <p>{resonator.InvestmentsReview}</p>
+            </div>
+          </div>
+          {/* отряды */}
+          <div
+            className="resonator__common-container resonator__team"
+            id={contentsList[8].href}
+          >
+            <img
+              src={resonator.TeamPreview}
+              alt="Превью команды"
+              className="resonator__common-preview"
+            />
+            <div className="resonator__h2-container">
+              <TitleBackground />
+              <h2 className="resonator__h2">{contentsList[8].title}</h2>
+            </div>
+            <ul className="resonator__team-list">
+              {resonator.Team &&
+                resonator.Team.map((item, index) => {
+                  return (
+                    <li className="resonator__team-item" key={`team ${index}`}>
+                      <img
+                        src={item.img}
+                        alt="Команда"
+                        className="resonator__team-img"
+                      />
+                      <Accordion>
+                        {item.descr.map((item, index) => {
+                          return (
+                            <div key={`accordion item ${index}`}>
+                              {item.text.map((element, index) => {
+                                return (
+                                  <p key={`accordion ${index}`}>{element}</p>
+                                )
+                              })}
+                              <img src={item.img} alt="Ротация" />
+                            </div>
+                          )
+                        })}
+                      </Accordion>
+                    </li>
+                  )
+                })}
             </ul>
           </div>
         </div>
+        <a className="resonator__up" href="#up">
+          Наверх
+        </a>
       </div>
     </section>
   )

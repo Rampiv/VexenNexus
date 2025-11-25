@@ -3,6 +3,7 @@
 .resonator {
   color: $white;
 
+  // общие
   &__container {
     @include flexible();
     flex-direction: column;
@@ -11,7 +12,16 @@
   &__common-container {
     width: 100%;
     margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
+
+  &__common-preview {
+    max-width: 680px;
+    margin-bottom: 20px;
+  }
+
   &__name {
     @include textReset();
     font-weight: 400;
@@ -53,7 +63,6 @@
     font-weight: 400;
     font-size: 32px;
     letter-spacing: 0.5px;
-    text-align: center;
   }
   &__h2-container {
     margin-bottom: 15px;
@@ -95,6 +104,9 @@
   &__miniguide {
     @include flexible();
     flex-direction: column;
+    img {
+      width: 100%;
+    }
   }
 
   //   база
@@ -150,5 +162,140 @@
     width: 100%;
   }
 
-  
+  // оружие
+  &__weapon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  &__weapon-list {
+    @include listReset();
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  &__weapon-descr-container {
+    max-width: 840px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    p {
+      @include textReset();
+      font-weight: 400;
+      font-size: 36px;
+      letter-spacing: 0.5px;
+      text-align: center;
+      &:not(:last-child) {
+        margin-bottom: 20px;
+      }
+    }
+  }
+
+  // созвездия
+  &__constellation-descr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    p {
+      @include textReset();
+      font-weight: 400;
+      font-size: 36px;
+      letter-spacing: 0.5px;
+      text-align: center;
+      margin-bottom: 20px;
+      max-width: 740px;
+    }
+    img {
+      &:not(:last-child) {
+        margin-bottom: 60px;
+      }
+    }
+  }
+
+  // команды
+  &__team-list {
+    @include listReset();
+    @include flexible();
+    flex-direction: column;
+    gap: 20px;
+  }
+  &__team-img {
+    margin-bottom: 20px;
+  }
+  &__team-item {
+    @include flexible();
+    flex-direction: column;
+    img {
+      border-radius: 20px;
+    }
+  }
+
+  // кнопка наверх
+  &__up {
+    @include textType1();
+    position: fixed;
+    top: 3%;
+    right: 3%;
+    padding: 10px;
+    background: $color2;
+    border-radius: 15px;
+  }
+}
+
+@media (max-width: 1172px) {
+  .resonator__contents-container {
+    grid-template-columns: 1fr;
+  }
+  .resonator__preview-img {
+    display: none;
+  }
+  .resonator__contents-listcontainer {
+    @include flexible();
+    flex-direction: column;
+  }
+  .resonator__contents-list {
+    height: 200px;
+    flex-wrap: wrap;
+    column-gap: 50px;
+  }
+  .youtube-player-wrapper {
+    width: 100%;
+    iframe {
+      width: 100%;
+    }
+  }
+}
+
+@media (max-width: 800px) {
+  .resonator {
+    p {
+      font-size: 28px;
+    }
+    ul li {
+      font-size: 1em;
+    }
+    &__common-container {
+      width: 95%;
+    }
+  }
+  .resonator__contents-list {
+    height: fit-content;
+  }
+  .youtube-player-wrapper {
+    @include flexible();
+    iframe {
+      width: 500px;
+      height: 300px;
+    }
+  }
+  .resonator__common-preview {
+    max-width: 100%;
+  }
+  .resonator__h2 {
+    font-size: 72px;
+  }
 }

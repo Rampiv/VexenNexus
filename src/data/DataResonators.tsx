@@ -1,15 +1,25 @@
 import ResonarotChisa from "@assets/image/Resonators/Resonator_Chisa.webp"
 import ResonatorBuling from "@assets/image/Resonators/Resonator_Buling.webp"
-import chisaPreview from '@assets/image/Resonators/Chisa/chisaPreview.webp'
-import chisaMiniGuide from '@assets/image/Resonators/Chisa/chisaMiniGuide.webp'
-import chisaYTPreview from '@assets/image/Resonators/Chisa/chisaYTPreview.webp'
-import chisaUtility from '@assets/image/Resonators/Chisa/chisaUtility.webp'
-import chisaPumping from '@assets/image/Resonators/Chisa/chisaPumping.webp'
-import chisaWeaponPreview from '@assets/image/Resonators/Chisa/chisaWeaponPreview.webp'
-import chisaGlossary from '@assets/image/Resonators/Chisa/chisaGlossary.webp'
+import chisaPreview from "@assets/image/Resonators/Chisa/chisaPreview.webp"
+import chisaMiniGuide from "@assets/image/Resonators/Chisa/chisaMiniGuide.webp"
+import chisaYTPreview from "@assets/image/Resonators/Chisa/chisaYTPreview.webp"
+import chisaUtility from "@assets/image/Resonators/Chisa/chisaUtility.webp"
+import chisaPumping from "@assets/image/Resonators/Chisa/chisaPumping.webp"
+import chisaWeaponPreview from "@assets/image/Resonators/Chisa/chisaWeaponPreview.webp"
+import chisaGlossary from "@assets/image/Resonators/Chisa/chisaGlossary.webp"
+import chisaConstellation from "@assets/image/Resonators/Chisa/chisaConstellationPreview.webp"
+import chisaConstellationTeamDamage from "@assets/image/Resonators/Chisa/chisaConstellarionTeamDamage.webp"
+import chisaConstellationSoloDamage from "@assets/image/Resonators/Chisa/chisaConstellarionSoloDamage.webp"
+import chisaInvestmentsDamage from "@assets/image/Resonators/Chisa/chisaInvestmentsDamage.webp"
+import chisaTeamPreview from "@assets/image/Resonators/Chisa/chisaTeamPreview.webp"
+import chisaTeam1 from "@assets/image/Resonators/Chisa/chisaTeam1.webp"
+import chisaTeam2 from "@assets/image/Resonators/Chisa/chisaTeam2.webp"
+import chisaTeam3 from "@assets/image/Resonators/Chisa/chisaTeam3.webp"
+import chisaTeam1Rotation1 from "@assets/image/Resonators/Chisa/chisaTeam1Rotation1.webp"
+import chisaTeam1Rotation2 from "@assets/image/Resonators/Chisa/chisaTeam1Rotation2.webp"
+import chisaDamageImg from "@assets/image/Resonators/Chisa/chisaDamageImg.webp"
 
-
-
+import kumokiri from "@assets/image/Weapon/kumokiri.png"
 
 export const DataResonators = [
   {
@@ -20,7 +30,7 @@ export const DataResonators = [
     element: "Havoc",
     id: "ResonatorChisa",
     link: "/resonator/Chisa",
-    rarity: "5",
+    rarity: 5,
     weapon: "Broadblade",
     previewImg: chisaPreview,
     youtubeVideoId: "eTMD3m6xFf4",
@@ -43,9 +53,104 @@ export const DataResonators = [
     ],
     Utility: chisaUtility,
     PumpingImg: chisaPumping,
-    DamageImg: "[]",
+    DamageImg: chisaDamageImg,
     WeaponPreview: chisaWeaponPreview,
     Glossary: chisaGlossary,
+    Weapon: [kumokiri],
+    WeaponDescr: [
+      "Если говорить чуть более развернуто, то...",
+      "1. Стандартная пушка вполне хороший вариант если есть проблемы с крутками т.к она полностью работает на чисе, но в 123 ротации полного бонуса не будет а только 2/3 т.е 14% бонуски на ульту",
+      "2. сигна довольно хороша, однако исходя из первого пункта она вполне скипаема. Пожалуй самым важным ее плюсом является то, что у нее хороший задел на будущее.",
+      "3. Промежуточные варианты стоит рассматриваться только в том случае если отряды не пересекаются. Например в башне можно с кайфом их использовать В кораблях же, могут быть проблемы если вдруг отряд с чисой и, например лупой будут в одном заходе",
+      "4.Если по каким либо причинам у вас не оказалось 5* стд оружки. то, смело ставим любую из 4* с атакующей пассивкой как затычку перед сигной/стд двуручем",
+    ],
+
+    СonstellationPreview: chisaConstellation,
+    ConstellarionDescr: [
+      <>
+        Смотреть на созвездия стоит в нескольких форматах <br />{" "}
+        <span className="red">1-й</span> ее персональный урон за 1 ротацию{" "}
+        <br /> <span className="red">2-й</span> ее персональный урон за 3
+        ротации <br />и <span className="red">3-й</span> покажу парочку отрядов
+        с созвездиями для наглядности <br />
+      </>,
+      "персональный урон чисы в рамках 1-й ротации сравниваем 2 сета tosf и rjv",
+      <>
+        tosf - c0 - 260 387 <br />
+        rjv - c0 - 221 597
+      </>,
+    ],
+    ConstellarionTeamDamage: chisaConstellationTeamDamage,
+    ConstellarionSoloDamage: chisaConstellationSoloDamage,
+    InvestmentsDamage: chisaInvestmentsDamage,
+    InvestmentsReview: (
+      <>
+        небольшая паста касательно с1 Этот дубль довольно неоднозначный...
+        например в <span className="red">кораблях</span>, он проявит себя очень
+        хорошо т.к за счет пассивки мы можем буквально каждый раз прожимать
+        умение на новых мобов, а значит и эффект от с1 будетс рабатывать
+        регулярно <br />А вот в <span className="red">башне</span> эта конста
+        становится слабой т.к на босса больше 1-го раза прокнуть с1 не получится
+        а значит с каждой следующей ротацией вклад в общий урон отяда будет все
+        меньше и меньше...
+      </>
+    ),
+    TeamPreview: chisaTeamPreview,
+    Team: [
+      {
+        img: chisaTeam1,
+        descr: [
+          {
+            text: [
+              "Это базовая ротация 123 с Чисой и чаконной",
+              <>
+                если ротация открывающая т.е первая просто дайте 1 базик на{" "}
+                <span className="purple">чисе</span> вместо интро этого хватит
+                для полного набора концерта
+              </>,
+            ],
+            img: chisaTeam1Rotation1,
+          },
+          {
+            text: [
+              "Это базовая ротация 123 с Чисой и аровером",
+              <>
+                если ротация открывающая т.е первая просто дайте 1 базик на{" "}
+                <span className="purple">чисе</span> вместо интро этого хватит
+                для полного набора концерта
+              </>,
+            ],
+            img: chisaTeam1Rotation2,
+          },
+        ],
+      },
+      {
+        img: chisaTeam2,
+        descr: [
+          {
+            text: ["тут текст", "и еще текст"],
+            img: "картинка",
+          },
+          {
+            text: ["тут текст для второй ротации"],
+            img: "картинка",
+          },
+        ],
+      },
+      {
+        img: chisaTeam3,
+        descr: [
+          {
+            text: ["тут текст", "и еще текст"],
+            img: "картинка",
+          },
+          {
+            text: ["тут текст для второй ротации"],
+            img: "картинка",
+          },
+        ],
+      },
+    ],
   },
   {
     name: "БУЛИНГ",
@@ -55,7 +160,7 @@ export const DataResonators = [
     element: "Electro",
     id: "ResonatorBuling",
     link: "",
-    rarity: "4",
+    rarity: 4,
     weapon: "Rectifier",
   },
   // {

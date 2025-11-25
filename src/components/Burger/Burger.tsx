@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import "./Burger.scss"
-import { Link } from "react-router"
+import { Link, useLocation } from "react-router"
 import { Arrow } from "@assets/icons"
 
 export const Burger = () => {
@@ -11,6 +11,9 @@ export const Burger = () => {
   const h2Ref = useRef<HTMLHeadingElement>(null)
   const animationRef = useRef<number>(0)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  const location = useLocation()
+  const isHomePage = location.pathname === "/"
 
   const toggleMenu = () => {
     setMenuExpanded(prev => !prev)
@@ -120,28 +123,14 @@ export const Burger = () => {
         aria-label="Menu icon"
         onClick={() => toggleMenu()}
       >
-        {/* <svg
-          viewBox="0 0 16 16"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="burger__arrow-svg"
-          style={{
-            transform: menuExpanded ? "rotate(180deg)" : "rotate(0deg)",
-            transition: "transform 0.3s ease",
-          }}
-        >
-          <path
-            d="M8 6L8 2L10 2L16 8L10 14L8 14L8 10L-1.74845e-07 10L-3.01991e-07 6L8 6Z"
-            fill="#fff"
-            className="burger__arrow-path"
-          />
-        </svg> */}
         <span className="burger-section__span" />
         <span className="burger-section__span">
-          <div className={`arrow ${menuExpanded ? "hide" : ""}`.trim()}>
-            <p className="arrow__text">Меню</p>
-            <Arrow />
-          </div>
+          {isHomePage && (
+            <div className={`arrow ${menuExpanded ? "hide" : ""}`.trim()}>
+              <p className="arrow__text">Меню</p>
+              <Arrow />
+            </div>
+          )}
         </span>
         <span className="burger-section__span" />
       </div>

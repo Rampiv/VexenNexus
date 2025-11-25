@@ -19,7 +19,8 @@ const chibiText = [
     Привет! я помогу тебе разобраться куда тут жмать <br /> кликни на меня еще
     раз
   </>,
-  "3й!",
+  "Слева есть менюшка, где ты есть вся информация, которая тебе нужна!",
+  "Эй!",
   "Эээй!",
   "Эй, ты, да ты!",
   "Эй...",
@@ -29,10 +30,13 @@ const chibiText = [
   "Ты безнадежен...",
 ]
 
+const FIXED_TEXT_COUNT = 3 // первые 3 текста идут строго по порядку
+
 export const Main = () => {
   const [visible, setVisible] = useState(false)
   const [currentChibiIndex, setCurrentChibiIndex] = useState(0)
-  const [textIndex, setTextIndex] = useState(0)
+  const [textStep, setTextStep] = useState(0) // сколько раз уже кликнули
+  const [currentTextIndex, setCurrentTextIndex] = useState(0)
   const [cloudOffset, setCloudOffset] = useState(0)
 
   useEffect(() => {
@@ -40,24 +44,30 @@ export const Main = () => {
     setCurrentChibiIndex(randomIndex)
   }, [])
 
-  // 2. Обработчик клика по чиби
   const handleChibiClick = () => {
     // Меняем чиби на случайную
     const randomIndex = Math.floor(Math.random() * chibiImages.length)
     setCurrentChibiIndex(randomIndex)
 
-    // Генерируем случайный сдвиг от -10 до +10 (%)
-    const offset = (Math.random() - 0.5) * 20 // → от -10 до +10
+    // Генерируем случайный сдвиг облака
+    const offset = (Math.random() - 0.5) * 20
     setCloudOffset(offset)
 
     // Показываем облачко
     setVisible(true)
 
-    // Меняем текст, но не дальше последнего
-    if (textIndex < chibiText.length - 1) {
-      setTextIndex(prev => prev + 1)
+    // Обновляем счётчик кликов
+    const newStep = textStep + 1
+    setTextStep(newStep)
+
+    if (newStep <= FIXED_TEXT_COUNT) {
+      setCurrentTextIndex(newStep)
+    } else {
+      const randomTextIndex = Math.floor(
+        Math.random() * (chibiText.length - FIXED_TEXT_COUNT)
+      ) + FIXED_TEXT_COUNT
+      setCurrentTextIndex(randomTextIndex)
     }
-    // Если уже на последнем — остаёмся на нём
   }
 
   return (
@@ -110,7 +120,7 @@ export const Main = () => {
                     className={`chibi__cloud-container ${visible ? "visible" : ""}`.trim()}
                     style={{ transform: `translateY(${cloudOffset}%)` }}
                   >
-                    <p className="chibi__cloud-text">{chibiText[textIndex]}</p>
+                    <p className="chibi__cloud-text">{chibiText[currentTextIndex]}</p>
                     <img
                       src={Cloud}
                       alt="Облачко с надписью"

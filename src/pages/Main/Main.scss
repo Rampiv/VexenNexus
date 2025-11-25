@@ -15,6 +15,11 @@
 .main {
   width: 100%;
 
+  &__content {
+    @include flexible();
+    flex-direction: column;
+    padding: 0 10px;
+  }
   // СЕКЦИЯ БУДУЩИХ ПЕРСОВ
   &__h2 {
     color: $white;
@@ -83,6 +88,7 @@
 // СЕКЦИЯ ССЫЛОК
 .links {
   margin-bottom: 54px;
+  z-index: 2;
   &__list {
     @include listReset();
     @include flexible();
@@ -120,6 +126,7 @@
 
 // СЕКЦИЯ ЧИБИ
 .chibi {
+  margin-bottom: 20px;
   .container {
     display: flex;
     justify-content: center;
@@ -128,13 +135,10 @@
     @include flexible();
     flex-direction: column;
     position: relative;
-    max-width: 740px;
     width: 100%;
-    max-height: 650px;
   }
   &__btn {
     @include btnReset();
-
     animation: pulse 1.5s infinite;
   }
 
@@ -148,7 +152,6 @@
     visibility: hidden;
     user-select: none;
     transform: rotate(-5deg);
-    height: 72%;
     transition:
       opacity 0.3s ease,
       visibility 0.3s ease;
@@ -192,5 +195,45 @@
     @include textReset();
     font-weight: 900;
     font-size: 40px;
+  }
+}
+
+@media (max-width: 1480px) {
+  .chibi {
+    .container {
+      display: flex;
+      justify-content: flex-end;
+    }
+    &__content {
+      width: 50%;
+    }
+    &__cloud-container{
+      top: -27%;
+      left: -118%;
+    }
+  }
+}
+
+@media (max-width: 752px){
+  .links__list{
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 650px){
+  .chibi__cloud-container{
+    width: 120%;
+      top: -12%;
+      left: -97%;
+    }
+    .chibi__cloud-text{
+      font-size: 1em;
+    }
+}
+
+@media (max-width: 600px){
+  body{
+    width: 600px;
   }
 }

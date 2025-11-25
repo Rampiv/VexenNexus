@@ -1,0 +1,52 @@
+@use "../../styles/style.scss" as *;
+
+.accordion {
+  @include flexible();
+  flex-direction: column;
+  font-family: "bebas", sans-serif;
+  &__content {
+    @include standartTransition();
+    max-height: 0;
+    overflow: hidden;
+    width: 100%;
+  }
+  &__content--open {
+    max-height: 3000px;
+  }
+  &__inner {
+    width: 100%;
+    padding: 15px 20px;
+    background: $color1;
+    border: 1px solid $color2;
+    border-radius: 15px;
+    font-weight: 400;
+    font-size: 48px;
+    letter-spacing: 0.5px;
+    text-align: center;
+    p{
+        margin-bottom: 20px;
+    }
+  }
+  &__button {
+    @include btnReset();
+    @include standartTransition();
+    padding: 6px 18px;
+    border-radius: 22px;
+    background-color: $color5;
+    color: $white;
+    font-weight: 400;
+    font-size: 36px;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+    @media (hover) {
+      &:hover {
+        transform: scale(1.02);
+      }
+    }
+    &:focus,
+    &:active {
+      transform: scale(1.03);
+      z-index: 2;
+    }
+  }
+}

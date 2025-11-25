@@ -16,19 +16,8 @@ const CardMemo = React.memo(Card)
 
 export const Resonators = () => {
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedRole, setSelectedRole] = useState("all")
+  const [selectedRole] = useState("all")
   const [selectedElement, setSelectedElement] = useState("all")
-
-  // Получаем уникальные значения для фильтров
-  // const roles = useMemo(() => {
-  //   const allRoles = DataResonators.map(item => item.role)
-  //   return ["all", ...Array.from(new Set(allRoles))]
-  // }, [])
-
-  // const elements = useMemo(() => {
-  //   const allElements = DataResonators.map(item => item.element)
-  //   return ["all", ...Array.from(new Set(allElements))]
-  // }, [])
 
   // Обработка фильтрации и сортировки
   const filteredAndSortedResonators = useMemo(() => {
@@ -141,7 +130,10 @@ export const Resonators = () => {
             </button>
           </li>
           <li className="resonators__elements-item">
-            <button className="resonator__elements-btn_reset" onClick={e => handleSelectElement("all")}>
+            <button
+              className="resonators__elements-btn_reset"
+              onClick={e => handleSelectElement("all")}
+            >
               Сброс
             </button>
           </li>
@@ -186,12 +178,7 @@ export const Resonators = () => {
           {filteredAndSortedResonators.map(item => (
             <li className="resonators__item" key={`${item.id}resonator`}>
               <Link to={item.link}>
-                <CardMemo
-                  name={item.name}
-                  role={item.role}
-                  resonator={item.resonator}
-                  element={item.elementIMG}
-                />
+                <CardMemo resonator={item.resonator} rarity={item.rarity} />
               </Link>
             </li>
           ))}

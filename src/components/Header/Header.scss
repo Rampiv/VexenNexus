@@ -18,3 +18,9 @@
     right: -30%;
   }
 }
+
+@media (max-width: 917px){
+  .header__game{
+    display: none;
+  }
+}
