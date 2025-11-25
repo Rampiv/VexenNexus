@@ -287,6 +287,10 @@
     ul li {
       font-size: 25px;
     }
+    .resonator__contents-item {
+      display: grid;
+      grid-template-columns: 1fr 5fr;
+    }
     &__common-container {
       width: 95%;
       margin-bottom: 48px;
@@ -299,7 +303,7 @@
   .youtube-player-wrapper {
     @include flexible();
     iframe {
-      width: 500px;
+      width: 100%;
       height: 300px;
     }
   }
@@ -314,15 +318,15 @@
   }
 }
 
-@media (max-width: 500px){
-  .resonator{
+@media (max-width: 500px) {
+  .resonator {
     ul li {
       font-size: 15px;
     }
-    &__h2{
+    &__h2 {
       font-size: 50px;
     }
-    &__up{
+    &__up {
       font-size: 15px;
       padding: 5px 10px;
       line-height: 15px;
