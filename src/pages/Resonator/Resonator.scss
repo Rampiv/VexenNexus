@@ -176,6 +176,15 @@
     flex-direction: column;
     gap: 20px;
   }
+  &__weapon-item {
+    position: relative;
+  }
+  &__weapon-item-damage {
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    width: 25%;
+  }
 
   &__weapon-descr-container {
     max-width: 840px;
@@ -276,14 +285,16 @@
       font-size: 28px;
     }
     ul li {
-      font-size: 1em;
+      font-size: 25px;
     }
     &__common-container {
       width: 95%;
+      margin-bottom: 48px;
     }
   }
   .resonator__contents-list {
-    height: fit-content;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
   .youtube-player-wrapper {
     @include flexible();
@@ -296,6 +307,25 @@
     max-width: 100%;
   }
   .resonator__h2 {
-    font-size: 72px;
+    font-size: 60px;
+  }
+  .resonator__h2-container {
+    margin-bottom: 48px;
+  }
+}
+
+@media (max-width: 500px){
+  .resonator{
+    ul li {
+      font-size: 15px;
+    }
+    &__h2{
+      font-size: 50px;
+    }
+    &__up{
+      font-size: 15px;
+      padding: 5px 10px;
+      line-height: 15px;
+    }
   }
 }

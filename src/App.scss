@@ -84,19 +84,18 @@ section {
   padding: 0 10px;
 }
 
-.red{
+.red {
   color: $red;
 }
-.green{
+.green {
   color: $green;
 }
-.purple{
+.purple {
   color: $purple;
 }
-.cian{
+.cian {
   color: $cian;
 }
-
 
 .App {
   @include flexible();
@@ -104,12 +103,8 @@ section {
   min-height: 100vh;
   overflow: hidden;
   padding-left: 60px;
-  @media (max-width: 320px) {
-    & {
-      width: 320px;
-    }
-  }
 }
+
 
 // z-index
 // 100 - navigation list

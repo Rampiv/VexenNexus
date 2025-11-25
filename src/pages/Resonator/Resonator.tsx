@@ -213,10 +213,11 @@ export const Resonator = () => {
                 resonator.Weapon.map((item, index) => {
                   return (
                     <li
-                      className="resonato__weapon-item"
+                      className="resonator__weapon-item"
                       key={`weapon - ${index}`}
                     >
-                      <img src={item} alt="Оружие" />
+                      <img src={item.weapon} alt="Оружие" />
+                      <img src={item.damage} alt="Дамаг оружия" className="resonator__weapon-item-damage"/>
                     </li>
                   )
                 })}

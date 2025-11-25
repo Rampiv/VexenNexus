@@ -18,8 +18,15 @@ import chisaTeam3 from "@assets/image/Resonators/Chisa/chisaTeam3.webp"
 import chisaTeam1Rotation1 from "@assets/image/Resonators/Chisa/chisaTeam1Rotation1.webp"
 import chisaTeam1Rotation2 from "@assets/image/Resonators/Chisa/chisaTeam1Rotation2.webp"
 import chisaDamageImg from "@assets/image/Resonators/Chisa/chisaDamageImg.webp"
+import chisaWeapon1 from "@assets/image/Resonators/Chisa/chisaWeapon1.webp"
+import chisaWeapon2 from "@assets/image/Resonators/Chisa/chisaWeapon2.webp"
+import chisaWeapon3 from "@assets/image/Resonators/Chisa/chisaWeapon3.webp"
+import chisaWeapon4 from "@assets/image/Resonators/Chisa/chisaWeapon4.webp"
 
-import kumokiri from "@assets/image/Weapon/kumokiri.png"
+import kumokiri from "@assets/image/Weapon/kumokiri.webp"
+import wildfireMark from "@assets/image/Weapon/wildfireMark.webp"
+import agesOfHarvest from "@assets/image/Weapon/agesOfHarvest.webp"
+import lustrousRazon from "@assets/image/Weapon/lustrousRazon.webp"
 
 export const DataResonators = [
   {
@@ -56,7 +63,12 @@ export const DataResonators = [
     DamageImg: chisaDamageImg,
     WeaponPreview: chisaWeaponPreview,
     Glossary: chisaGlossary,
-    Weapon: [kumokiri],
+    Weapon: [
+      { weapon: kumokiri, damage: chisaWeapon1 },
+      { weapon: wildfireMark, damage: chisaWeapon2 },
+      { weapon: agesOfHarvest, damage: chisaWeapon3 },
+      { weapon: lustrousRazon, damage: chisaWeapon4 },
+    ],
     WeaponDescr: [
       "Если говорить чуть более развернуто, то...",
       "1. Стандартная пушка вполне хороший вариант если есть проблемы с крутками т.к она полностью работает на чисе, но в 123 ротации полного бонуса не будет а только 2/3 т.е 14% бонуски на ульту",
