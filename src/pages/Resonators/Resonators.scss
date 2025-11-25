@@ -88,6 +88,8 @@
   // ФИЛЬТР ЭЛЕМЕНТОВ
   &__elements-btn {
     @include btnReset();
+    width: 76px;
+    height: 76px;
   }
   &__elements-img {
     width: 76px;
@@ -110,5 +112,11 @@
     text-align: center;
     border-radius: 50%;
     border: 8px solid red;
+  }
+}
+
+@media (max-width: 730px){
+  .resonators__elements-list {
+    flex-wrap: wrap;
   }
 }

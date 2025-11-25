@@ -207,33 +207,46 @@
     &__content {
       width: 50%;
     }
-    &__cloud-container{
+    &__cloud-container {
       top: -27%;
       left: -118%;
     }
   }
 }
 
-@media (max-width: 752px){
-  .links__list{
+@media (max-width: 752px) {
+  .links__list {
     flex-wrap: wrap;
     gap: 10px;
   }
 }
 
-@media (max-width: 650px){
-  .chibi__cloud-container{
+@media (max-width: 650px) {
+  .chibi__cloud-container {
     width: 120%;
-      top: -12%;
-      left: -97%;
-    }
-    .chibi__cloud-text{
-      font-size: 1em;
-    }
+    top: -12%;
+    left: -97%;
+  }
+  .chibi__cloud-text {
+    font-size: 1em;
+  }
+  .chibi__hint {
+    left: -21%;
+    top: -2%;
+  }
 }
 
-@media (max-width: 600px){
-  body{
-    width: 600px;
+@media (max-width: 470px) {
+  .main {
+    font-size: 10px;
+  }
+  .pasta__content{
+    padding: 15px;
+  }
+  .links__item a{
+    padding: 3px;
+  }
+  .links__item{
+    min-width: 130px;
   }
 }
