@@ -1,18 +1,10 @@
 @use "../../styles/style.scss" as *;
 
 .resonators {
-  font-family: "bebas", sans-serif;
-  color: $white;
-  font-weight: 400;
-  font-size: 40px;
-  letter-spacing: 0.5px;
-  text-align: center;
-
   &__h2 {
-    color: $white;
-    text-align: center;
-    font-size: 40px;
-    font-weight: 400;
+    @include textReset();
+    @include textType3();
+    margin-bottom: 20px;
   }
 
   &__list {
@@ -115,8 +107,14 @@
   }
 }
 
-@media (max-width: 730px){
+@media (max-width: 730px) {
   .resonators__elements-list {
     flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .resonators__h2 {
+    @include textType25();
   }
 }

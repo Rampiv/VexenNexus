@@ -17,11 +17,18 @@ import chisaTeam2 from "@assets/image/Resonators/Chisa/chisaTeam2.webp"
 import chisaTeam3 from "@assets/image/Resonators/Chisa/chisaTeam3.webp"
 import chisaTeam1Rotation1 from "@assets/image/Resonators/Chisa/chisaTeam1Rotation1.webp"
 import chisaTeam1Rotation2 from "@assets/image/Resonators/Chisa/chisaTeam1Rotation2.webp"
+import chisaTeam2Rotation1 from "@assets/image/Resonators/Chisa/chisaTeam2Rotation1.webp"
+import chisaTeam2Rotation2 from "@assets/image/Resonators/Chisa/chisaTeam2Rotation2.webp"
+import chisaTeam3Rotation1 from "@assets/image/Resonators/Chisa/chisaTeam3Rotation2.webp"
+import chisaTeam3Rotation2 from "@assets/image/Resonators/Chisa/chisaTeam3Rotation2.webp"
 import chisaDamageImg from "@assets/image/Resonators/Chisa/chisaDamageImg.webp"
 import chisaWeapon1 from "@assets/image/Resonators/Chisa/chisaWeapon1.webp"
 import chisaWeapon2 from "@assets/image/Resonators/Chisa/chisaWeapon2.webp"
 import chisaWeapon3 from "@assets/image/Resonators/Chisa/chisaWeapon3.webp"
 import chisaWeapon4 from "@assets/image/Resonators/Chisa/chisaWeapon4.webp"
+import chisaFinalReview1 from "@assets/image/Resonators/Chisa/chisaFinalReview1.webp"
+import chisaFinalReview2 from "@assets/image/Resonators/Chisa/chisaFinalReview2.webp"
+
 
 import kumokiri from "@assets/image/Weapon/kumokiri.webp"
 import wildfireMark from "@assets/image/Weapon/wildfireMark.webp"
@@ -97,7 +104,7 @@ export const DataResonators = [
     InvestmentsDamage: chisaInvestmentsDamage,
     InvestmentsReview: (
       <>
-        небольшая паста касательно с1 Этот дубль довольно неоднозначный...
+        Небольшая паста касательно с1 Этот дубль довольно неоднозначный...
         например в <span className="red">кораблях</span>, он проявит себя очень
         хорошо т.к за счет пассивки мы можем буквально каждый раз прожимать
         умение на новых мобов, а значит и эффект от с1 будетс рабатывать
@@ -114,23 +121,23 @@ export const DataResonators = [
         descr: [
           {
             text: [
-              "Это базовая ротация 123 с Чисой и чаконной",
-              <>
-                если ротация открывающая т.е первая просто дайте 1 базик на{" "}
+              <h3>"Это базовая ротация 123 с Чисой и чаконной"</h3>,
+              <p>
+                Если ротация открывающая т.е первая просто дайте 1 базик на{" "}
                 <span className="purple">чисе</span> вместо интро этого хватит
                 для полного набора концерта
-              </>,
+              </p>,
             ],
             img: chisaTeam1Rotation1,
           },
           {
             text: [
-              "Это базовая ротация 123 с Чисой и аровером",
-              <>
-                если ротация открывающая т.е первая просто дайте 1 базик на{" "}
+              <h3>Это базовая ротация 123 с Чисой и аровером</h3>,
+              <p>
+                Если ротация открывающая т.е первая просто дайте 1 базик на{" "}
                 <span className="purple">чисе</span> вместо интро этого хватит
                 для полного набора концерта
-              </>,
+              </p>,
             ],
             img: chisaTeam1Rotation2,
           },
@@ -140,12 +147,23 @@ export const DataResonators = [
         img: chisaTeam2,
         descr: [
           {
-            text: ["тут текст", "и еще текст"],
-            img: "картинка",
+            text: [
+              <h3>Это базовая ротация 123 с Чисой и Зани в роли мдд</h3>,
+              <p>
+                Если ротация открывающая т.е первая просто дайте 1 базик на{" "}
+                <span className="purple">Чисе</span> вместо интро этого хватит
+                для полного набора концерта
+              </p>,
+              <p>
+                Базовая ротация зани не слишком выделяется своим огромным
+                уроном, поэтому рекомендуем учится сразу ‘продвинутой’ ротации
+              </p>,
+            ],
+            img: chisaTeam2Rotation1,
           },
           {
-            text: ["тут текст для второй ротации"],
-            img: "картинка",
+            text: [<p>“Продвинутая” ротация</p>],
+            img: chisaTeam2Rotation2,
           },
         ],
       },
@@ -153,16 +171,32 @@ export const DataResonators = [
         img: chisaTeam3,
         descr: [
           {
-            text: ["тут текст", "и еще текст"],
-            img: "картинка",
+            text: [
+              <h3>Это базовая ротация 123 с Чисой и Фиби в роли мдд</h3>,
+              <p>
+                Если ротация открывающая т.е первая просто дайте 1 базик на{" "}
+                <span className="purple">Чисе</span> вместо интро этого хватит
+                для полного набора концерта
+              </p>,
+              <p>
+                На чаконне выбираем{" "}
+                <span className="yellow">тоник на фразлы</span> для заливки
+                фразлов под фиби
+              </p>,
+            ],
+            img: chisaTeam3Rotation1,
           },
           {
-            text: ["тут текст для второй ротации"],
-            img: "картинка",
+            text: [<></>],
+            img: chisaTeam3Rotation2,
           },
         ],
       },
     ],
+    FinalReview: {
+      descr: <>Подсчеты делались в 170 крит массы 3/5 полезных стата <br/>Если ваши проки в эхо будут  лучше - урона соответственно тоже больше</>,
+      img: [chisaFinalReview1, chisaFinalReview2]
+    }
   },
   {
     name: "БУЛИНГ",

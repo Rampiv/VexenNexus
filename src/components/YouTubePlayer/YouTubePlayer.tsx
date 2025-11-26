@@ -1,4 +1,5 @@
 import { useState } from "react"
+import "./YouTubePlayer.scss"
 
 interface YouTubePlayerProps {
   videoId: string
@@ -22,8 +23,6 @@ export const YouTubePlayer = ({ videoId, title, YT }: YouTubePlayerProps) => {
 
       {/* iframe — появляется при загрузке */}
       <iframe
-        width="1054"
-        height="600"
         src={`https://www.youtube.com/embed/${videoId}?si=kdixMruqvqRGPp0a`}
         title={title}
         frameBorder="0"
@@ -35,6 +34,7 @@ export const YouTubePlayer = ({ videoId, title, YT }: YouTubePlayerProps) => {
           display: isLoaded ? "block" : "none",
           borderRadius: "44px",
         }}
+        className="youtube-player-frame"
       />
     </div>
   )

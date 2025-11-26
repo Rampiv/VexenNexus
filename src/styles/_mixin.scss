@@ -30,9 +30,84 @@
   transition: all ease-out 0.3s;
 }
 
-@mixin textType1() {
-  font-size: 2em;
-  line-height: 46px;
+@mixin standartAnimZoom() {
+  @media (hover) {
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+  &:focus,
+  &:active {
+    transform: scale(1.03);
+    z-index: 2;
+  }
+}
+
+@mixin textSettings() {
+  font-family: "helvetica-regular", sans-serif;
   letter-spacing: 0.5px;
   text-align: center;
+  color: $white;
+}
+
+@mixin textBold() {
+  font-family: "helvetica-bold", sans-serif;
+}
+
+@mixin textType03() {
+  @include textReset();
+  @include textSettings();
+  font-size: 0.3em;
+}
+
+@mixin textType05() {
+  @include textReset();
+  @include textSettings();
+  font-size: 0.5em;
+}
+
+@mixin textType1() {
+  @include textReset();
+  @include textSettings();
+  font-size: 1em;
+}
+
+@mixin textType15() {
+  @include textSettings();
+  font-size: 1.5em;
+}
+
+@mixin textType2() {
+  @include textSettings();
+  font-size: 2em;
+}
+
+@mixin textType25() {
+  @include textSettings();
+  font-size: 2.5em;
+}
+
+@mixin textType3() {
+  @include textSettings();
+  font-size: 3em;
+}
+
+@mixin textType35() {
+  @include textSettings();
+  font-size: 3.5em;
+}
+
+@mixin textType4() {
+  @include textSettings();
+  font-size: 4em;
+}
+
+@mixin textType5() {
+  @include textSettings();
+  font-size: 5em;
+}
+
+@mixin textType7() {
+  @include textSettings();
+  font-size: 7em;
 }

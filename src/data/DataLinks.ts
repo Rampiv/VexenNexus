@@ -19,7 +19,7 @@ export const DataLinks = [
   {
     img: TikTok,
     text: "REALVEXEN",
-    link: "#",
+    link: "https://www.tiktok.com/@realvexen",
     id: "footerTikTok",
   },
 ]

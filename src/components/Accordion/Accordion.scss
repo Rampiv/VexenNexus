@@ -3,7 +3,6 @@
 .accordion {
   @include flexible();
   flex-direction: column;
-  font-family: "bebas", sans-serif;
   &__content {
     @include standartTransition();
     max-height: 0;
@@ -23,36 +22,31 @@
     font-size: 48px;
     letter-spacing: 0.5px;
     text-align: center;
-    p{
-        margin-bottom: 20px;
+    p {
+      margin-bottom: 20px;
     }
   }
   &__button {
     @include btnReset();
     @include standartTransition();
-    padding: 6px 18px;
-    border-radius: 22px;
-    background-color: $color5;
-    color: $white;
-    font-weight: 400;
-    font-size: 36px;
-    letter-spacing: 0.5px;
-    margin-bottom: 20px;
-    @media (hover) {
-      &:hover {
-        transform: scale(1.02);
-      }
-    }
-    &:focus,
-    &:active {
-      transform: scale(1.03);
-      z-index: 2;
+    @include textType15();
+    @include standartAnimZoom();
+    & {
+      padding: 6px 18px;
+      border-radius: 22px;
+      background-color: $color5;
+      margin-bottom: 20px;
     }
   }
 }
 
-@media (max-width: 500px){
-  .accordion__button{
-    font-size: 15px;
+@media (max-width: 480px) {
+  .accordion {
+    &__button {
+      @include textType1();
+      & {
+        padding: 5px 10px;
+      }
+    }
   }
 }

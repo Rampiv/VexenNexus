@@ -14,16 +14,15 @@
   padding: 26px 0 5px;
 
   &__h2 {
+    @include textType15();
     margin-bottom: 10px;
-    color: $color3;
-    font-size: 24px;
     font-weight: lighter;
   }
 
   &__container {
     @include flexible();
     flex-direction: column;
-    &:first-child{
+    &:first-child {
       margin-right: 20px;
     }
   }
@@ -38,17 +37,11 @@
   &__link {
     @include flexible();
     @include standartTransition();
-    gap: 5px;
-    @media (hover) {
-      &:hover {
-        transform: scale(1.2);
-      }
+    @include standartAnimZoom();
+    & {
+      gap: 5px;
     }
-    &:focus,
-    &:active {
-      transform: scale(1.1);
-      z-index: 2;
-    }
+
     svg {
       width: 23px;
     }
@@ -56,12 +49,30 @@
       width: 23px;
     }
   }
-  &__text{
-    color: $white;
+  &__text {
+    @include textType15();
+    line-height: 10px;
   }
 }
 
 .nav-icon {
   width: 20px;
   height: 20px;
+}
+
+@media (max-width: 480px) {
+  .navigation{
+    &__link{
+      img{
+        width: 15px;
+      }
+      svg{
+        width: 15px;
+      }
+    }
+    &__text{
+      @include textType1();
+    }
+  }
+  
 }

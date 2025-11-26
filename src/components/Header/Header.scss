@@ -1,26 +1,66 @@
 @use "../../styles/style.scss" as *;
 
 .header {
-  &__content {
+  background: $color1;
+  width: 100%;
+  margin-bottom: 20px;
+  &__nav {
+    padding: 20px;
+  }
+  &__list {
+    @include listReset();
+    @include flexible();
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  &__item {
+    display: flex;
+    justify-content: flex-end;
+    &:nth-child(even) {
+      justify-content: flex-start;
+    }
+  }
+  &__link-img {
     display: flex;
     justify-content: center;
     align-items: center;
     max-height: 110px;
-    position: relative;
+    z-index: -1;
+    margin-bottom: 20px;
   }
-  &__logo{
+
+  &__link {
+    @include standartTransition();
+    @include textType15();
+    @include standartAnimZoom();
+    & {
+      padding: 3px 18px;
+      outline: none;
+      background-color: $color4;
+      border: 1px solid $color2;
+      border-radius: 7px;
+      min-width: 183px;
+      text-align: center;
+    }
+  }
+  &__logo {
     overflow: hidden;
-    height: 345px;
+    width: 70%;
   }
-  &__game{
-    position: absolute;
-    max-width: 45%;
-    right: -30%;
+  &__game {
+    width: 20%;
   }
 }
 
-@media (max-width: 917px){
-  .header__game{
+@media (max-width: 917px) {
+  .header__game {
     display: none;
+  }
+}
+
+@media (max-width: 415px) {
+  .header__link {
+    @include textType1();
+    min-width: 120px;
   }
 }

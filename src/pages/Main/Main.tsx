@@ -15,11 +15,7 @@ const chibiImages = [Chibi1, Chibi2, Chibi3, Chibi4, Chibi5]
 
 const chibiText = [
   "",
-  <>
-    Привет! я помогу тебе разобраться куда тут жмать <br /> кликни на меня еще
-    раз
-  </>,
-  "Слева менюшка, где есть вся информация, которая тебе нужна!",
+  "Привет! Сверху навигация, она всегда будет там",
   "Эй!",
   "Эээй!",
   "Эй, ты, да ты!",
@@ -63,9 +59,9 @@ export const Main = () => {
     if (newStep <= FIXED_TEXT_COUNT) {
       setCurrentTextIndex(newStep)
     } else {
-      const randomTextIndex = Math.floor(
-        Math.random() * (chibiText.length - FIXED_TEXT_COUNT)
-      ) + FIXED_TEXT_COUNT
+      const randomTextIndex =
+        Math.floor(Math.random() * (chibiText.length - FIXED_TEXT_COUNT)) +
+        FIXED_TEXT_COUNT
       setCurrentTextIndex(randomTextIndex)
     }
   }
@@ -82,7 +78,7 @@ export const Main = () => {
                     <p className="pasta__text">
                       Здесь ты&nbsp;сможешь найти актуальные билды и&nbsp;общую
                       информацию по&nbsp;персонажам в&nbsp;wuthering waves!{" "}
-                      <br /> эхо, оружие, отряды и&nbsp;подсчеты цифер урона
+                      <br /> эхо, оружие, отряды и&nbsp;подсчеты цифр урона
                     </p>
                   </div>
                 </div>
@@ -106,10 +102,7 @@ export const Main = () => {
             <section className="chibi">
               <div className="container">
                 <div className="chibi__content">
-                  <button
-                    className="chibi__btn"
-                    onClick={handleChibiClick}
-                  >
+                  <button className="chibi__btn" onClick={handleChibiClick}>
                     <img
                       src={chibiImages[currentChibiIndex]}
                       alt="Чиби"
@@ -120,7 +113,9 @@ export const Main = () => {
                     className={`chibi__cloud-container ${visible ? "visible" : ""}`.trim()}
                     style={{ transform: `translateY(${cloudOffset}%)` }}
                   >
-                    <p className="chibi__cloud-text">{chibiText[currentTextIndex]}</p>
+                    <p className="chibi__cloud-text">
+                      {chibiText[currentTextIndex]}
+                    </p>
                     <img
                       src={Cloud}
                       alt="Облачко с надписью"

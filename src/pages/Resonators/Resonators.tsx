@@ -55,7 +55,7 @@ export const Resonators = () => {
   return (
     <section className="resonators">
       <div className="container">
-        <h2 className="resonators__h2">фильтр</h2>
+        <h2 className="resonators__h2">ФИЛЬТР</h2>
         <ul className="resonators__elements-list">
           <li className="resonators__elements-item">
             <button

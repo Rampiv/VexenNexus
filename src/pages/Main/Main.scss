@@ -20,12 +20,6 @@
     flex-direction: column;
     padding: 0 10px;
   }
-  // СЕКЦИЯ БУДУЩИХ ПЕРСОВ
-  &__h2 {
-    color: $white;
-    text-align: center;
-    margin-bottom: 20px;
-  }
 
   &__list {
     @include listReset();
@@ -37,26 +31,12 @@
 
   &__item {
     @include standartTransition();
-    @media (hover) {
-      &:hover {
-        transform: scale(1.02);
-      }
-    }
-    &:focus,
-    &:active {
-      transform: scale(1.03);
-      z-index: 2;
-    }
+    @include standartAnimZoom();
+
     a {
-      @include standartTransition();
       display: block;
       height: 100%;
       outline: none;
-      &:focus,
-      &:active {
-        transform: scale(1.01);
-        z-index: 2;
-      }
     }
   }
 }
@@ -64,6 +44,7 @@
 // СЕКЦИЯ ПАСТЫ
 .pasta {
   margin-bottom: 15px;
+  z-index: 2;
   &__container {
     width: 100%;
     display: flex;
@@ -74,13 +55,12 @@
     max-width: 740px;
     border: 1px solid $color2;
     border-radius: 25px;
-    color: $white;
     background-color: $color1;
     padding: 44px 15px;
   }
   &__text {
     @include textReset();
-    @include textType1();
+    @include textType2();
     user-select: none;
   }
 }
@@ -96,26 +76,16 @@
   }
   &__item {
     @include standartTransition();
-    background-color: $color1;
-    border: 1px solid $color2;
-    border-radius: 7px;
-    color: $white;
-    min-width: 183px;
-    text-align: center;
-
-    @media (hover) {
-      &:hover {
-        transform: scale(1.02);
-      }
+    @include standartAnimZoom();
+    & {
+      background-color: $color1;
+      border: 1px solid $color2;
+      border-radius: 7px;
+      min-width: 183px;
+      padding: 15px 5px;
     }
-    &:focus,
-    &:active {
-      transform: scale(1.03);
-      z-index: 2;
-    }
-
     a {
-      @include textType1();
+      @include textType2();
       display: block;
       padding: 3px 18px;
       outline: none;
@@ -166,17 +136,15 @@
   }
   &__cloud-text {
     @include textReset();
+    @include textType2();
     position: absolute;
     max-width: 310px;
     top: 45%;
     left: 50%;
     transform: rotate(-8deg) translate(-50%, -50%);
-    font-family: fascinate;
-    font-size: 30px;
     font-weight: 900;
+    filter: invert(1);
     z-index: 1;
-    text-align: center;
-    line-height: 24px;
   }
 
   &__hint {
@@ -193,8 +161,9 @@
   }
   &__hint-text {
     @include textReset();
+    @include textType2();
     font-weight: 900;
-    font-size: 40px;
+    color: #000;
   }
 }
 
@@ -208,8 +177,11 @@
       width: 50%;
     }
     &__cloud-container {
-      top: -27%;
+      top: -49%;
       left: -118%;
+    }
+    &__hint {
+      left: -15%;
     }
   }
 }
@@ -224,7 +196,7 @@
 @media (max-width: 650px) {
   .chibi__cloud-container {
     width: 120%;
-    top: -12%;
+    top: -40%;
     left: -97%;
   }
   .chibi__cloud-text {
@@ -236,30 +208,30 @@
   }
 }
 
-@media (max-width: 470px) {
-  .main {
-    font-size: 10px;
-  }
-  .pasta__content{
-    padding: 15px;
-  }
-  .links__item a{
-    padding: 3px;
-  }
-  .links__item{
-    min-width: 130px;
-  }
-}
-
 @media (max-width: 570px) {
-  .chibi__cloud-text{
+  .chibi__cloud-text {
     font-size: 10px;
     line-height: 10px;
   }
 }
 
+@media (max-width: 470px) {
+  .pasta__text {
+    @include textType15();
+  }
+  .links__item {
+    padding: 5px 10px;
+    min-width: fit-content;
+
+    a {
+      @include textType1();
+      padding: 0;
+    }
+  }
+}
+
 @media (max-width: 370px) {
-  .chibi__cloud-text{
+  .chibi__cloud-text {
     font-size: 8px;
     line-height: 8px;
   }

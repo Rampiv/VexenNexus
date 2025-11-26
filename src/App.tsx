@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router"
 import { AppContextProvider } from "./context/contextProvider"
 import "./App.scss"
 import React from "react"
-import { Burger, Footer, Header } from "./components"
+import { Footer, Header } from "./components"
 import { Banners, Main, Resonator, Resonators } from "./pages"
 
 const HeaderMemo = React.memo(Header)
@@ -17,7 +17,6 @@ export default function App() {
     <AppContextProvider>
       <div className="App">
         <HeaderMemo />
-        <Burger />
         <Routes>
           <Route path="/" element={<MainMemo />} />
           <Route path="/resonators" element={<ResonatorsMemo />} />
