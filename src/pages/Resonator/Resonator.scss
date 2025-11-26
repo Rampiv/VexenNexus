@@ -409,14 +409,14 @@
   }
   .contents {
     &__h2 {
-      @include textType1();
+      @include textType13();
       margin-bottom: 10px;
     }
     &__list {
       column-gap: 5px;
     }
     &__item {
-      @include textType05();
+      @include textType08();
       a {
         text-align: start;
       }
@@ -429,8 +429,11 @@
     &__descr {
       @include textType1();
     }
+    &__container{
+      gap: 5px;
+    }
     &__list {
-      @include textType05();
+      @include textType1();
       gap: 5px;
     }
     &__plus-list {
@@ -447,18 +450,19 @@
   .weapon {
     &__descr-container {
       p {
-        @include textType05();
+        @include textType1();
       }
     }
   }
   .constellation {
     &__descr {
       p {
-        @include textType05();
+        @include textType1();
       }
     }
     &__h3 {
-      @include textType1();
+      @include textType13();
+      margin-bottom: 10px;
     }
   }
   .team__accordion-item {

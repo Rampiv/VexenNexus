@@ -66,10 +66,22 @@
   font-size: 0.5em;
 }
 
+@mixin textType08() {
+  @include textReset();
+  @include textSettings();
+  font-size: 0.8em;
+}
+
 @mixin textType1() {
   @include textReset();
   @include textSettings();
   font-size: 1em;
+}
+
+@mixin textType13() {
+  @include textReset();
+  @include textSettings();
+  font-size: 1.3em;
 }
 
 @mixin textType15() {
