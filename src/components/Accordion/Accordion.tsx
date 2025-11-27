@@ -1,23 +1,41 @@
-import type { ReactNode } from "react"
-import type React from "react"
-import { useState } from "react"
-import './Accordion.scss'
+import type { ReactNode } from "react";
+import { useState } from "react";
+import "./Accordion.scss";
 
 interface AccordionProps {
-  children: ReactNode // Контент внутри аккордеона
-  isOpenByDefault?: boolean // Начальное состояние (по умолчанию — закрыт)
-  className?: string // Дополнительный класс для обёртки
+  children: ReactNode;
+  className?: string;
+  buttonName: string;
+  // Управляемый режим: если передан `expanded`, компонент контролируется извне
+  expanded?: boolean;
+  // Обратный вызов для управляемого режима
+  onToggle?: (isOpen: boolean) => void;
+  // Начальное состояние для неконтролируемого режима
+  defaultExpanded?: boolean;
 }
-export const Accordion: React.FC<AccordionProps> = ({
+
+export const Accordion = ({
   children,
-  isOpenByDefault = false,
   className = "",
-}) => {
-  const [isOpen, setIsOpen] = useState(isOpenByDefault)
+  buttonName,
+  expanded,
+  onToggle,
+  defaultExpanded = false,
+}: AccordionProps) => {
+  // Неконтролируемый режим: используем локальный state
+  const [internalOpen, setInternalOpen] = useState(defaultExpanded);
+
+  // Определяем, в каком режиме работает компонент
+  const isControlled = expanded !== undefined;
+  const isOpen = isControlled ? expanded : internalOpen;
 
   const toggle = () => {
-    setIsOpen(prev => !prev)
-  }
+    if (isControlled) {
+      onToggle?.(!expanded);
+    } else {
+      setInternalOpen(prev => !prev);
+    }
+  };
 
   return (
     <div className={`accordion ${className}`}>
@@ -27,7 +45,7 @@ export const Accordion: React.FC<AccordionProps> = ({
         onClick={toggle}
         aria-expanded={isOpen}
       >
-       Ротация
+        {buttonName}
       </button>
       <div
         className={`accordion__content ${
@@ -38,5 +56,5 @@ export const Accordion: React.FC<AccordionProps> = ({
         <div className="accordion__inner">{children}</div>
       </div>
     </div>
-  )
-}
+  );
+};

@@ -30,7 +30,7 @@ export const Footer = () => {
             <h2 className="navigation__h2">СО-АВТОРЫ:</h2>
             <ul className="navigation__list">
               <li className="navigation__item">
-                <span className="navigation__text">cody - теорикрафтер</span>
+                <span className="navigation__text">CODY - ТЕОРИКРАФТЕР</span>
               </li>
               <li className="navigation__item opacityHide">
                 <span className="navigation__text">На будущее</span>
@@ -42,7 +42,9 @@ export const Footer = () => {
                 <span className="navigation__text">На будущее</span>
               </li>
               <li className="navigation__item">
-                <span className="navigation__text">Разработчик: <Link to={'https://t.me/Vanpinvan'}>Rampiv</Link></span>
+                <span className="navigation__text">
+                  РАЗРАБОТЧИК: <Link to={"https://t.me/Vanpinvan"}>RAMPIV</Link>
+                </span>
               </li>
             </ul>
           </div>

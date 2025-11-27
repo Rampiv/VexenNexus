@@ -6,7 +6,7 @@ import TikTok from "@assets/icons/TikTok.webp"
 export const DataLinks = [
   {
     img: TGimg,
-    text: "ТГ канал",
+    text: "ТГ КАНАЛ",
     link: "https://t.me/RealVexen",
     id: "footertg",
   },

@@ -1,0 +1,112 @@
+@use "../../styles/style.scss" as *;
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.01);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: $color1;
+  border: 1px solid $color4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  th,
+  td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border: 1px solid $purple;
+    vertical-align: top;
+  }
+  th {
+    @include textType1();
+    text-align: left;
+    font-weight: 400;
+    background-color: #2d2d2d;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid $purple;
+  }
+  tr:nth-child(even) {
+    background-color: #242424;
+  }
+  tr:hover {
+    background-color: #333333;
+  }
+  td {
+    @include textType08();
+    text-align: left;
+    padding: 0.75rem 1rem;
+  }
+}
+.table__row--highlighted {
+  &:first-child {
+    animation: pulse 1.5s infinite;
+    text-decoration: underline;
+  }
+}
+
+@media (max-width: 1040px) {
+  .table {
+    th {
+      @include textType08();
+      text-align: left;
+      padding: 0.75rem 1rem;
+    }
+    td {
+      @include textType08();
+      text-align: left;
+      padding: 0.75rem 1rem;
+    }
+  }
+}
+
+@media (max-width: 860px) {
+  .table {
+    th {
+      @include textType05();
+      text-align: left;
+      padding: 0.75rem 1rem;
+    }
+    td {
+      @include textType05();
+      text-align: left;
+      padding: 0.75rem 1rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .table {
+    th {
+      @include textType03();
+      text-align: left;
+      padding: 0.25rem 0.5rem;
+    }
+    td {
+      @include textType03();
+      text-align: left;
+      padding: 0.25rem 0.5rem;
+    }
+  }
+}
+
+@media (max-width: 306px) {
+  .table {
+    th {
+      @include textType02();
+      text-align: left;
+      padding: 0.25rem 0.5rem;
+    }
+    td {
+      @include textType02();
+      text-align: left;
+      padding: 0.25rem 0.5rem;
+    }
+  }
+}

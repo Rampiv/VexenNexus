@@ -84,3 +84,9 @@
     }
   }
 }
+
+@media (max-width: 280px){
+  .navigation__h2{
+    @include textType08();
+  }
+}

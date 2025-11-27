@@ -1,9 +1,9 @@
 import { useParams } from "react-router"
 import { DataResonators } from "../../data"
 import "./Resonator.scss"
-import { Accordion, YouTubePlayer } from "../../components"
+import { Accordion, Table, YouTubePlayer } from "../../components"
 import marker from "@assets/icons/marker.webp"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 const contentsList = [
   { title: "РОЛИК ПО БАЗЕ", href: "YTGuide" },
@@ -18,11 +18,70 @@ const contentsList = [
   { title: "ФИНАЛЬНЫЙ ОБЗОР", href: "final" },
 ]
 
+const glossaryDataStandart = [
+  {
+    Термин: "Квик свап (Quick-swap)",
+    Определение:
+      "Быстрое переключение на других персонажей в команде для активации умений или эффектов с последующим возвращением обратно.",
+    id: "QuickSwap",
+  },
+  {
+    Термин: "Бафф",
+    Определение:
+      "Положительный эффект, усиливающий союзников (например, увеличение урона или скорости атаки)",
+    id: "Buff",
+  },
+  {
+    Термин: "Негативные статусы",
+    Определение:
+      "Дебаффы, накладываемые на врагов и вызывающие периодический урон, снижение характеристик (например, защиты или скорости передвижения) или особые состояния (например, заморозку). ",
+    id: "Debuff",
+  },
+  {
+    Термин: "МДД",
+    Определение: "Главный наносящий урон персонаж (Main DPS)",
+    id: "MainDPS",
+  },
+  {
+    Термин: "Пассивное умение",
+    Определение:
+      "Навык который встроен в персонажа и работает всегда или требуют активации некоторыми действиями",
+    id: "Passive",
+  },
+  {
+    Термин: "Интро",
+    Определение:
+      "Навык 'вступления в бой', когда с помощью разряда концерта мы переключаемся на дургого персонажа, то этот 'другой' персонаж активирует интро умение",
+    id: "Intro",
+  },
+  {
+    Термин: "Аутро",
+    Определение:
+      "Навык 'выход из боя', когда с помощью разряда концерта мы переключаемся на дургого персонажа, то наш нынешний персонаж во время переключения активирует аутро умение",
+    id: "Autro",
+  },
+  {
+    Термин: "Энергия концерта",
+    Определение:
+      "Энергия, необходимая для выполнения навыков Интро (вступления в бой) и Аутро (выход из боя) при смене персонажей",
+    id: "Concert",
+  },
+]
+
 export const Resonator = () => {
   const { id } = useParams<{ id: string }>()
-
   // Состояние для отображения кнопки "Наверх"
   const [showUpButton, setShowUpButton] = useState(false)
+  const [highlightId, setHighlightId] = useState<string | undefined>(undefined)
+  const [isGlossaryExpanded, setIsGlossaryExpanded] = useState(false)
+  const [userManuallyClosed, setUserManuallyClosed] = useState(false)
+
+  const resonator = DataResonators.find(
+    res => res.engName.toLocaleLowerCase() === id?.toLocaleLowerCase(),
+  )
+  const glossaryData = useMemo(() => {
+    return [...glossaryDataStandart, ...(resonator?.GlossaryTerm || [])]
+  }, [resonator?.GlossaryTerm])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,9 +93,53 @@ export const Resonator = () => {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  const resonator = DataResonators.find(
-    res => res.engName.toLocaleLowerCase() === id?.toLocaleLowerCase(),
-  )
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1)
+      const isKnownTerm = glossaryData.some(item => item.id === hash)
+
+      if (isKnownTerm) {
+        setHighlightId(hash)
+        // Раскрываем ТОЛЬКО если пользователь не закрывал вручную
+        if (!userManuallyClosed) {
+          setIsGlossaryExpanded(true)
+        }
+      } else {
+        setHighlightId(undefined)
+      }
+
+      // Прокрутка к элементу (если нужно) — но только если он существует
+      if (isKnownTerm && (isGlossaryExpanded || !userManuallyClosed)) {
+        // Мы отложим прокрутку немного, чтобы убедиться, что DOM обновился
+        setTimeout(() => {
+          const el = document.getElementById(hash)
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" })
+          }
+        }, 100)
+      }
+    }
+
+    // Запускаем при монтировании
+    handleHashChange()
+
+    // Слушаем изменения хеша
+    window.addEventListener("hashchange", handleHashChange)
+    return () => window.removeEventListener("hashchange", handleHashChange)
+  }, [userManuallyClosed, isGlossaryExpanded, glossaryData])
+
+  // Обработчик переключения аккордиона
+  const handleGlossaryToggle = (newState: boolean) => {
+    setIsGlossaryExpanded(newState)
+    // Если пользователь закрыл — запоминаем это
+    if (!newState) {
+      setUserManuallyClosed(true)
+    }
+    // Если пользователь снова открыл вручную — сбрасываем флаг
+    if (newState && userManuallyClosed) {
+      setUserManuallyClosed(false)
+    }
+  }
 
   if (!id || !resonator) {
     return <div>Резонатор не указан</div>
@@ -76,6 +179,22 @@ export const Resonator = () => {
                 )
               })}
             </ul>
+          </div>
+          {/* глоссарий */}
+          <div className="resonator__common-container glossary">
+            <h2 className="resonator__h2">ГЛОССАРИЙ</h2>
+            <Accordion
+              buttonName={isGlossaryExpanded ? "Свернуть" : "Развернуть"}
+              expanded={isGlossaryExpanded}
+              onToggle={handleGlossaryToggle}
+              className="glossary__accordion"
+            >
+              <Table
+                columns={["Термин", "Определение"]}
+                rows={glossaryData}
+                highlightId={highlightId}
+              ></Table>
+            </Accordion>
           </div>
           {/* ютуб ролик */}
           <div
@@ -119,9 +238,12 @@ export const Resonator = () => {
                 </h3>
                 <ul className="plusminus__list plusminus__plus-list">
                   {resonator.BasePlus &&
-                    resonator.BasePlus.map(item => {
+                    resonator.BasePlus.map((item, index) => {
                       return (
-                        <li className="plusminus__plus-item" key={item}>
+                        <li
+                          className="plusminus__plus-item"
+                          key={`plus ${index}`}
+                        >
                           {item}
                         </li>
                       )
@@ -134,9 +256,12 @@ export const Resonator = () => {
                 </h3>
                 <ul className="plusminus__list plusminus__minus-list">
                   {resonator.BaseMinus &&
-                    resonator.BaseMinus.map(item => {
+                    resonator.BaseMinus.map((item, index) => {
                       return (
-                        <li className="plusminus__minus-item" key={item}>
+                        <li
+                          className="plusminus__minus-item"
+                          key={`minus ${index}`}
+                        >
                           {item}
                         </li>
                       )
@@ -193,7 +318,7 @@ export const Resonator = () => {
             />
             <h2 className="resonator__h2">{contentsList[6].title}</h2>
             <img
-              src={resonator.Glossary}
+              src={resonator.GlossaryImg}
               alt="глоссарий"
               className="weapon__glossary"
             />
@@ -273,7 +398,7 @@ export const Resonator = () => {
                   return (
                     <li className="team__item" key={`team ${index}`}>
                       <img src={item.img} alt="Команда" className="team__img" />
-                      <Accordion>
+                      <Accordion buttonName={"Ротация"}>
                         {item.descr.map((item, index) => {
                           return (
                             <ul

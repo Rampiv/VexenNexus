@@ -32,6 +32,7 @@
     border-top: 8px double $color2;
     margin-bottom: 40px;
     text-shadow: 1px 1px 40px $color2;
+    width: 100%;
   }
 
   // кнопка наверх
@@ -49,6 +50,7 @@
 .name {
   @include flexible();
   gap: 10px;
+  margin-bottom: 24px;
   &__h2 {
     @include textReset();
     @include textType7();
@@ -60,7 +62,6 @@
   &__role {
     @include textType4();
     letter-spacing: 0.5px;
-    margin-bottom: 24px;
   }
   &__preview-img {
     width: 20%;
@@ -94,6 +95,20 @@
     a {
       text-align: start;
     }
+  }
+}
+
+.glossary {
+  margin-bottom: 20px;
+  width: 100%;
+  .accordion {
+    width: 100%;
+  }
+  .accordion__button {
+    border-radius: 5px;
+  }
+  &-link {
+    border-bottom: 1px solid $color8;
   }
 }
 
@@ -139,8 +154,10 @@
     @include textType2();
     @include flexible();
     flex-direction: column;
+    align-items: flex-start;
     gap: 5px;
     row-gap: 15px;
+    text-align: start !important;
   }
 
   &__plus-list {
@@ -149,6 +166,16 @@
 
   &__minus-list {
     color: $color7;
+  }
+  &__plus {
+    h3 {
+      border: 1px solid $green;
+    }
+  }
+  &__minus {
+    h3 {
+      border: 1px solid $red;
+    }
   }
 }
 
@@ -386,7 +413,7 @@
       @include textType15();
     }
   }
-  .resonator__up{
+  .resonator__up {
     @include textType15();
   }
 }
@@ -397,10 +424,10 @@
       @include textType2();
       margin-bottom: 20px;
     }
-    &__up{
-    @include textType1();
-    padding: 5px
-  }
+    &__up {
+      @include textType1();
+      padding: 5px;
+    }
   }
   .name {
     &__h2 {
@@ -425,11 +452,16 @@
       }
     }
   }
+  .glossary {
+    .accordion__inner {
+      padding: 7px;
+    }
+  }
   .plusminus {
     &__descr {
       @include textType1();
     }
-    &__container{
+    &__container {
       gap: 5px;
     }
     &__list {
@@ -476,6 +508,33 @@
   .review {
     &__descr {
       @include textType1();
+    }
+  }
+}
+
+@media (max-width: 340px){
+  .resonator__h2{
+    @include textType15();
+  }
+  .name__role{
+    @include textType1();
+  }
+}
+
+@media (max-width: 280px) {
+  .plusminus {
+    &__descr,
+    &__list,
+    &__h3 {
+      @include textType08();
+    }
+
+    &__plus-list {
+      color: $color6;
+    }
+
+    &__minus-list {
+      color: $color7;
     }
   }
 }

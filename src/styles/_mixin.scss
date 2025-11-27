@@ -54,6 +54,13 @@
   font-family: "helvetica-bold", sans-serif;
 }
 
+
+@mixin textType02() {
+  @include textReset();
+  @include textSettings();
+  font-size: 0.2em;
+}
+
 @mixin textType03() {
   @include textReset();
   @include textSettings();
