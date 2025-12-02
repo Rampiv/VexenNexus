@@ -1,9 +1,9 @@
 {
-  "name": "wutheringwaves",
+  "name": "vexen-hub",
   "private": true,
-  "version": "0.1.9",
+  "version": "0.2.0",
   "type": "module",
-  "homepage": "https://rampiv.github.io/wutheringwaves",
+  "homepage": "https://rampiv.github.io/vexen-hub/",
   "scripts": {
     "dev": "vite",
     "start": "vite",
