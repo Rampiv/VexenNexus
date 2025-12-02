@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client"
 import App from "./App"
-import { BrowserRouter } from "react-router"
+import { HashRouter } from "react-router"
 import { StrictMode } from "react"
 
 const container = document.getElementById("root")
@@ -10,9 +10,9 @@ if (container) {
 
   root.render(
     <StrictMode>
-      <BrowserRouter basename={'/wutheringwaves'}>
+      <HashRouter>
         <App />
-      </BrowserRouter>
+      </HashRouter>
     </StrictMode>,
   )
 } else {
