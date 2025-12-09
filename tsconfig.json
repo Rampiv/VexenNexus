@@ -19,7 +19,7 @@
       "@kit/*": ["./src/kit/*"],
       "@styles/*": ["./src/styles/*"],
       "@assets/*": ["./src/assets/*"],
-      "@contexts/*": ["./src/contexts/*"],
+      "@contexts/*": ["./src/context/*"],
       "@models/*": ["./src/models/*"],
       "@api/*": ["./src/api/*"]
     }

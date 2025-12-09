@@ -1,0 +1,8 @@
+@use "../../styles/style.scss" as *;
+
+.glossary-link {
+  @include btnReset();
+  font-size: inherit;
+  color: inherit;
+  border-bottom: 1px solid $color8;
+}

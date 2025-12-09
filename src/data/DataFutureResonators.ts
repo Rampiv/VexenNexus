@@ -1,25 +1,15 @@
-import ResonarotChisa from "../assets/image/Resonators/Resonator_Chisa.webp"
-import ResonatorBuling from "../assets/image/Resonators/Resonator_Buling.webp"
-import Electro from "../assets/image/Element/Electro.webp"
-import Havoc from "../assets/image/Element/Havoc.webp"
+import ResonarotChisa from "@assets/image/Resonators/Resonator_Chisa.webp"
+import ResonatorBuling from "@assets/image/Resonators/Resonator_Buling.webp"
 
 export const DataFutureResonators = [
   {
-    name: "ЧИСА",
-    role: "САП",
     resonator: ResonarotChisa,
-    elementIMG: Havoc,
-    element: "Havoc",
-    id: "ResonatorChixa",
-    link: "",
+    rarity: 5,
+    link: "/resonator/Chisa",
   },
   {
-    name: "БУЛИНГ",
-    role: "САП-ДД / САП",
     resonator: ResonatorBuling,
-    elementIMG: Electro,
-    element: "Electro",
-    id: "ResonatorBuling",
+    rarity: 4,
     link: "",
   },
 ]
