@@ -4,7 +4,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig(({ command }) => {
   return {
-    base: command === "serve" ? "/" : "/vexen-hub/",
+    base: command === "serve" ? "/" : "/VexenNexus/",
     plugins: [react(), tsconfigPaths()],
     server: {
       open: true,
