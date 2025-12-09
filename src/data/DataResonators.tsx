@@ -1,5 +1,5 @@
-import ResonarotChisa from "@assets/image/Resonators/Resonator_Chisa.webp"
-import ResonatorBuling from "@assets/image/Resonators/Resonator_Buling.webp"
+import { GlossaryLink } from "../components/GlossaryLink/GlossaryLink"
+import ResonatorChisa from "@assets/image/Resonators/Resonator_Chisa.webp"
 import chisaPreview from "@assets/image/Resonators/Chisa/chisaPreview.webp"
 import chisaMiniGuide from "@assets/image/Resonators/Chisa/chisaMiniGuide.webp"
 import chisaYTPreview from "@assets/image/Resonators/Chisa/chisaYTPreview.webp"
@@ -8,8 +8,8 @@ import chisaPumping from "@assets/image/Resonators/Chisa/chisaPumping.webp"
 import chisaWeaponPreview from "@assets/image/Resonators/Chisa/chisaWeaponPreview.webp"
 import chisaGlossary from "@assets/image/Resonators/Chisa/chisaGlossary.webp"
 import chisaConstellation from "@assets/image/Resonators/Chisa/chisaConstellationPreview.webp"
-import chisaConstellationTeamDamage from "@assets/image/Resonators/Chisa/chisaConstellarionTeamDamage.webp"
-import chisaConstellationSoloDamage from "@assets/image/Resonators/Chisa/chisaConstellarionSoloDamage.webp"
+import chisaConstellationTeamDamage from "@assets/image/Resonators/Chisa/chisaConstellationTeamDamage.webp"
+import chisaConstellationSoloDamage from "@assets/image/Resonators/Chisa/chisaConstellationSoloDamage.webp"
 import chisaInvestmentsDamage from "@assets/image/Resonators/Chisa/chisaInvestmentsDamage.webp"
 import chisaTeamPreview from "@assets/image/Resonators/Chisa/chisaTeamPreview.webp"
 import chisaTeam1 from "@assets/image/Resonators/Chisa/chisaTeam1.webp"
@@ -29,10 +29,30 @@ import chisaWeapon4 from "@assets/image/Resonators/Chisa/chisaWeapon4.webp"
 import chisaFinalReview1 from "@assets/image/Resonators/Chisa/chisaFinalReview1.webp"
 import chisaFinalReview2 from "@assets/image/Resonators/Chisa/chisaFinalReview2.webp"
 
+import ResonatorBuling from "@assets/image/Resonators/Resonator_Buling.webp"
+import bulingPreview from "@assets/image/Resonators/Buling/bulingPreview.webp"
+import bulingYTPreview from "@assets/image/Resonators/Buling/bulingYTPreview.webp"
+import bulingMiniGuide from "@assets/image/Resonators/Buling/bulingMiniGuide.webp"
+import bulingUtility from "@assets/image/Resonators/Buling/bulingUtility.webp"
+import bulingPumping from "@assets/image/Resonators/Buling/bulingPumping.webp"
+import bulingDamage from "@assets/image/Resonators/Buling/bulingDamage.webp"
+import bulingWeaponPreview from "@assets/image/Resonators/Buling/bulingWeaponPreview.webp"
+import bulingConstellation from "@assets/image/Resonators/Buling/bulingConstellation.webp"
+import bulingTeamPreview from "@assets/image/Resonators/Buling/bulingTeamPreview.webp"
+import bulingTeam1 from "@assets/image/Resonators/Buling/bulingTeam1.webp"
+import BulingTeam1Rotation1 from "@assets/image/Resonators/Buling/BulingTeam1Rotation1.webp"
+import bulingTeam2Rotation1 from "@assets/image/Resonators/Buling/bulingTeam2Rotation1.webp"
+import bulingTeam3Rotation1 from "@assets/image/Resonators/Buling/bulingTeam3Rotation1.webp"
+import bulingTeam2 from "@assets/image/Resonators/Buling/bulingTeam2.webp"
+import bulingTeam3 from "@assets/image/Resonators/Buling/bulingTeam3.webp"
+import bulingFinalReview1 from "@assets/image/Resonators/Buling/bulingFinalReview1.webp"
+
 import kumokiri from "@assets/image/Weapon/kumokiri.webp"
 import wildfireMark from "@assets/image/Weapon/wildfireMark.webp"
 import agesOfHarvest from "@assets/image/Weapon/agesOfHarvest.webp"
 import lustrousRazon from "@assets/image/Weapon/lustrousRazon.webp"
+import variation from "@assets/image/Weapon/variation.webp"
+import callOfTheAbyss from "@assets/image/Weapon/callOfTheAbyss.webp"
 
 const status = [
   {
@@ -78,7 +98,7 @@ export const DataResonators = [
     name: "ЧИСА",
     engName: "Chisa",
     role: "Саппорт",
-    resonator: ResonarotChisa,
+    resonator: ResonatorChisa,
     element: "Havoc",
     id: "ResonatorChisa",
     link: "/resonator/Chisa",
@@ -95,25 +115,17 @@ export const DataResonators = [
       "большой потенциал",
       <>
         удобна в быстрой смене персонажей{" "}
-        <a href="#QuickSwap" className="glossary-link">
-          (quick-swap)
-        </a>
+        <GlossaryLink id="QuickSwap">(quick-swap)</GlossaryLink>
       </>,
       <>
-        Универсальный{" "}
-        <a href="#Buff" className="glossary-link">
-          бафф
-        </a>
+        Универсальный <GlossaryLink id="Buff">бафф</GlossaryLink>
       </>,
     ],
     BaseMinus: [
       "мало совместимых отрядов",
       "архетип пока слабо развит",
       <>
-        зависит от{" "}
-        <a href="#Debuff" className="glossary-link">
-          негативных статусов
-        </a>
+        зависит от <GlossaryLink id="Debuff">негативных статусов</GlossaryLink>
       </>,
     ],
     Utility: chisaUtility,
@@ -122,18 +134,8 @@ export const DataResonators = [
     WeaponPreview: chisaWeaponPreview,
     GlossaryImg: chisaGlossary,
     GlossaryTerm: [
-      {
-        Термин: "🟡Spectro Frazzle",
-        Определение:
-          "Spectro Frazzle / Спектро-Фразл В активном состоянии заставляет цель периодически получать урон от «Спектро» и уменьшает количество зарядов «Спектро-Фразл» на 1. По мере накопления зарядов урон, наносимый эффектом «Спектро-Фразл», значительно увеличивается.",
-        id: "SpectroFrazzle",
-      },
-      {
-        Термин: "🟢Aero Erosion",
-        Определение:
-          "Aero Erosion / Воздушная Эрозия В активном состоянии заставляет цель периодически получать урон от «Аэро». Чем больше зарядов «Воздушной Эрозии», тем больше наносимый урон.",
-        id: "AeroErosion",
-      },
+      status[0],
+      status[1],
       {
         Термин: "Тоник",
         Определение:
@@ -159,15 +161,12 @@ export const DataResonators = [
       "3. Промежуточные варианты (например, Ages of Harvest) стоит брать, только если они не конфликтуют с другими персонажами в отряде. Например, в Башне их можно использовать без проблем, но в Кораблях возможны сложности, если отряд с Чисой и, скажем, Лупой попадёт в один заход.",
       <>
         4. Если у вас нет 5★ оружия — смело ставьте любое 4★ с атакующей{" "}
-        <a href="#Passive" className="glossary-link">
-          пассивкой
-        </a>{" "}
-        как временную замену до получения Сигны или стандартного двуручного
-        меча.
+        <GlossaryLink id="Passive">пассивкой</GlossaryLink> как временную замену
+        до получения Сигны или стандартного двуручного меча.
       </>,
     ],
-    СonstellationPreview: chisaConstellation,
-    ConstellarionDescr: [
+    ConstellationPreview: chisaConstellation,
+    ConstellationDescr: [
       <>
         Созвездия Чисы стоит рассматривать в трёх аспектах: <br />{" "}
         <span className="red">1-й</span> — её личный урон за одну ротацию,{" "}
@@ -181,17 +180,14 @@ export const DataResonators = [
         RJV — C0: 221 597
       </>,
     ],
-    ConstellarionTeamDamage: chisaConstellationTeamDamage,
-    ConstellarionSoloDamage: chisaConstellationSoloDamage,
+    ConstellationTeamDamage: chisaConstellationTeamDamage,
+    ConstellationSoloDamage: chisaConstellationSoloDamage,
     InvestmentsDamage: chisaInvestmentsDamage,
     InvestmentsReview: (
       <>
         Небольшое пояснение по С1: этот дубль довольно спорный... <br />
         Например, в <span className="red">Кораблях</span> он проявляет себя
-        отлично: благодаря{" "}
-        <a href="#Passive" className="glossary-link">
-          пассивки
-        </a>{" "}
+        отлично: благодаря <GlossaryLink id="Passive">пассивки</GlossaryLink>
         вы можете каждый раз использовать умение на новых врагах, и эффект С1
         будет срабатывать регулярно. <br />А вот в{" "}
         <span className="red">Башне</span> польза от С1 значительно ниже: на
@@ -210,10 +206,8 @@ export const DataResonators = [
               <p>
                 Если это первая ротация (открывающая), просто нанесите один
                 базовый удар на <span className="purple">Чисе</span> вместо{" "}
-                <a href="#Intro" className="glossary-link">
-                  интро
-                </a>{" "}
-                — этого достаточно для полного набора «концерта».
+                <GlossaryLink id="Intro">интро</GlossaryLink> — этого достаточно
+                для полного набора «концерта».
               </p>,
             ],
             img: chisaTeam1Rotation1,
@@ -224,10 +218,8 @@ export const DataResonators = [
               <p>
                 Если это первая ротация, также дайте один базовый удар на{" "}
                 <span className="purple">Чисе</span> вместо{" "}
-                <a href="#Intro" className="glossary-link">
-                  интро
-                </a>{" "}
-                — этого хватит для полного набора «концерта».
+                <GlossaryLink id="Intro">интро</GlossaryLink> — этого хватит для
+                полного набора «концерта».
               </p>,
             ],
             img: chisaTeam1Rotation2,
@@ -241,21 +233,14 @@ export const DataResonators = [
             text: [
               <h3>
                 Базовая ротация 123 с Чисой и Зани в роли{" "}
-                <a href="#MainDPS" className="glossary-link">
-                  МДД
-                </a>
+                <GlossaryLink id="MainDPS">МДД</GlossaryLink>
               </h3>,
               <p>
                 При первой ротации нанесите один базовый удар на{" "}
                 <span className="purple">Чисе</span> вместо{" "}
-                <a href="#Intro" className="glossary-link">
-                  интро
-                </a>{" "}
-                — этого достаточно для полного набора{" "}
-                <a href="#Concert" className="glossary-link">
-                  концерта
-                </a>
-                .
+                <GlossaryLink id="Intro">интро</GlossaryLink> — этого достаточно
+                для полного набора{" "}
+                <GlossaryLink id="Concert">концерта</GlossaryLink>.
               </p>,
               <p>
                 Базовая ротация Зани даёт не самый высокий урон, поэтому
@@ -277,38 +262,23 @@ export const DataResonators = [
             text: [
               <h3>
                 Базовая ротация 123 с Чисой и Фиби в роли{" "}
-                <a href="#MainDPS" className="glossary-link">
-                  МДД
-                </a>
+                <GlossaryLink id="MainDPS">МДД</GlossaryLink>
               </h3>,
               <p>
                 При первой ротации сделайте один базовый удар на{" "}
                 <span className="purple">Чисе</span> вместо{" "}
-                <a href="#Intro" className="glossary-link">
-                  интро
-                </a>{" "}
-                — этого достаточно для полного набора{" "}
-                <a href="#Concert" className="glossary-link">
-                  концерта
-                </a>
-                .
+                <GlossaryLink id="Intro">интро</GlossaryLink> — этого достаточно
+                для полного набора{" "}
+                <GlossaryLink id="Concert">концерта</GlossaryLink>.
               </p>,
               <p>
                 На Чаконне выбирайте{" "}
                 <span className="yellow">
-                  <a href="#Tonic" className="glossary-link">
-                    тоник
-                  </a>{" "}
-                  на{" "}
-                  <a href="#SpectroFrazzle" className="glossary-link">
-                    фразлы
-                  </a>
+                  <GlossaryLink id="Tonic">тоник</GlossaryLink> на{" "}
+                  <GlossaryLink id="SpectroFrazzle">фразлы</GlossaryLink>
                 </span>
                 , чтобы обеспечить Фиби запасом{" "}
-                <a href="#SpectroFrazzle" className="glossary-link">
-                  фразлов
-                </a>
-                .
+                <GlossaryLink id="SpectroFrazzle">фразлов</GlossaryLink>.
               </p>,
             ],
             img: chisaTeam3Rotation1,
@@ -335,475 +305,124 @@ export const DataResonators = [
   },
   {
     name: "БУЛИНГ",
-    engName: "Byling",
-    role: "САП-ДД / САП",
+    engName: "Buling",
+    role: "Саппорт",
     resonator: ResonatorBuling,
     element: "Electro",
-    id: "ResonatorBuling",
-    link: "",
+    id: "ResonatorBuiling",
+    link: "/resonator/Buling",
     rarity: 4,
     weapon: "Rectifier",
+    previewImg: bulingPreview,
+    youtubeVideoId: "eTMD3m6xFf4",
+    youtubeVideoPreview: bulingYTPreview,
+    MiniGuideImg: bulingMiniGuide,
+    BaseDescr:
+      "Булинг занимает роль сапорта, так как встает приемущесвенно на 3-й слот",
+    BasePlus: [
+      "Хорошо хилит",
+      "быстрая ротация",
+      "Хорошо бафает на с6",
+      <>
+        накладывает{" "}
+        <GlossaryLink id="ElectroFlare">электро вспышки</GlossaryLink>
+      </>,
+    ],
+    BaseMinus: [
+      "мало отрядов",
+      "без с6 мало полезна",
+      "не универсальные бафы",
+      "дамага нет - а должен быть?",
+    ],
+    Utility: bulingUtility,
+    PumpingImg: bulingPumping,
+    DamageImg: bulingDamage,
+    WeaponPreview: bulingWeaponPreview,
+    Glossary: "bulingGlossary",
+    GlossaryTerm: [status[5]],
+    Weapon: [
+      { weapon: variation, damage: "" },
+      { weapon: callOfTheAbyss, damage: "" },
+    ],
+    WeaponDescr: [
+      "Если говорить чуть более развернуто, то...",
+      "1. Булинг самодостаточна во всех аспектах, поэтому ей можно поставить вообще что угодно, если есть лишний Вариатор или Зов бездны - ставьте их",
+      <>
+        2. Урон вы в любом случае не увидите до тех пор пока нег. статус{" "}
+        <GlossaryLink id="ElectroFlare">электро вспышки</GlossaryLink> не
+        получит развитие
+      </>,
+    ],
+    ConstellationPreview: bulingConstellation,
+    ConstellationDescr: [],
+    ConstellationTeamDamage: "",
+    ConstellationSoloDamage: "",
+    InvestmentsDamage: "",
+    InvestmentsReview: (
+      <>
+        В целом Булинг без созвездий не очень полезна, однако... если вы новичек
+        или на вашем аккаунте нет Хранительницы, но есть отряды играющие от
+        умения, то Булинг будет полезна, т.к у вас открывается опция второго
+        отряда где основным сапортом будет Верина(и др..)
+      </>
+    ),
+    TeamPreview: bulingTeamPreview,
+    Team: [
+      {
+        img: bulingTeam1,
+        descr: [
+          {
+            text: [
+              "Это базовая ротация с Булинг и Фроловой",
+              <>
+                На Фровловой важно прожать умение + базовую атаку + эхо, для
+                того что-б получить 2 ноты + отправить в кд кнопку Эхо, это
+                позволит в следующий раз когда мы зайдем на Фролю с Интро -
+                получится простой комбой набрать все ноты и выйти на хевик +
+                ульт
+              </>,
+            ],
+            img: BulingTeam1Rotation1,
+          },
+        ],
+      },
+      {
+        img: bulingTeam2,
+        descr: [
+          {
+            text: [
+              "В отряде с Карлоттой, очень важно прожать умение 1 и умение 2 в самом начале, перед тем как прокручивать ротацию",
+              "дальше, таким образом когда мы зайдем на Карлотту с интро следующее прожатие умение 1 и умение 2 - хватит на полное",
+              "форте",
+            ],
+            img: bulingTeam2Rotation1,
+          },
+        ],
+      },
+      {
+        img: bulingTeam3,
+        descr: [
+          {
+            text: [
+              "Ротация ЦзиньСи - крайне большая условность, в ней много нюансов, и базовая ротация довольно слабо отражает реальное положение дел... так что",
+              "пользуемся лишь как стартовой точкой, возможно в будущем будет время описать сложные 12-ти секундные и 15-ти секундные ротации",
+            ],
+            img: bulingTeam3Rotation1,
+          },
+        ],
+      },
+    ],
+    FinalReview: {
+      descr: (
+        <>
+          Итого... Буллинг - действительно хорошая 4-ка, которая отлично
+          справляется с основной задачей - разгрузить Хранительницу от
+          переизбытка пачек. Правда для этого нужно дотерпеть до ее 6-го
+          созвездия. До него от нее пользы меньше чем от Верины. Однако как я
+          уже несколько раз упомянул для новичка она в любом виде пригодится.
+        </>
+      ),
+      img: [bulingFinalReview1],
+    },
   },
-  // {
-  //   name: "Aalto",
-  //   role: "",
-  //   resonator: ResonatorAalto,
-  //   elementIMG: Aero,
-  //   element: "Aero",
-  //   id: "ResonatorAalto",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Pistols",
-  // },
-  // {
-  //   name: "Augusta",
-  //   role: "",
-  //   resonator: ResonatorAugusta,
-  //   elementIMG: Electro,
-  //   element: "Electro",
-  //   id: "ResonatorAugusta",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Broadblade",
-  // },
-  // {
-  //   name: "Baizhi",
-  //   role: "",
-  //   resonator: ResonatorBaizhi,
-  //   elementIMG: Glacio,
-  //   element: "Glacio",
-  //   id: "ResonatorBaizhi",
-  //   link: "",
-  //   rarity: "4",
-  //   weapon: "Rectifier",
-  // },
-  // {
-  //   name: "Brant",
-  //   role: "",
-  //   resonator: ResonatorBrant,
-  //   elementIMG: Fusion,
-  //   element: "Fusion",
-  //   id: "ResonatorBrant",
-  //   link: "",
-  //   rarity: "4",
-  //   weapon: "Sword",
-  // },
-  // {
-  //   name: "Calcharo",
-  //   role: "",
-  //   resonator: ResonatorCalcharo,
-  //   elementIMG: Electro,
-  //   element: "Electro",
-  //   id: "ResonatorCalcharo",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Broadblade",
-  // },
-  // {
-  //   name: "Camellya",
-  //   role: "",
-  //   resonator: ResonatorCamellya,
-  //   elementIMG: Havoc,
-  //   element: "Havoc",
-  //   id: "ResonatorCamellya",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Sword",
-  // },
-  // {
-  //   name: "Cantarella",
-  //   role: "",
-  //   resonator: ResonatorCantarella,
-  //   elementIMG: Havoc,
-  //   element: "Havoc",
-  //   id: "ResonatorCantarella",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Rectifier",
-  // },
-  // {
-  //   name: "Carlotta",
-  //   role: "",
-  //   resonator: ResonatorCarlotta,
-  //   elementIMG: Glacio,
-  //   element: "Glacio",
-  //   id: "ResonatorCarlotta",
-  //   link: "",
-  //   rarity: "4",
-  //   weapon: "Pistols",
-  // },
-  // {
-  //   name: "Cartethyia",
-  //   role: "",
-  //   resonator: ResonatorCartethyia,
-  //   elementIMG: Aero,
-  //   element: "Aero",
-  //   id: "ResonatorCartethyia",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Sword",
-  // },
-  // {
-  //   name: "Changli",
-  //   role: "",
-  //   resonator: ResonatorChangli,
-  //   elementIMG: Fusion,
-  //   element: "Fusion",
-  //   id: "ResonatorChangli",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Sword",
-  // },
-  // {
-  //   name: "Chisa",
-  //   role: "САП",
-  //   resonator: ResonatorChisa,
-  //   elementIMG: Havoc,
-  //   element: "Havoc",
-  //   id: "ResonatorChisa",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Broadblade",
-  // },
-  // {
-  //   name: "Chixia",
-  //   role: "",
-  //   resonator: ResonatorChixia,
-  //   elementIMG: Fusion,
-  //   element: "Fusion",
-  //   id: "ResonatorChixia",
-  //   link: "",
-  //   rarity: "4",
-  //   weapon: "Pistols",
-  // },
-  // {
-  //   name: "Ciaccona",
-  //   role: "",
-  //   resonator: ResonatorCiaccona,
-  //   elementIMG: Aero,
-  //   element: "Aero",
-  //   id: "ResonatorCiaccona",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Pistols",
-  // },
-  // {
-  //   name: "Danjin",
-  //   role: "",
-  //   resonator: ResonatorDanjin,
-  //   elementIMG: Havoc,
-  //   element: "Havoc",
-  //   id: "ResonatorDanjin",
-  //   link: "",
-  //   rarity: "4",
-  //   weapon: "Sword",
-  // },
-  // {
-  //   name: "Encore",
-  //   role: "",
-  //   resonator: ResonatorEncore,
-  //   elementIMG: Fusion,
-  //   element: "Fusion",
-  //   id: "ResonatorEncore",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Rectifier",
-  // },
-  // {
-  //   name: "Galbrena",
-  //   role: "",
-  //   resonator: ResonatorGalbrena,
-  //   elementIMG: Fusion,
-  //   element: "Fusion",
-  //   id: "ResonatorGalbrena",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Pistols",
-  // },
-  // {
-  //   name: "Iuno",
-  //   role: "",
-  //   resonator: ResonatorIuno,
-  //   elementIMG: Aero,
-  //   element: "Aero",
-  //   id: "ResonatorIuno",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Gauntlets",
-  // },
-  // {
-  //   name: "Jianxin",
-  //   role: "",
-  //   resonator: ResonatorJianxin,
-  //   elementIMG: Aero,
-  //   element: "Aero",
-  //   id: "ResonatorJianxin",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Gauntlets",
-  // },
-  // {
-  //   name: "Jinhsi",
-  //   role: "",
-  //   resonator: ResonatorJinhsi,
-  //   elementIMG: Spectro,
-  //   element: "Spectro",
-  //   id: "ResonatorJinhsi",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Broadblade",
-  // },
-  // {
-  //   name: "Jiyan",
-  //   role: "",
-  //   resonator: ResonatorJiyan,
-  //   elementIMG: Aero,
-  //   element: "Aero",
-  //   id: "ResonatorJiyan",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Broadblade",
-  // },
-  // {
-  //   name: "Lingyang",
-  //   role: "",
-  //   resonator: ResonatorLingyang,
-  //   elementIMG: Glacio,
-  //   element: "Glacio",
-  //   id: "ResonatorLingyang",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Gauntlets",
-  // },
-  // {
-  //   name: "Lumi",
-  //   role: "",
-  //   resonator: ResonatorLumi,
-  //   elementIMG: Electro,
-  //   element: "Electro",
-  //   id: "ResonatorLumi",
-  //   link: "",
-  //   rarity: "4",
-  //   weapon: "Broadblade",
-  // },
-  // {
-  //   name: "Lupa",
-  //   role: "",
-  //   resonator: ResonatorLupa,
-  //   elementIMG: Fusion,
-  //   element: "Fusion",
-  //   id: "ResonatorLupa",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Broadblade",
-  // },
-  // {
-  //   name: "Mortefi",
-  //   role: "",
-  //   resonator: ResonatorMortefi,
-  //   elementIMG: Fusion,
-  //   element: "Fusion",
-  //   id: "ResonatorMortefi",
-  //   link: "",
-  //   rarity: "4",
-  //   weapon: "Pistols",
-  // },
-  // {
-  //   name: "Phoebe",
-  //   role: "",
-  //   resonator: ResonatorPhoebe,
-  //   elementIMG: Spectro,
-  //   element: "Spectro",
-  //   id: "ResonatorPhoebe",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Rectifier",
-  // },
-  // {
-  //   name: "Phrolova",
-  //   role: "",
-  //   resonator: ResonatorPhrolova,
-  //   elementIMG: Havoc,
-  //   element: "Havoc",
-  //   id: "ResonatorPhrolova",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Rectifier",
-  // },
-  // {
-  //   name: "Qiuyuan",
-  //   role: "",
-  //   resonator: ResonatorQiuyuan,
-  //   elementIMG: Aero,
-  //   element: "Aero",
-  //   id: "ResonatorQiuyuan",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Sword",
-  // },
-  // {
-  //   name: "Roccia",
-  //   role: "",
-  //   resonator: ResonatorRoccia,
-  //   elementIMG: Havoc,
-  //   element: "Havoc",
-  //   id: "ResonatorRoccia",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Gauntlets",
-  // },
-  // {
-  //   name: "Rover-Aero",
-  //   role: "",
-  //   resonator: ResonatorRoverAero,
-  //   elementIMG: Aero,
-  //   element: "Aero",
-  //   id: "ResonatorRoverAero",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Sword",
-  // },
-  // {
-  //   name: "Rover-Havoc",
-  //   role: "",
-  //   resonator: ResonatorRoverHavoc,
-  //   elementIMG: Havoc,
-  //   element: "Havoc",
-  //   id: "ResonatorRoverHavoc",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Sword",
-  // },
-  // {
-  //   name: "Rover-Spectro",
-  //   role: "",
-  //   resonator: ResonatorRoverSpectro,
-  //   elementIMG: Spectro,
-  //   element: "Spectro",
-  //   id: "ResonatorRoverSpectro",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Sword",
-  // },
-  // {
-  //   name: "Sanhua",
-  //   role: "",
-  //   resonator: ResonatorSanhua,
-  //   elementIMG: Glacio,
-  //   element: "Glacio",
-  //   id: "ResonatorSanhua",
-  //   link: "",
-  //   rarity: "4",
-  //   weapon: "Sword",
-  // },
-  // {
-  //   name: "Shorekeeper",
-  //   role: "",
-  //   resonator: ResonatorShorekeeper,
-  //   elementIMG: Spectro,
-  //   element: "Spectro",
-  //   id: "ResonatorShorekeeper",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Rectifier",
-  // },
-  // {
-  //   name: "Taoqi",
-  //   role: "",
-  //   resonator: ResonatorTaoqi,
-  //   elementIMG: Havoc,
-  //   element: "Havoc",
-  //   id: "ResonatorTaoqi",
-  //   link: "",
-  //   rarity: "4",
-  //   weapon: "Broadblade",
-  // },
-  // {
-  //   name: "Verina",
-  //   role: "",
-  //   resonator: ResonatorVerina,
-  //   elementIMG: Spectro,
-  //   element: "Spectro",
-  //   id: "ResonatorVerina",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Rectifier",
-  // },
-  // {
-  //   name: "Xiangli Yao",
-  //   role: "",
-  //   resonator: ResonatorXiangliYao,
-  //   elementIMG: Electro,
-  //   element: "Electro",
-  //   id: "ResonatorXiangliYao",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Gauntlets",
-  // },
-  // {
-  //   name: "Yangyang",
-  //   role: "",
-  //   resonator: ResonatorYangyang,
-  //   elementIMG: Aero,
-  //   element: "Aero",
-  //   id: "ResonatorYangyang",
-  //   link: "",
-  //   rarity: "4",
-  //   weapon: "Sword",
-  // },
-  // {
-  //   name: "Yinlin",
-  //   role: "",
-  //   resonator: ResonatorYinlin,
-  //   elementIMG: Electro,
-  //   element: "Electro",
-  //   id: "ResonatorYinlin",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Rectifier",
-  // },
-  // {
-  //   name: "Youhu",
-  //   role: "",
-  //   resonator: ResonatorYouhu,
-  //   elementIMG: Glacio,
-  //   element: "Glacio",
-  //   id: "ResonatorYouhu",
-  //   link: "",
-  //   rarity: "4",
-  //   weapon: "Gauntlets",
-  // },
-  // {
-  //   name: "Yuanwu",
-  //   role: "",
-  //   resonator: ResonatorYuanwu,
-  //   elementIMG: Electro,
-  //   element: "Electro",
-  //   id: "ResonatorYuanwu",
-  //   link: "",
-  //   rarity: "4",
-  //   weapon: "Gauntlets",
-  // },
-  // {
-  //   name: "Zani",
-  //   role: "",
-  //   resonator: ResonatorZani,
-  //   elementIMG: Spectro,
-  //   element: "Spectro",
-  //   id: "ResonatorZani",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Gauntlets",
-  // },
-  // {
-  //   name: "Zhezhi",
-  //   role: "",
-  //   resonator: ResonatorZhezhi,
-  //   elementIMG: Glacio,
-  //   element: "Glacio",
-  //   id: "ResonatorZhezhi",
-  //   link: "",
-  //   rarity: "5",
-  //   weapon: "Rectifier",
-  // },
 ]

@@ -28,18 +28,18 @@ export const Header = () => {
                 Персонажи
               </Link>
             </li>
-            <li className="header__item">
+            {/* <li className="header__item">
               <Link to="/" className="header__link">
                 Тир-лист
               </Link>
-            </li>
+            </li> */}
 
             <li className="header__item">
               <Link to="/banners" className="header__link">
                 Баннеры
               </Link>
             </li>
-            <li className="header__item">
+            {/* <li className="header__item">
               <Link to="/glossary" className="header__link">
                 Глоссарий
               </Link>
@@ -48,7 +48,7 @@ export const Header = () => {
               <Link to="/changelog" className="header__link">
                 Изменения
               </Link>
-            </li>
+            </li> */}
           </ul>
         </nav>
       </div>

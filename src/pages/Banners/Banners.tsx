@@ -13,14 +13,9 @@ export const Banners = () => {
       <RealiseTimer />
       <ul className="main__list">
         {DataFutureResonators.map(item => (
-          <li className="main__item" key={`${item.id}future`}>
+          <li className="main__item" key={`${item.resonator}future`}>
             <Link to={item.link}>
-              <CardMemo
-                name={item.name}
-                role={item.role}
-                resonator={item.resonator}
-                element={item.elementIMG}
-              />
+              <CardMemo resonator={item.resonator} rarity={item.rarity} />
             </Link>
           </li>
         ))}

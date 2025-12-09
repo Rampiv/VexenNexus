@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router"
-import { AppContextProvider } from "./context/contextProvider"
 import "./App.scss"
 import React from "react"
 import { Footer, Header } from "./components"
@@ -14,17 +13,15 @@ const ResonatorMemo = React.memo(Resonator)
 
 export default function App() {
   return (
-    <AppContextProvider>
-      <div className="App">
-        <HeaderMemo />
-        <Routes>
-          <Route path="/" element={<MainMemo />} />
-          <Route path="/resonators" element={<ResonatorsMemo />} />
-          <Route path="/resonator/:id" element={<ResonatorMemo />} />
-          <Route path="/banners" element={<BannersMemo />} />
-        </Routes>
-        <FooterMemo />
-      </div>
-    </AppContextProvider>
+    <div className="App">
+      <HeaderMemo />
+      <Routes>
+        <Route path="/" element={<MainMemo />} />
+        <Route path="/resonators" element={<ResonatorsMemo />} />
+        <Route path="/resonator/:id" element={<ResonatorMemo />} />
+        <Route path="/banners" element={<BannersMemo />} />
+      </Routes>
+      <FooterMemo />
+    </div>
   )
 }
