@@ -315,11 +315,13 @@ export const Resonator = () => {
                       alt="Оружие"
                       className="weapon__item-weapon"
                     />
-                    <img
-                      src={item.damage}
-                      alt="Дамаг оружия"
-                      className="weapon__item-damage"
-                    />
+                    {item.damage && (
+                      <img
+                        src={item.damage}
+                        alt="Дамаг оружия"
+                        className="weapon__item-damage"
+                      />
+                    )}
                   </li>
                 ))}
               </ul>

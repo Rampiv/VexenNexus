@@ -64,25 +64,20 @@
       @include textType15();
       min-width: fit-content;
     }
-    &__list {
-      display: grid;
-      grid-template-columns: auto auto;
-    }
-    &__link{
+    &__link {
       width: 100%;
     }
   }
 }
 
 @media (max-width: 350px) {
-   .header {
+  .header {
     &__link {
       @include textType1();
       padding: 10px;
     }
-&__nav{
-  padding: 5px 0;
-}
+    &__nav {
+      padding: 5px 0;
+    }
   }
-  
 }
