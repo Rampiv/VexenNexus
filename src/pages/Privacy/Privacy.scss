@@ -1,0 +1,38 @@
+@use "../../styles/style.scss" as *;
+
+.privacy {
+  @include textType15();
+  color: $white;
+  font-family: "Helvetica";
+  font-weight: 400;
+  text-align: start;
+
+  .container {
+    padding: 10px;
+  }
+
+  h3 {
+    margin-bottom: 20px;
+    text-decoration: underline;
+  }
+  p {
+    margin-bottom: 10px;
+  }
+  ul {
+    margin-left: 40px;
+  }
+}
+
+@media (max-width: 612px) {
+  .privacy {
+    @include textType1();
+    text-align: start;
+  }
+}
+
+@media (max-width: 390px) {
+  .privacy {
+    @include textType05();
+    text-align: start;
+  }
+}

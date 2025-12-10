@@ -1,9 +1,36 @@
 @use "../../styles/style.scss" as *;
 
 .footer {
+  @include flexible();
+  flex-direction: column;
   margin-top: auto;
   width: 100%;
   background: $color1;
+  padding: 10px 0;
+  position: relative;
+  &__privacy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 90%;
+  }
+  &__privacy-link {
+    @include textType08();
+    @include standartTransition();
+    @include standartAnimZoom();
+    & {
+      text-wrap: nowrap;
+      color: $white;
+      text-align: center;
+      text-decoration: underline;
+    }
+  }
+  &__copyright {
+    @include textType08();
+    display: block;
+    color: $white;
+    text-align: center;
+  }
 }
 
 .navigation {
@@ -11,29 +38,28 @@
   align-items: flex-start;
   width: 100%;
   height: fit-content;
-  padding: 26px 0 5px;
+  gap: 20px;
 
   &__h2 {
-    @include textType15();
-    margin-bottom: 10px;
+    @include textType08();
+    margin-bottom: 5px;
     font-weight: lighter;
   }
 
   &__container {
     @include flexible();
     flex-direction: column;
-    &:first-child {
-      margin-right: 20px;
-    }
   }
   &__list {
     @include listReset();
     @include flexible();
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
   }
-
+  &__list-imgs {
+    flex-direction: row;
+    gap: 5px;
+  }
   &__link {
     @include flexible();
     @include standartTransition();
@@ -43,15 +69,28 @@
     }
 
     svg {
-      width: 23px;
+      width: 30px;
+      transform: scale(1.5);
     }
     img {
-      width: 23px;
+      width: 30px;
+    }
+    path {
+      display: flex;
+      top: 50%;
+      right: 50%;
+      transform: translate(7%, 18%);
     }
   }
+
   &__text {
-    @include textType15();
-    line-height: 10px;
+    @include textType08();
+  }
+  &__h2-margin {
+    margin-bottom: 13px;
+  }
+  &__item-margin {
+    margin-bottom: 9px;
   }
 }
 
@@ -85,8 +124,8 @@
   }
 }
 
-@media (max-width: 280px){
-  .navigation__h2{
+@media (max-width: 280px) {
+  .navigation__h2 {
     @include textType08();
   }
 }

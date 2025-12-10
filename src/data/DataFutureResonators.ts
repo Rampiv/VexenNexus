@@ -1,15 +1,8 @@
-import ResonarotChisa from "@assets/image/Resonators/Resonator_Chisa.webp"
-import ResonatorBuling from "@assets/image/Resonators/Resonator_Buling.webp"
+import LinneBanner from '../assets/image/Future/LinneBanner.webp'
+import MaornoBanner from '../assets/image/Future/MaornoBanner.webp'
 
 export const DataFutureResonators = [
   {
-    resonator: ResonarotChisa,
-    rarity: 5,
-    link: "/resonator/Chisa",
-  },
-  {
-    resonator: ResonatorBuling,
-    rarity: 4,
-    link: "",
+    bannerImg: [LinneBanner, MaornoBanner],
   },
 ]

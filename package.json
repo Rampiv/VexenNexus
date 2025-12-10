@@ -1,9 +1,9 @@
 {
   "name": "vexennexus",
   "private": true,
-  "version": "0.2.4",
+  "version": "0.2.5",
   "type": "module",
-  "homepage": "https://rampiv.github.io/VexenNexus/",
+  "homepage": "https://rvexen.github.io/VexenNexus/",
   "scripts": {
     "dev": "vite",
     "start": "vite",

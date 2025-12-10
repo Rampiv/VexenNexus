@@ -65,6 +65,14 @@ body {
   font-display: swap;
 }
 
+@font-face {
+  font-family: "lcdnormal";
+  src: url("./assets/fonts/lcdnormal.TTF") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Global class*/
 .container {
   max-width: 1280px;
@@ -110,7 +118,7 @@ section {
 .cian {
   color: $cian;
 }
-.yellow{
+.yellow {
   color: $yellow;
 }
 
@@ -120,7 +128,6 @@ section {
   min-height: 100vh;
   overflow: hidden;
 }
-
 
 // z-index
 // 100 - navigation list

@@ -1,0 +1,55 @@
+@use "../../styles/style.scss" as *;
+.future {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+  &__h2 {
+    @include textType2();
+    font-family: "Helvetica";
+    font-weight: 400;
+    text-align: center;
+
+    color: $white;
+    margin-bottom: 30px;
+    border-bottom: 1px solid $color8;
+  }
+
+  &__h3 {
+    @include textType4();
+    font-family: "bebas";
+    font-weight: 400;
+    text-align: center;
+
+    color: $white;
+    margin-bottom: 10px;
+  }
+  &__banners {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 12px;
+  }
+  &__item {
+    img {
+      border-radius: 44px;
+    }
+  }
+  &__descr{
+    @include textType2();
+    font-family: "Helvetica";
+    font-weight: 400;
+    color: $white;
+    margin-bottom: 40px;
+    &-date{
+      border-bottom: 1px solid $color8;
+    }
+  }
+}
+
+@media (max-width: 720px) {
+  .future {
+    &__banners {
+      grid-template-columns: auto;
+    }
+  }
+}
