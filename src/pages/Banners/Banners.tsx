@@ -2,7 +2,7 @@ import "./Banners.scss"
 import { RealiseTimer } from "../../components"
 import { DataFutureResonators } from "../../data"
 
-const PATCH_2_7_RELEASE = new Date("2025-12-19T10:00:00Z").getTime()
+const PATCH_2_7_RELEASE = new Date("2025-12-24T11:00:00Z").getTime()
 
 export const Banners = () => {
   return (
