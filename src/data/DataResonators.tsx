@@ -318,7 +318,7 @@ export const DataResonators = [
     youtubeVideoPreview: bulingYTPreview,
     MiniGuideImg: bulingMiniGuide,
     BaseDescr:
-      "Булинг занимает роль сапорта, так как встает приемущесвенно на 3-й слот",
+      "Булинг занимает роль сапорта, так как встает преимущесвенно на 3-й слот",
     BasePlus: [
       "Хорошо хилит",
       "быстрая ротация",
