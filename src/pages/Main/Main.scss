@@ -18,7 +18,6 @@
   &__content {
     @include flexible();
     flex-direction: column;
-    padding: 0 10px;
   }
 
   &__list {
@@ -56,23 +55,23 @@
     border: 1px solid $color2;
     border-radius: 25px;
     background-color: $color1;
-    padding: 44px 15px;
+    padding: 15px;
   }
   &__text {
     @include textReset();
-    @include textType2();
+    @include textType15();
     user-select: none;
   }
 }
 
 // СЕКЦИЯ ССЫЛОК
 .links {
-  margin-bottom: 54px;
+  margin-bottom: 20px;
   z-index: 2;
   &__list {
     @include listReset();
     @include flexible();
-    gap: 40px;
+    gap: 20px;
   }
   &__item {
     @include standartTransition();
@@ -85,9 +84,8 @@
       padding: 15px 5px;
     }
     a {
-      @include textType2();
+      @include textType1();
       display: block;
-      padding: 3px 18px;
       outline: none;
       user-select: none;
     }
@@ -99,13 +97,13 @@
   margin-bottom: 20px;
   .container {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
   }
   &__content {
     @include flexible();
     flex-direction: column;
     position: relative;
-    width: 100%;
+    width: 50%;
   }
   &__btn {
     @include btnReset();
@@ -115,8 +113,9 @@
   &__cloud-container {
     @include standartTransition();
     position: absolute;
-    top: -13%;
-    left: -49%;
+    max-width: 300px;
+    top: -25px;
+    left: -300px;
     z-index: -1;
     opacity: 0;
     visibility: hidden;
@@ -136,7 +135,7 @@
   }
   &__cloud-text {
     @include textReset();
-    @include textType2();
+    @include textType1();
     position: absolute;
     max-width: 310px;
     top: 45%;
@@ -149,8 +148,8 @@
 
   &__hint {
     position: absolute;
-    left: 4%;
-    top: 20%;
+    left: -30px;
+    top: 50px;
     filter: invert(1);
 
     opacity: 1;
@@ -161,127 +160,101 @@
   }
   &__hint-text {
     @include textReset();
-    @include textType2();
+    @include textType1();
     font-weight: 900;
     color: #000;
   }
+  &__chibi {
+    width: 440px;
+    object-fit: contain;
+  }
 }
 
-@media (max-width: 1480px) {
+@media (max-width: 620px) {
+  .pasta {
+    &__text {
+      @include textType1();
+    }
+  }
+  .links {
+    &__list {
+      flex-wrap: wrap;
+    }
+    &__item {
+      padding: 10px;
+      min-width: 150px;
+      a {
+        @include textType08();
+      }
+    }
+  }
   .chibi {
-    .container {
-      display: flex;
-      justify-content: flex-end;
-    }
-    &__content {
-      width: 50%;
-    }
     &__cloud-container {
-      top: -49%;
-      left: -118%;
+      max-width: 230px;
+      top: -23px;
+      left: -197px;
     }
-    &__hint {
-      left: -15%;
-    }
-  }
-}
-
-@media (max-width: 752px) {
-  .links__list {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-}
-
-@media (max-width: 650px) {
-  .chibi__cloud-container {
-    width: 120%;
-    top: -40%;
-    left: -97%;
-  }
-  .chibi__cloud-text {
-    font-size: 1em;
-  }
-  .chibi__hint {
-    left: -21%;
-    top: -2%;
-  }
-}
-
-@media (max-width: 570px) {
-  .chibi__cloud-text {
-    font-size: 10px;
-    line-height: 10px;
-  }
-}
-
-@media (max-width: 470px) {
-  .pasta__text {
-    @include textType15();
-  }
-  .links__item {
-    padding: 5px 10px;
-    min-width: fit-content;
-
-    a {
-      @include textType15();
-      padding: 0;
+    &__cloud-text {
+      @include textType08();
     }
   }
 }
 
 @media (max-width: 350px) {
+  .pasta {
+    &__text {
+      @include textType08();
+    }
+  }
+  .links {
+    &__list {
+      gap: 5px;
+    }
+    &__item {
+      min-width: 100px;
+    }
+  }
   .chibi {
+    &__cloud-container {
+      max-width: 170px;
+      top: -20px;
+      left: -150px;
+    }
     &__cloud-text {
-      font-size: 8px;
-      line-height: 8px;
+      @include textType05();
     }
-    &__hint {
-      left: -62px;
-      svg {
-        width: 35px;
-      }
-    }
-  }
-  .chibi__hint-text {
-    @include textType15();
-    filter: invert(1);
-  }
-  .links__item {
-    padding: 10px;
-    a {
-      @include textType1();
-    }
-  }
-  .pasta__text {
-    @include textType1();
   }
 }
 
-@media (max-width: 179px) {
-  .chibi__hint-text {
-    @include textType1();
-    filter: invert(1);
-  }
+@media (max-width: 270px) {
   .chibi {
-    &__cloud-text {
-      font-size: 5px;
-      line-height: 5px;
+    &__cloud-container {
+      max-width: 130px;
+      top: -20px;
+      left: -100px;
     }
     &__hint {
-      left: -62px;
-      svg {
-        width: 20px;
-      }
+      top: 30px;
     }
   }
-  .pasta__text {
-    @include textType08();
-  }
-  .links__item {
-    padding: 5x;
-    a {
-      @include textType08();
+}
+
+@media (max-width: 180px) {
+  .chibi {
+    &__cloud-container {
+      max-width: 100px;
+      top: -20px;
+      left: -75px;
+    }
+    &__cloud-text{
+      @include textType03;
+    }
+    &__hint {
+      top: 10px;
+    }
+    &__hint-text {
+      @include textType05;
+      filter: invert(1);
     }
   }
 }

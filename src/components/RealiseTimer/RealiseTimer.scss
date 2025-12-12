@@ -7,7 +7,7 @@
   font-weight: bold;
   color: $color8;
   font-family: "lcdnormal";
-  margin-bottom: 50px;
+  margin-bottom: 20px;
 
   &__item {
     @include flexible();
@@ -16,7 +16,7 @@
   }
 
   &__value {
-    font-size: 4em;
+    font-size: 2em;
     color: inherit;
     font-family: "lcdnormal";
     letter-spacing: 6px;
@@ -29,14 +29,6 @@
 
   &__span {
     color: inherit;
-  }
-}
-
-@media (max-width: 484px) {
-  .countdown {
-    &__value {
-      font-size: 3em;
-    }
   }
 }
 

@@ -14,7 +14,7 @@ export const Banners = () => {
       <RealiseTimer newDateProp={PATCH_2_7_RELEASE} region={"asia"} />
       <h3 className="future__h3">АМЕРИКА</h3>
       <RealiseTimer newDateProp={PATCH_2_7_RELEASE} region={"america"} />
-      <p className="future__descr">Дата релиза: <span className="future__descr-date">19 декабря</span></p>
+      <p className="future__descr">Дата релиза: <span className="future__descr-date">25 декабря</span></p>
       <ul className="future__banners">
         {DataFutureResonators.map(item =>
           item.bannerImg ? (
