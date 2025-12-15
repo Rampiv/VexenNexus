@@ -1,31 +1,27 @@
 import { Link } from "react-router"
 import "./Footer.scss"
-import { DataLinks } from "../../data"
+
+const links = [
+  { name: "Обратная связь", link: "/feedback" },
+  { name: "Privacy Policy", link: "/privacy" },
+]
 
 export const Footer = () => {
   return (
     <footer className="footer">
       <nav className="navigation">
         <div className="navigation__container">
-          <h2 className="navigation__h2">ССЫЛОЧКИ:</h2>
-          <ul className="navigation__list navigation__list-imgs">
-            {DataLinks.map(item => {
+          <ul className="contacts-footer">
+            {links.map((item, index) => {
               return (
-                <li className="navigation__item" key={item.id}>
-                  <Link to={item.link} className="navigation__link">
-                    {typeof item.img == "string" ? (
-                      <img src={item.img} alt="Иконка" />
-                    ) : (
-                      item.img()
-                    )}
-                  </Link>
+                <li key={`${index} контакты`} className="contacts-footer__item">
+                  <Link to={item.link}>{item.name}</Link>
                 </li>
               )
             })}
           </ul>
         </div>
         <div className="navigation__container">
-          <h2 className="navigation__h2">СО-АВТОРЫ:</h2>
           <ul className="navigation__list">
             <li className="navigation__item">
               <span className="navigation__text">ТЕОРИКРАФТЕР - CODY</span>
@@ -39,9 +35,6 @@ export const Footer = () => {
         </div>
       </nav>
       <div className="footer__privacy">
-        <Link to={"/privacy"} className="footer__privacy-link">
-          Privacy Policy
-        </Link>
         <span className="footer__copyright">
           Copyright © 2025 rvexen.github.io
         </span>

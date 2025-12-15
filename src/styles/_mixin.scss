@@ -48,12 +48,22 @@
   letter-spacing: 0.5px;
   text-align: center;
   color: $white;
+  font-weight: 400;
 }
 
 @mixin textBold() {
   font-family: "helvetica-bold", sans-serif;
+  font-weight: bold;
 }
 
+@mixin backgroundGradient() {
+  background: #646366;
+  background: linear-gradient(
+    90deg,
+    rgba(100, 99, 102, 1) 0%,
+    rgba(42, 40, 47, 1) 100%
+  );
+}
 
 @mixin textType02() {
   @include textReset();

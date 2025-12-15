@@ -8,17 +8,21 @@ import { useEffect, useMemo, useState } from "react"
 import { GlossaryProvider } from "../../context/GlossaryContext"
 
 const contentsList = [
-  { title: "РОЛИК ПО БАЗЕ", href: "YTGuide" },
-  { title: "МИНИ-ГАЙД", href: "miniGuide" },
-  { title: "ПЛЮСЫ И МИНУСЫ", href: "plusminus" },
-  { title: "ПОЛЬЗА ПЕРСОНАЖА", href: "utility" },
-  { title: "ПОРЯДОК ПРОКАЧКИ", href: "pumping" },
-  { title: "РАСПРЕДЕЛЕНИЕ УРОНА", href: "damage" },
-  { title: "ОРУЖИЕ", href: "weapon" },
-  { title: "СОЗВЕЗДИЯ", href: "constellation" },
-  { title: "ОТРЯДЫ", href: "team" },
-  { title: "ФИНАЛЬНЫЙ ОБЗОР", href: "final" },
+  { title: "Базовая паста", href: "pasta" },
+  { title: "Плюсы и минусы", href: "plusminus" },
+  { title: "Основная механика", href: "utility" },
+  { title: "Мини-гайд", href: "miniGuide" },
+  { title: "Оружие", href: "weapon" },
+  { title: "Распределение урона", href: "damage" },
+  { title: "Созвездия", href: "constellation" },
+  { title: "Отряды", href: "team" },
+  { title: "Финальный обзор", href: "final" },
+  { title: "Ролик по базе", href: "YTGuide" },
+  { title: "Глоссарий", href: "glossaryContainer" },
 ]
+const half = Math.ceil(contentsList.length / 2)
+const leftColumn = contentsList.slice(0, half) // [0..4] → 5 элементов
+const rightColumn = contentsList.slice(half)
 
 const glossaryDataStandart = [
   {
@@ -136,332 +140,304 @@ export const Resonator = () => {
   return (
     <GlossaryProvider value={{ scrollToGlossaryTerm }}>
       <section className="resonator">
-        <div className="container">
-          <div className="resonator__container">
-            {/* ИМЯ */}
-            <div className="name">
-              <img
-                src={resonator.previewImg}
-                alt="Превью резонатора"
-                className="name__preview-img"
-              />
-              <div className="name__content">
-                <h2 className="name__h2" id="up">
-                  {resonator.name}
+        <div className="resonator__container">
+          {/* ИМЯ */}
+          <div className="name">
+            <h2 className="resonator__h2 name__h2">{resonator.name}</h2>
+            <img
+              src={resonator.previewImg}
+              alt="Превью резонатора"
+              className="name__preview-img"
+            />
+          </div>
+
+          {/* СОДЕРЖАНИЕ */}
+          <div className="contents">
+            <Accordion buttonName={"Быстрое перемещение по главам:"}>
+              <div className="contents__grid">
+                <ul className="contents__column">
+                  {leftColumn.map(item => (
+                    <li className="contents__item" key={item.href}>
+                      <img src={marker} alt="маркер" />
+                      <button
+                        className="contents__link"
+                        onClick={e => {
+                          e.preventDefault()
+                          scrollToSection(item.href)
+                        }}
+                      >
+                        {item.title}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <ul className="contents__column">
+                  {rightColumn.map(item => (
+                    <li className="contents__item" key={item.href}>
+                      <img src={marker} alt="маркер" />
+                      <button
+                        className="contents__link"
+                        onClick={e => {
+                          e.preventDefault()
+                          scrollToSection(item.href)
+                        }}
+                      >
+                        {item.title}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Accordion>
+          </div>
+
+          {/* БАЗОВАЯ ПАСТА */}
+          <div className="pasta" id="pasta">
+            <h2 className="resonator__h2 pasta__h2">Базовая паста</h2>
+            <p className="pasta__descr">{resonator.BaseDescr}</p>
+          </div>
+
+          {/* ПЛЮСЫ И МИНУСЫ */}
+          <div className="resonator__common-container plusminus" id="plusminus">
+            <div className="plusminus__container">
+              <div className="plusminus__plus">
+                <h2 className="plusminus__h2">
+                  <span className="green">Плюсы</span>
                 </h2>
-                <p className="name__role">Роль: {resonator.role}</p>
+                <ul className="plusminus__list plusminus__plus-list">
+                  {resonator.BasePlus?.map((item, index) => (
+                    <li className="plusminus__plus-item" key={`plus-${index}`}>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
-
-            {/* СОДЕРЖАНИЕ */}
-            <div className="contents">
-              <h2 className="contents__h2">Быстрое перемещение по главам:</h2>
-              <ul className="contents__list">
-                {contentsList.map(item => (
-                  <li className="contents__item" key={item.href}>
-                    <img src={marker} alt="маркер" />
-                    <button
-                      className="contents__link"
-                      onClick={e => {
-                        e.preventDefault()
-                        scrollToSection(item.href)
-                      }}
+              <div className="plusminus__minus">
+                <h2 className="plusminus__h2">
+                  <span className="red">Минусы</span>
+                </h2>
+                <ul className="plusminus__list plusminus__minus-list">
+                  {resonator.BaseMinus?.map((item, index) => (
+                    <li
+                      className="plusminus__minus-item"
+                      key={`minus-${index}`}
                     >
-                      {item.title}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* ГЛОССАРИЙ */}
-            <div
-              className="resonator__common-container glossary"
-              id="glossaryContainer"
-            >
-              <h2 className="resonator__h2">ГЛОССАРИЙ</h2>
-              <Accordion
-                buttonName={isGlossaryExpanded ? "Свернуть" : "Развернуть"}
-                expanded={isGlossaryExpanded}
-                onToggle={handleGlossaryToggle}
-                className="glossary__accordion"
-              >
-                <Table
-                  columns={["Термин", "Определение"]}
-                  rows={glossaryData}
-                  highlightId={highlightId}
-                />
-              </Accordion>
-            </div>
-
-            {/* ЮТУБ РОЛИК */}
-            <div className="resonator__common-container ytguide" id="YTGuide">
-              <h2 className="resonator__h2">РОЛИК ПО БАЗЕ</h2>
-              {resonator.youtubeVideoId ? (
-                <YouTubePlayer
-                  videoId={resonator.youtubeVideoId}
-                  title={`Ролик по базе ${resonator.name}`}
-                  YT={resonator.youtubeVideoPreview}
-                />
-              ) : (
-                <div className="ytguide__error">
-                  <img
-                    src={resonator.youtubeVideoPreview}
-                    alt="Видео недоступно"
-                    onError={() =>
-                      console.warn("Fallback image failed to load")
-                    }
-                    className="ytguide__error-img"
-                  />
-                  <span className="ytguide__error-message">Ролик в процессе создания</span>
-                </div>
-              )}
-            </div>
-
-            {/* МИНИ-ГАЙД */}
-            <div
-              className="resonator__common-container miniguide"
-              id="miniGuide"
-            >
-              <h2 className="resonator__h2">МИНИ-ГАЙД</h2>
-              <img src={resonator.MiniGuideImg} alt="Изображение мини гайда" />
-            </div>
-
-            {/* ПЛЮСЫ И МИНУСЫ */}
-            <div
-              className="resonator__common-container plusminus"
-              id="plusminus"
-            >
-              <h2 className="resonator__h2">ПЛЮСЫ И МИНУСЫ</h2>
-              <p className="plusminus__descr">{resonator.BaseDescr}</p>
-              <p className="plusminus__descr">
-                выделим <span className="green">плюсы</span> и{" "}
-                <span className="red">минусы</span>
-              </p>
-              <div className="plusminus__container">
-                <div className="plusminus__plus">
-                  <h3 className="plusminus__h3">
-                    <span className="green">Плюсы</span>
-                  </h3>
-                  <ul className="plusminus__list plusminus__plus-list">
-                    {resonator.BasePlus?.map((item, index) => (
-                      <li
-                        className="plusminus__plus-item"
-                        key={`plus-${index}`}
-                      >
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="plusminus__minus">
-                  <h3 className="plusminus__h3">
-                    <span className="red">Минусы</span>
-                  </h3>
-                  <ul className="plusminus__list plusminus__minus-list">
-                    {resonator.BaseMinus?.map((item, index) => (
-                      <li
-                        className="plusminus__minus-item"
-                        key={`minus-${index}`}
-                      >
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
-
-            {/* ПОЛЬЗА */}
-            <div className="resonator__common-container utility" id="utility">
-              <h2 className="resonator__h2">ПОЛЬЗА ПЕРСОНАЖА</h2>
-              <img
-                src={resonator.Utility}
-                alt="Утилити резонатора"
-                className="utility__img"
-              />
-            </div>
-
-            {/* ПРОКАЧКА */}
-            <div className="resonator__common-container pumping" id="pumping">
-              <h2 className="resonator__h2">ПОРЯДОК ПРОКАЧКИ</h2>
-              <img
-                src={resonator.PumpingImg}
-                alt="Прокачка резонатора"
-                className="pumping__img"
-              />
-            </div>
-
-            {/* УРОН */}
-            <div className="resonator__common-container damage" id="damage">
-              <h2 className="resonator__h2">РАСПРЕДЕЛЕНИЕ УРОНА</h2>
-              <img
-                src={resonator.DamageImg}
-                alt="Распределение урона"
-                className="damage__img"
-              />
-            </div>
-
-            {/* ОРУЖИЕ */}
-            <div className="resonator__common-container weapon" id="weapon">
-              <img
-                src={resonator.WeaponPreview}
-                alt="Превью оружия"
-                className="resonator__common-preview"
-              />
-              <h2 className="resonator__h2">ОРУЖИЕ</h2>
-              {resonator.GlossaryImg && (
-                <img
-                  src={resonator.GlossaryImg}
-                  alt="глоссарий"
-                  className="weapon__glossary"
-                />
-              )}
-              <ul className="weapon__list">
-                {resonator.Weapon?.map((item, index) => (
-                  <li className="weapon__item" key={`weapon-${index}`}>
-                    <img
-                      src={item.weapon}
-                      alt="Оружие"
-                      className="weapon__item-weapon"
-                    />
-                    {item.damage && (
-                      <img
-                        src={item.damage}
-                        alt="Дамаг оружия"
-                        className="weapon__item-damage"
-                      />
-                    )}
-                  </li>
-                ))}
-              </ul>
-              <div className="weapon__descr-container">
-                {resonator.WeaponDescr?.map((item, index) => (
-                  <p key={index}>{item}</p>
-                ))}
-              </div>
-            </div>
-
-            {/* СОЗВЕЗДИЯ */}
-            <div
-              className="resonator__common-container constellation"
-              id="constellation"
-            >
-              <img
-                src={resonator.ConstellationPreview}
-                alt="Превью созвездий"
-                className="resonator__common-preview"
-              />
-              <h2 className="resonator__h2">СОЗВЕЗДИЯ</h2>
-              <div className="constellation__descr">
-                {resonator.ConstellationDescr?.map((item, index) => (
-                  <p key={index}>{item}</p>
-                ))}
-                {resonator.ConstellationTeamDamage && (
-                  <>
-                    <h3 className="constellation__h3">
-                      Персональный урон за 1 ротацию
-                    </h3>
-                    <img
-                      src={resonator.ConstellationTeamDamage}
-                      alt="Урон Team"
-                    />
-                  </>
-                )}
-                {resonator.ConstellationSoloDamage && (
-                  <>
-                    <h3 className="constellation__h3">
-                      Персональный урон за 3 ротации
-                    </h3>
-                    <img
-                      src={resonator.ConstellationSoloDamage}
-                      alt="Урон Solo"
-                    />
-                  </>
-                )}
-                {resonator.InvestmentsDamage && (
-                  <>
-                    <h3 className="constellation__h3">
-                      Табличка с инвестицией в разных персонажей на примере
-                      лучшего отряда
-                    </h3>
-                    <img
-                      src={resonator.InvestmentsDamage}
-                      alt="Урон при инвестициях"
-                    />
-                  </>
-                )}
-
-                <p>{resonator.InvestmentsReview}</p>
-              </div>
-            </div>
-
-            {/* ОТРЯДЫ */}
-            <div className="resonator__common-container team" id="team">
-              <img
-                src={resonator.TeamPreview}
-                alt="Превью команды"
-                className="resonator__common-preview"
-              />
-              <h2 className="resonator__h2">ОТРЯДЫ</h2>
-              <ul className="team__list">
-                {resonator.Team?.map((teamItem, teamIndex) => (
-                  <li className="team__item" key={`team-${teamIndex}`}>
-                    <img
-                      src={teamItem.img}
-                      alt="Команда"
-                      className="team__img"
-                    />
-                    <Accordion buttonName="Ротация">
-                      {teamItem.descr.map((descrItem, descrIndex) => (
-                        <ul
-                          key={`rotation-${teamIndex}-${descrIndex}`}
-                          className="team__accordion-list"
-                        >
-                          {descrItem.text.map((text, textIndex) => (
-                            <li
-                              key={`text-${textIndex}`}
-                              className="team__accordion-item"
-                            >
-                              {text}
-                            </li>
-                          ))}
-                          <img src={descrItem.img} alt="Ротация" />
-                        </ul>
-                      ))}
-                    </Accordion>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* ФИНАЛЬНЫЙ ОБЗОР */}
-            <div className="resonator__common-container review" id="final">
-              <h2 className="resonator__h2">ФИНАЛЬНЫЙ ОБЗОР</h2>
-              <p className="review__descr">{resonator.FinalReview?.descr}</p>
-              <ul className="review__list">
-                {resonator.FinalReview?.img?.map((img, index) => (
-                  <li className="review__item" key={`review-img-${index}`}>
-                    <img
-                      src={img}
-                      alt="Финальная таблица"
-                      className="review__img"
-                    />
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
 
-          {showUpButton && (
-            <button
-              className="resonator__up"
-              onClick={() => scrollToSection("up")}
-            >
-              Наверх
-            </button>
+          {/* ОСНОВНАЯ МЕХАНИКА */}
+          <div className="resonator__common-container utility" id="utility">
+            <h2 className="resonator__h2">ОСНОВНАЯ МЕХАНИКА</h2>
+            <img
+              src={resonator.Utility}
+              alt="Утилити резонатора"
+              className="utility__img"
+            />
+            <h3 className="utility__h3">Распределение урона</h3>
+            <img
+              src={resonator.DamageImg}
+              alt="Распределение урона"
+              className="utility__img"
+            />
+          </div>
+
+          {/* МИНИ-ГАЙД */}
+          <div className="resonator__common-container miniguide" id="miniGuide">
+            <h2 className="resonator__h2">МИНИ-ГАЙД</h2>
+            <img src={resonator.MiniGuideImg} alt="Изображение мини гайда" />
+          </div>
+
+          {/* ОРУЖИЕ */}
+          <div className="resonator__common-container weapon" id="weapon">
+            <h2 className="resonator__h2">ОРУЖИЕ</h2>
+            {resonator.GlossaryImg && (
+              <img
+                src={resonator.GlossaryImg}
+                alt="глоссарий"
+                className="weapon__glossary"
+              />
+            )}
+            <ul className="weapon__list">
+              {resonator.Weapon?.map((item, index) => (
+                <li className="weapon__item" key={`weapon-${index}`}>
+                  <img
+                    src={item.weapon}
+                    alt="Оружие"
+                    className="weapon__item-weapon"
+                  />
+                  {item.damage && (
+                    <img
+                      src={item.damage}
+                      alt="Дамаг оружия"
+                      className="weapon__item-damage"
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
+            <div className="weapon__descr-container">
+              {resonator.WeaponDescr?.map((item, index) => (
+                <p key={index}>{item}</p>
+              ))}
+            </div>
+          </div>
+
+          {/* СОЗВЕЗДИЯ */}
+          <div
+            className="resonator__common-container constellation"
+            id="constellation"
+          >
+            <h2 className="resonator__h2">СОЗВЕЗДИЯ</h2>
+            <div className="constellation__descr">
+              {resonator.ConstellationDescr?.map((item, index) => (
+                <p key={index}>{item}</p>
+              ))}
+              {resonator.ConstellationTeamDamage && (
+                <>
+                  <h3 className="constellation__h3">
+                    Персональный урон за 1 ротацию
+                  </h3>
+                  <img
+                    src={resonator.ConstellationTeamDamage}
+                    alt="Урон Team"
+                  />
+                </>
+              )}
+              {resonator.ConstellationSoloDamage && (
+                <>
+                  <h3 className="constellation__h3">
+                    Персональный урон за 3 ротации
+                  </h3>
+                  <img
+                    src={resonator.ConstellationSoloDamage}
+                    alt="Урон Solo"
+                  />
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* ИНВЕСТИЦИИ */}
+          {resonator.InvestmentsDamage && (
+            <div className="investments">
+              <h2 className="resonator__h2">Инвестиции</h2>
+              <img
+                src={resonator.InvestmentsDamage}
+                alt="Урон при инвестициях"
+                className="investments__img"
+              />
+
+              <p className="investments__descr">
+                {resonator.InvestmentsReview}
+              </p>
+            </div>
           )}
+
+          {/* ОТРЯДЫ */}
+          <div className="resonator__common-container team" id="team">
+            <h2 className="resonator__h2">ОТРЯДЫ</h2>
+            <ul className="team__list">
+              {resonator.Team?.map((teamItem, teamIndex) => (
+                <li className="team__item" key={`team-${teamIndex}`}>
+                  <img src={teamItem.img} alt="Команда" className="team__img" />
+                  <Accordion buttonName="Ротация">
+                    {teamItem.descr.map((descrItem, descrIndex) => (
+                      <ul
+                        key={`rotation-${teamIndex}-${descrIndex}`}
+                        className="team__accordion-list"
+                      >
+                        {descrItem.text.map((text, textIndex) => (
+                          <li
+                            key={`text-${textIndex}`}
+                            className="team__accordion-item"
+                          >
+                            {text}
+                          </li>
+                        ))}
+                        <img src={descrItem.img} alt="Ротация" />
+                      </ul>
+                    ))}
+                  </Accordion>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* ФИНАЛЬНЫЙ ОБЗОР */}
+          <div className="resonator__common-container review" id="final">
+            <h2 className="resonator__h2">ФИНАЛЬНЫЙ ОБЗОР</h2>
+            <p className="review__descr">{resonator.FinalReview?.descr}</p>
+            <ul className="review__list">
+              {resonator.FinalReview?.img?.map((img, index) => (
+                <li className="review__item" key={`review-img-${index}`}>
+                  <img
+                    src={img}
+                    alt="Финальная таблица"
+                    className="review__img"
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* ЮТУБ РОЛИК */}
+          <div className="resonator__common-container ytguide" id="YTGuide">
+            <h2 className="resonator__h2">РОЛИК ПО БАЗЕ</h2>
+            {resonator.youtubeVideoId ? (
+              <YouTubePlayer
+                videoId={resonator.youtubeVideoId}
+                title={`Ролик по базе ${resonator.name}`}
+                YT={resonator.youtubeVideoPreview}
+              />
+            ) : (
+              <div className="ytguide__error">
+                <img
+                  src={resonator.youtubeVideoPreview}
+                  alt="Видео недоступно"
+                  onError={() => console.warn("Fallback image failed to load")}
+                  className="ytguide__error-img"
+                />
+                <span className="ytguide__error-message">
+                  Ролик в процессе создания
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* ГЛОССАРИЙ */}
+          <div
+            className="resonator__common-container glossary"
+            id="glossaryContainer"
+          >
+            <h2 className="resonator__h2">ГЛОССАРИЙ</h2>
+            <Accordion
+              buttonName={isGlossaryExpanded ? "Свернуть" : "Развернуть"}
+              expanded={isGlossaryExpanded}
+              onToggle={handleGlossaryToggle}
+              className="glossary__accordion"
+            >
+              <Table
+                columns={["Термин", "Определение"]}
+                rows={glossaryData}
+                highlightId={highlightId}
+              />
+            </Accordion>
+          </div>
         </div>
+
+        {showUpButton && (
+          <button
+            className="resonator__up"
+            onClick={() => scrollToSection("up")}
+          >
+            Наверх
+          </button>
+        )}
       </section>
     </GlossaryProvider>
   )

@@ -1,5 +1,6 @@
-export { Main } from "./Main"
+export { Greeting } from "./Greeting"
 export { Resonators } from "./Resonators"
-export { Banners } from "./Banners"
 export { Resonator } from "./Resonator"
 export { Privacy } from "./Privacy"
+export { Feedback } from "./Feedback"
+export { Egg } from "./Egg"

@@ -1,0 +1,1 @@
+export { Egg } from "./Egg"

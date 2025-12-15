@@ -1,22 +1,28 @@
-import { YT, TG, TikTok } from "@assets/icons"
+import { YT, TG, TikTok, Discord } from "@assets/icons"
 
 export const DataLinks = [
   {
-    img: TG,
-    text: "ТГ КАНАЛ",
-    link: "https://t.me/RealVexen",
-    id: "footertg",
+    img: YT,
+    text: "YOUTUBE",
+    link: "https://www.youtube.com/channel/UC6AK8pzlGQp4h6HGEfJnRHw",
+    id: "IMGYT",
   },
   {
-    img: YT,
-    text: "VEXEN",
-    link: "https://www.youtube.com/channel/UC6AK8pzlGQp4h6HGEfJnRHw",
-    id: "footeryt",
+    img: TG,
+    text: "TELEGRAM",
+    link: "https://t.me/RealVexen",
+    id: "IMGTG",
   },
   {
     img: TikTok,
-    text: "REALVEXEN",
+    text: "TIKTOK",
     link: "https://www.tiktok.com/@realvexen",
-    id: "footerTikTok",
+    id: "IMGTIKTOK",
+  },
+    {
+    img: Discord,
+    text: "DISCORD",
+    link: "https://www.tiktok.com/@realvexen",
+    id: "IMGDISCORD",
   },
 ]

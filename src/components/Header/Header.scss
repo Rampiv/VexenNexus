@@ -3,13 +3,15 @@
 .header {
   background: $color1;
   width: 100%;
-  margin-bottom: 20px;
   &__nav {
     @include flexible();
-    flex-direction: column;
-    padding: 0 0 10px;
+    padding: 10px 0;
     position: relative;
     user-select: none;
+    width: 100%;
+    justify-content: flex-start;
+    padding-left: 50px;
+    gap: 20px;
   }
   &__list {
     @include listReset();
@@ -36,73 +38,38 @@
   &__link {
     @include standartTransition();
     @include textType1();
-    @include standartAnimZoom();
-    & {
-      padding: 9px;
-      outline: none;
-      background-color: $color4;
-      border: 1px solid $color2;
-      border-radius: 7px;
-      min-width: 111px;
-      text-align: center;
+    padding: 9px;
+    outline: none;
+    text-align: center;
+    &:hover,
+    &:focus {
+      color: $color2;
+    }
+    &:active {
+      color: $color2;
+      filter: contrast(4);
     }
   }
   &__logo {
     overflow: hidden;
-    width: 250px;
     -webkit-user-drag: none;
     user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     pointer-events: none;
-  }
-  &__game {
-    width: 80px;
-    position: absolute;
-    right: -75px;
-    -webkit-user-drag: none;
-    user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    pointer-events: none;
-  }
-}
-
-@media (max-width: 558px) {
-  .header__game {
-    display: none;
-  }
-}
-
-@media (max-width: 415px) {
-  .header {
-    &__link {
-      @include textType1();
-      padding: 9px;
-    }
+    height: 50px;
   }
 }
 
 @media (max-width: 350px) {
   .header {
+    &__nav{
+      padding: 5px 15px;
+      gap: 10px;
+    }
     &__link {
       @include textType08();
       padding: 5px;
-    }
-    &__nav {
-      padding: 5px 0;
-    }
-  }
-}
-
-@media (max-width: 179px) {
-  .header {
-    &__link {
-      @include textType08();
-      padding: 5px;
-    }
-    &__link-img{
-      margin-bottom: 10px;
     }
   }
 }
