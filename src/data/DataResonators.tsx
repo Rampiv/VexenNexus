@@ -4,14 +4,10 @@ import chisaPreview from "@assets/image/Resonators/Chisa/chisaPreview.webp"
 import chisaMiniGuide from "@assets/image/Resonators/Chisa/chisaMiniGuide.webp"
 import chisaYTPreview from "@assets/image/Resonators/Chisa/chisaYTPreview.webp"
 import chisaUtility from "@assets/image/Resonators/Chisa/chisaUtility.webp"
-import chisaPumping from "@assets/image/Resonators/Chisa/chisaPumping.webp"
-import chisaWeaponPreview from "@assets/image/Resonators/Chisa/chisaWeaponPreview.webp"
 import chisaGlossary from "@assets/image/Resonators/Chisa/chisaGlossary.webp"
-import chisaConstellation from "@assets/image/Resonators/Chisa/chisaConstellationPreview.webp"
 import chisaConstellationTeamDamage from "@assets/image/Resonators/Chisa/chisaConstellationTeamDamage.webp"
 import chisaConstellationSoloDamage from "@assets/image/Resonators/Chisa/chisaConstellationSoloDamage.webp"
 import chisaInvestmentsDamage from "@assets/image/Resonators/Chisa/chisaInvestmentsDamage.webp"
-import chisaTeamPreview from "@assets/image/Resonators/Chisa/chisaTeamPreview.webp"
 import chisaTeam1 from "@assets/image/Resonators/Chisa/chisaTeam1.webp"
 import chisaTeam2 from "@assets/image/Resonators/Chisa/chisaTeam2.webp"
 import chisaTeam3 from "@assets/image/Resonators/Chisa/chisaTeam3.webp"
@@ -34,11 +30,7 @@ import bulingPreview from "@assets/image/Resonators/Buling/bulingPreview.webp"
 import bulingYTPreview from "@assets/image/Resonators/Buling/bulingYTPreview.webp"
 import bulingMiniGuide from "@assets/image/Resonators/Buling/bulingMiniGuide.webp"
 import bulingUtility from "@assets/image/Resonators/Buling/bulingUtility.webp"
-import bulingPumping from "@assets/image/Resonators/Buling/bulingPumping.webp"
 import bulingDamage from "@assets/image/Resonators/Buling/bulingDamage.webp"
-import bulingWeaponPreview from "@assets/image/Resonators/Buling/bulingWeaponPreview.webp"
-import bulingConstellation from "@assets/image/Resonators/Buling/bulingConstellation.webp"
-import bulingTeamPreview from "@assets/image/Resonators/Buling/bulingTeamPreview.webp"
 import bulingTeam1 from "@assets/image/Resonators/Buling/bulingTeam1.webp"
 import BulingTeam1Rotation1 from "@assets/image/Resonators/Buling/BulingTeam1Rotation1.webp"
 import bulingTeam2Rotation1 from "@assets/image/Resonators/Buling/bulingTeam2Rotation1.webp"
@@ -97,7 +89,6 @@ export const DataResonators = [
   {
     name: "ЧИСА",
     engName: "Chisa",
-    role: "Саппорт",
     resonator: ResonatorChisa,
     element: "Havoc",
     id: "ResonatorChisa",
@@ -129,9 +120,7 @@ export const DataResonators = [
       </>,
     ],
     Utility: chisaUtility,
-    PumpingImg: chisaPumping,
     DamageImg: chisaDamageImg,
-    WeaponPreview: chisaWeaponPreview,
     GlossaryImg: chisaGlossary,
     GlossaryTerm: [
       status[0],
@@ -165,7 +154,6 @@ export const DataResonators = [
         до получения Сигны или стандартного двуручного меча.
       </>,
     ],
-    ConstellationPreview: chisaConstellation,
     ConstellationDescr: [
       <>
         Созвездия Чисы стоит рассматривать в трёх аспектах: <br />{" "}
@@ -195,7 +183,6 @@ export const DataResonators = [
         будет с каждым следующим циклом всё меньше.
       </>
     ),
-    TeamPreview: chisaTeamPreview,
     Team: [
       {
         img: chisaTeam1,
@@ -306,7 +293,6 @@ export const DataResonators = [
   {
     name: "БУЛИНГ",
     engName: "Buling",
-    role: "Саппорт",
     resonator: ResonatorBuling,
     element: "Electro",
     id: "ResonatorBuiling",
@@ -316,7 +302,6 @@ export const DataResonators = [
     previewImg: bulingPreview,
     youtubeVideoId: "K2GwBbZomIw",
     youtubeVideoPreview: bulingYTPreview,
-    MiniGuideImg: bulingMiniGuide,
     BaseDescr:
       "Булинг занимает роль сапорта, так как встает преимущесвенно на 3-й слот",
     BasePlus: [
@@ -335,9 +320,8 @@ export const DataResonators = [
       "дамага нет - а должен быть?",
     ],
     Utility: bulingUtility,
-    PumpingImg: bulingPumping,
+    MiniGuideImg: bulingMiniGuide,
     DamageImg: bulingDamage,
-    WeaponPreview: bulingWeaponPreview,
     Glossary: "bulingGlossary",
     GlossaryTerm: [
       status[5],
@@ -366,7 +350,6 @@ export const DataResonators = [
         противном случае <GlossaryLink id="Autro">аутро</GlossaryLink> не будет.
       </>,
     ],
-    ConstellationPreview: bulingConstellation,
     ConstellationDescr: [],
     ConstellationTeamDamage: "",
     ConstellationSoloDamage: "",
@@ -379,7 +362,6 @@ export const DataResonators = [
         отряда где основным сапортом будет Верина(и др..)
       </>
     ),
-    TeamPreview: bulingTeamPreview,
     Team: [
       {
         img: bulingTeam1,

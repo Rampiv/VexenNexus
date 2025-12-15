@@ -3,15 +3,13 @@
 .footer {
   @include flexible();
   flex-direction: column;
-  margin-top: auto;
   width: 100%;
   background: $color1;
   padding: 10px 0;
   position: relative;
   &__privacy {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+    justify-content: center;
     width: 90%;
   }
   &__privacy-link {
@@ -39,12 +37,7 @@
   width: 100%;
   height: fit-content;
   gap: 20px;
-
-  &__h2 {
-    @include textType08();
-    margin-bottom: 5px;
-    font-weight: lighter;
-  }
+  margin-bottom: 5px;
 
   &__container {
     @include flexible();
@@ -55,22 +48,6 @@
     @include flexible();
     flex-direction: column;
     align-items: flex-start;
-  }
-  &__list-imgs {
-    flex-direction: row;
-    gap: 5px;
-  }
-  &__link {
-    @include flexible();
-    @include standartTransition();
-    @include standartAnimZoom();
-    & {
-      gap: 5px;
-    }
-    svg {
-      width: 16px;
-      height: 16px;
-    }
   }
 
   &__text {
@@ -84,25 +61,23 @@
   }
 }
 
-.nav-icon {
-  width: 20px;
-  height: 20px;
+.contacts-footer {
+  @include listReset();
+  @include flexible();
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  &__item {
+    @include textType08();
+    color: $white;
+    text-decoration: underline;
+  }
 }
+
 
 @media (max-width: 480px) {
   .navigation {
-    &__h2 {
-      @include textType1();
-      margin-bottom: 10px;
-    }
-    &__link {
-      img {
-        width: 15px;
-      }
-      svg {
-        width: 15px;
-      }
-    }
     &__list {
       &:nth-child(2) {
         gap: 0;
@@ -125,29 +100,18 @@
   }
 }
 
-@media (max-width: 280px) {
-  .navigation__h2 {
-    @include textType08();
-  }
-}
 
 @media (max-width: 209px) {
-  .navigation__h2 {
-    @include textType05();
-  }
   .navigation__text {
     @include textType05();
   }
 }
 
 @media (max-width: 179px) {
-  .navigation__h2 {
-    @include textType03();
-  }
   .navigation__text {
     @include textType03();
   }
-    .footer {
+  .footer {
     &__privacy-link {
       @include textType03();
     }

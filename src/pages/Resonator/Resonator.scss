@@ -17,22 +17,15 @@
     border-radius: 30px;
   }
 
-  &__common-preview {
-    max-width: 680px;
-    margin-bottom: 20px;
-  }
-
   &__h2 {
     @include textReset();
     @include textType4();
-    @include textBold();
-    font-weight: 400;
+    @include backgroundGradient();
     line-height: 1;
-    border-bottom: 8px double $color2;
-    border-top: 8px double $color2;
-    margin-bottom: 40px;
-    text-shadow: 1px 1px 40px $color2;
-    width: 100%;
+    margin-bottom: 10px;
+    width: 90%;
+    border-radius: 5px;
+    padding: 5px;
   }
 
   // кнопка наверх
@@ -50,22 +43,17 @@
 
 .name {
   @include flexible();
+  flex-direction: column;
   gap: 10px;
-  margin-bottom: 24px;
-  &__h2 {
-    @include textReset();
-    @include textType7();
-    letter-spacing: 10px;
-    overflow: hidden;
-    display: flex;
-    justify-content: flex-start;
-  }
-  &__role {
-    @include textType4();
-    letter-spacing: 0.5px;
-  }
+  margin-bottom: 20px;
+  width: 100%;
+
   &__preview-img {
-    width: 20%;
+    width: 30%;
+    height: 400px;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 50px;
   }
 }
 
@@ -73,22 +61,44 @@
   @include flexible();
   flex-direction: column;
   margin-bottom: 20px;
-  &__h2 {
-    @include textType5();
-    margin-bottom: 10px;
-    font-weight: 400;
-    text-decoration: underline;
+  width: 100%;
+  .accordion {
+    width: 100%;
   }
-
-  &__list {
+  .accordion__content {
+    width: fit-content;
+  }
+  .accordion__button {
+    @include textReset();
+    @include textType2();
+    line-height: 1;
+    margin-bottom: 10px;
+    background: none;
+    border-bottom: 1px solid $white;
+    border-radius: 5px;
+    padding: 5px;
+  }
+  .accordion__inner {
+    @include textType1();
+    @include flexible();
+    padding: 5px;
+    border: 1px solid $white;
+    width: 100%;
+  }
+  &__grid {
+    @include flexible();
+    align-items: flex-start;
+    width: 90%;
+    gap: 25px;
+  }
+  &__column {
     @include listReset();
-    display: grid;
-    grid-template-columns: auto auto;
-    column-gap: 90px;
-    row-gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
   &__item {
-    @include textType3();
+    @include textType2();
     @include flexible();
     justify-content: flex-start;
     font-weight: 400;
@@ -107,14 +117,78 @@
   }
 }
 
-.glossary {
+.pasta {
+  @include flexible();
+  flex-direction: column;
   margin-bottom: 20px;
   width: 100%;
-  .accordion {
+  &__h2 {
+    margin-bottom: 10px;
+  }
+  &__descr {
+    @include textType2();
+  }
+}
+
+.plusminus {
+  &__container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 90%;
+  }
+  &__h2 {
+    @include textReset();
+    @include textType4();
+    @include backgroundGradient();
+    line-height: 1;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    padding: 5px;
     width: 100%;
   }
-  .accordion__button {
-    border-radius: 5px;
+  &__plus,
+  &__minus {
+    @include flexible();
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  &__list {
+    @include listReset();
+    @include textType2();
+    @include flexible();
+    flex-direction: column;
+    gap: 5px;
+    row-gap: 15px;
+    width: 100%;
+  }
+
+  &__plus-list {
+    color: $color6;
+  }
+
+  &__minus-list {
+    color: $color7;
+  }
+}
+
+.utility {
+  &__img {
+    width: 100%;
+  }
+  &__h3 {
+    @include textType2();
+    text-decoration: underline;
+    margin-top: 30px;
+    margin-bottom: 10px;
+  }
+}
+
+.miniguide {
+  @include flexible();
+  flex-direction: column;
+  img {
+    width: 100%;
   }
 }
 
@@ -146,85 +220,6 @@
     border-radius: 30px;
     box-shadow: 0 0 30px 10px $color2;
     user-select: none;
-  }
-}
-
-.miniguide {
-  @include flexible();
-  flex-direction: column;
-  img {
-    width: 100%;
-  }
-}
-
-.plusminus {
-  &__descr {
-    @include textReset();
-    @include textType3();
-    font-weight: 400;
-    &:nth-child(3) {
-      margin-bottom: 15px;
-    }
-  }
-  &__h3 {
-    @include textReset();
-    @include textType3();
-    font-weight: 400;
-    margin-bottom: 10px;
-  }
-
-  &__container {
-    display: flex;
-    justify-content: center;
-    gap: 50px;
-    font-weight: 400;
-  }
-
-  &__list {
-    @include listReset();
-    @include textType2();
-    @include flexible();
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-    row-gap: 15px;
-    text-align: start !important;
-  }
-
-  &__plus-list {
-    color: $color6;
-  }
-
-  &__minus-list {
-    color: $color7;
-  }
-  &__plus {
-    h3 {
-      border: 1px solid $green;
-    }
-  }
-  &__minus {
-    h3 {
-      border: 1px solid $red;
-    }
-  }
-}
-
-.utility {
-  &__img {
-    width: 100%;
-  }
-}
-
-.pumping {
-  &__img {
-    width: 100%;
-  }
-}
-
-.damage {
-  &__img {
-    width: 100%;
   }
 }
 
@@ -269,17 +264,16 @@
     @include flexible();
     flex-direction: column;
     margin-bottom: 20px;
-    p {
-      @include textReset();
-      @include textType2();
-      font-weight: 400;
-      margin-bottom: 20px;
-      max-width: 740px;
-    }
+    width: 100%;
     img {
       &:not(:last-child) {
         margin-bottom: 60px;
       }
+    }
+    p {
+      @include textType2();
+      width: 100%;
+      margin-bottom: 10px;
     }
   }
   &__h3 {
@@ -287,6 +281,26 @@
     @include textType3();
     margin-bottom: 20px;
     text-decoration: underline;
+  }
+}
+
+.investments {
+  @include flexible();
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 20px;
+  h2 {
+    margin-bottom: 10px;
+  }
+  img {
+    margin-bottom: 10px;
+  }
+  &__descr {
+    @include textReset();
+    @include textType2();
+    font-weight: 400;
+    margin-bottom: 20px;
+    max-width: 740px;
   }
 }
 
@@ -339,184 +353,63 @@
   }
 }
 
-@media (max-width: 1040px) {
-  .name {
-    &__h2 {
-      @include textType5();
-    }
-    &__role {
-      @include textType3();
-    }
+.glossary {
+  margin-bottom: 20px;
+  width: 100%;
+  .accordion {
+    width: 100%;
   }
-  .contents {
-    &__h2 {
-      @include textType3();
-    }
-    &__item {
-      @include textType2();
-    }
-  }
-  .ytguide__error-message {
-    @include textType2();
+  .accordion__button {
+    border-radius: 5px;
   }
 }
 
-@media (max-width: 860px) {
-  .resonator {
-    width: 90%;
-    &__h2 {
-      @include textType3();
-    }
-    &__common-preview {
-      max-width: 100%;
-    }
-  }
-  .contents {
-    &__h2 {
-      @include textType2();
-    }
-    &__item {
-      @include textType15();
-    }
-  }
-
-  .ytguide__error-message {
-    @include textType15();
-  }
-  .weapon {
-    &__item {
-      @include flexible();
-      flex-direction: column;
-      &-damage {
-        width: 20%;
-        right: 5%;
-      }
-    }
-  }
-
-  .team__accordion-item {
-    @include textType05();
-    h3 {
-      @include textType1();
-    }
-    p {
-      @include textType05();
-    }
-  }
-}
-
-@media (max-width: 750px) {
-  .name {
-    &__role {
-      @include textType15();
-    }
-  }
-  .contents {
-    &__h2 {
-      @include textType2();
-    }
-    &__item {
-      @include textType15();
-      a {
-        text-align: start;
-      }
-    }
-  }
-
-  .ytguide__error-message {
-    @include textType1();
-  }
-
-  .plusminus {
-    &__descr {
-      @include textType2();
-    }
-    &__list {
-      @include textType15();
-      gap: 5px;
-    }
-    &__plus-list {
-      color: $color6;
-    }
-
-    &__minus-list {
-      color: $color7;
-    }
-  }
-
-  .team__accordion-item {
-    @include textType05();
-
-    h3 {
-      @include textType1();
-    }
-    p {
-      @include textType05();
-    }
-  }
-
-  .review {
-    &__descr {
-      @include textType15();
-    }
-  }
-  .resonator__up {
-    @include textType15();
-  }
-}
-
-@media (max-width: 480px) {
+@media (max-width: 730px) {
   .resonator {
     &__h2 {
       @include textType2();
-      margin-bottom: 20px;
+      @include textBold();
+      font-weight: 400;
+      line-height: 1;
+      margin-bottom: 15px;
     }
     &__up {
-      @include textType1();
-      padding: 5px;
+      @include textType15();
+      padding: 6px;
     }
   }
   .name {
-    &__h2 {
-      @include textType2();
+    &__preview-img {
+      width: 50%;
     }
   }
   .contents {
     &__h2 {
-      @include textType13();
-      margin-bottom: 10px;
-    }
-    &__list {
-      column-gap: 5px;
+      @include textType2();
     }
     &__item {
-      @include textType08();
-      a {
-        text-align: start;
-      }
+      @include textType1();
       img {
-        width: 10px;
+        width: 15px;
       }
     }
   }
-  .ytguide__error-message {
-    @include textType08();
-  }
-  .glossary {
-    .accordion__inner {
-      padding: 7px;
+  .pasta {
+    h2 {
+      margin-bottom: 10px;
     }
-  }
-  .plusminus {
     &__descr {
       @include textType1();
     }
-    &__container {
-      gap: 5px;
+  }
+  .plusminus {
+    &__h2 {
+      @include textType2();
+      @include textBold();
     }
     &__list {
       @include textType1();
-      gap: 5px;
+      max-width: 200px;
     }
     &__plus-list {
       color: $color6;
@@ -525,14 +418,20 @@
     &__minus-list {
       color: $color7;
     }
+  }
+  .utility {
     &__h3 {
-      @include textType1();
+      @include textType15();
+      margin-bottom: 10px;
     }
   }
   .weapon {
     &__descr-container {
       p {
         @include textType1();
+        &:not(:last-child) {
+          margin-bottom: 10px;
+        }
       }
     }
   }
@@ -543,50 +442,259 @@
       }
     }
     &__h3 {
-      @include textType13();
-      margin-bottom: 10px;
+      @include textType15();
     }
   }
-  .team__accordion-item {
-    @include textType03();
-
-    h3 {
-      @include textType05();
+  .investments {
+    &__descr {
+      @include textType1();
     }
-    p {
-      @include textType03();
+  }
+  .team {
+    &__accordion-item {
+      @include textType08();
+      h3 {
+        @include textType1();
+        @include textBold();
+        text-decoration: underline;
+      }
+      p {
+        @include textType08();
+      }
     }
   }
   .review {
     &__descr {
       @include textType1();
+      margin-bottom: 10px;
     }
   }
 }
 
-@media (max-width: 340px) {
-  .resonator__h2 {
-    @include textType15();
+@media (max-width: 400px) {
+  .resonator {
+    &__h2 {
+      @include textType15();
+      @include textBold();
+      font-weight: 400;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    &__up {
+      @include textType1();
+      padding: 4px 6px;
+    }
+    &__common-container {
+      margin-bottom: 20px;
+    }
   }
-  .name__role {
-    @include textType1();
+  .name {
+    &__h2 {
+      @include textType15();
+    }
+    &__preview-img {
+      width: 100%;
+      height: 300px;
+    }
   }
-}
-
-@media (max-width: 280px) {
-  .plusminus {
-    &__descr,
-    &__list,
-    &__h3 {
+  .pasta {
+    &__descr {
       @include textType08();
     }
-
+  }
+  .contents {
+    .accordion__button {
+      @include textType1();
+      margin-bottom: 10px;
+    }
+    &__item {
+      @include textType08();
+      img {
+        width: 15px;
+      }
+    }
+  }
+  .plusminus {
+    &__h2 {
+      @include textType1();
+      @include textBold();
+      padding: 5px;
+    }
+    &__container {
+      gap: 20px;
+    }
+    &__list {
+      @include textType08();
+      max-width: 200px;
+    }
     &__plus-list {
       color: $color6;
     }
 
     &__minus-list {
       color: $color7;
+    }
+  }
+  .utility {
+    &__h3 {
+      @include textType1();
+      margin-bottom: 10px;
+    }
+  }
+  .weapon {
+    &__descr-container {
+      p {
+        @include textType08();
+        &:not(:last-child) {
+          margin-bottom: 6px;
+        }
+      }
+    }
+  }
+  .constellation {
+    &__descr {
+      p {
+        @include textType08();
+      }
+    }
+    &__h3 {
+      @include textType15();
+    }
+  }
+  .investments {
+    &__descr {
+      @include textType08();
+    }
+  }
+  .team {
+    &__accordion-item {
+      h3 {
+        @include textType05();
+        @include textBold();
+        text-decoration: underline;
+      }
+      p {
+        @include textType05();
+      }
+    }
+  }
+  .review {
+    &__descr {
+      @include textType08();
+      margin-bottom: 10px;
+    }
+  }
+}
+
+@media (max-width: 296px) {
+  .resonator {
+    &__h2 {
+      @include textType1();
+      @include textBold();
+      font-weight: 400;
+      line-height: 1;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+    &__up {
+      @include textType05();
+      padding: 4px 6px;
+    }
+    &__common-container {
+      margin-bottom: 10px;
+    }
+  }
+  .name {
+    &__h2 {
+      @include textType1();
+      padding: 5px;
+    }
+    &__preview-img {
+      height: 200px;
+    }
+  }
+  .pasta {
+    &__descr {
+      @include textType05();
+    }
+  }
+  .contents {
+    &__h2 {
+      @include textType1();
+      margin-bottom: 10px;
+    }
+    &__item {
+      @include textType05();
+      img {
+        width: 8px;
+      }
+    }
+  }
+  .plusminus {
+    &__container {
+      gap: 5px;
+    }
+    &__h2 {
+      @include textType08();
+      @include textBold();
+      padding: 5px;
+    }
+    &__list {
+      @include textType05();
+      max-width: 100px;
+      gap: 5px;
+    }
+  }
+  .utility {
+    &__h3 {
+      @include textType08();
+      margin-bottom: 10px;
+    }
+  }
+  .weapon {
+    &__list {
+      gap: 5px;
+    }
+    &__descr-container {
+      p {
+        @include textType05();
+        &:not(:last-child) {
+          margin-bottom: 5px;
+        }
+      }
+    }
+  }
+  .constellation {
+    &__descr {
+      p {
+        @include textType05();
+      }
+    }
+    &__h3 {
+      @include textType1();
+    }
+  }
+  .investments {
+    &__descr {
+      @include textType05();
+    }
+  }
+  .team {
+    &__accordion-item {
+      h3 {
+        @include textType03();
+        @include textBold();
+        text-decoration: underline;
+      }
+      p {
+        @include textType03();
+      }
+    }
+  }
+  .review {
+    &__descr {
+      @include textType05();
+      margin-bottom: 5px;
     }
   }
 }

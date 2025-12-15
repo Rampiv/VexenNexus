@@ -13,13 +13,13 @@
     max-height: 10000px;
   }
   &__inner {
+    @include textType2();
     width: 100%;
     padding: 15px 20px;
     background: $color1;
     border: 1px solid $color2;
     border-radius: 15px;
     font-weight: 400;
-    font-size: 48px;
     letter-spacing: 0.5px;
     text-align: center;
     p {
@@ -32,10 +32,10 @@
     @include textType15();
     @include standartAnimZoom();
     & {
+      margin: 10px 0;
       padding: 6px 18px;
       border-radius: 22px;
       background-color: $color5;
-      margin-bottom: 20px;
     }
   }
 }
@@ -44,8 +44,20 @@
   .accordion {
     &__button {
       @include textType1();
-      margin-bottom: 10px;
       & {
+        margin: 10px 0;
+        padding: 5px 10px;
+      }
+    }
+  }
+}
+
+@media (max-width: 296px) {
+  .accordion {
+    &__button {
+      @include textType05();
+      & {
+        margin: 5px 0;
         padding: 5px 10px;
       }
     }

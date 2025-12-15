@@ -5,7 +5,7 @@
   position: relative;
   overflow: hidden;
   width: 80%;
-  height: 600px;
+  min-height: 320px;
   iframe {
     position: absolute;
     top: 0;
@@ -17,15 +17,8 @@
   }
 }
 
-@media (max-width: 730px) {
-    .youtube-player-wrapper{
-        width: 70%;
-        height: 300px;
-    }
-}
-
-@media (max-width: 480px){
-  .youtube-player-wrapper{
-    height: 170px;
+@media (max-width: 400px){
+  .youtube-player-wrapper {
+    min-height: 175px;
   }
 }
