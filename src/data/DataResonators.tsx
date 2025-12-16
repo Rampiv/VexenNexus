@@ -289,6 +289,7 @@ export const DataResonators = [
       ),
       img: [chisaFinalReview1, chisaFinalReview2],
     },
+    isPro: false,
   },
   {
     name: "БУЛИНГ",
@@ -434,5 +435,6 @@ export const DataResonators = [
       ),
       img: [bulingFinalReview1],
     },
+    isPro: false,
   },
 ]

@@ -49,7 +49,7 @@
   width: 100%;
 
   &__preview-img {
-    width: 30%;
+    width: 400px;
     height: 400px;
     object-fit: cover;
     object-position: top;
@@ -175,6 +175,8 @@
 .utility {
   &__img {
     width: 100%;
+    max-height: 300px;
+    object-fit: contain;
   }
   &__h3 {
     @include textType2();
@@ -364,111 +366,15 @@
   }
 }
 
-@media (max-width: 730px) {
-  .resonator {
-    &__h2 {
-      @include textType2();
-      @include textBold();
-      font-weight: 400;
-      line-height: 1;
-      margin-bottom: 15px;
-    }
-    &__up {
-      @include textType15();
-      padding: 6px;
-    }
-  }
+
+@media (max-width: 700px) {
+
   .name {
     &__preview-img {
-      width: 50%;
+      width: 80%;
     }
   }
-  .contents {
-    &__h2 {
-      @include textType2();
-    }
-    &__item {
-      @include textType1();
-      img {
-        width: 15px;
-      }
-    }
-  }
-  .pasta {
-    h2 {
-      margin-bottom: 10px;
-    }
-    &__descr {
-      @include textType1();
-    }
-  }
-  .plusminus {
-    &__h2 {
-      @include textType2();
-      @include textBold();
-    }
-    &__list {
-      @include textType1();
-      max-width: 200px;
-    }
-    &__plus-list {
-      color: $color6;
-    }
 
-    &__minus-list {
-      color: $color7;
-    }
-  }
-  .utility {
-    &__h3 {
-      @include textType15();
-      margin-bottom: 10px;
-    }
-  }
-  .weapon {
-    &__descr-container {
-      p {
-        @include textType1();
-        &:not(:last-child) {
-          margin-bottom: 10px;
-        }
-      }
-    }
-  }
-  .constellation {
-    &__descr {
-      p {
-        @include textType1();
-      }
-    }
-    &__h3 {
-      @include textType15();
-    }
-  }
-  .investments {
-    &__descr {
-      @include textType1();
-    }
-  }
-  .team {
-    &__accordion-item {
-      @include textType08();
-      h3 {
-        @include textType1();
-        @include textBold();
-        text-decoration: underline;
-      }
-      p {
-        @include textType08();
-      }
-    }
-  }
-  .review {
-    &__descr {
-      @include textType1();
-      margin-bottom: 10px;
-    }
-  }
 }
 
 @media (max-width: 400px) {
@@ -536,6 +442,9 @@
     }
   }
   .utility {
+    &__img{
+      max-height: 200px;
+    }
     &__h3 {
       @include textType1();
       margin-bottom: 10px;
@@ -646,6 +555,9 @@
     }
   }
   .utility {
+    &__img{
+      max-height: 100px;
+    }
     &__h3 {
       @include textType08();
       margin-bottom: 10px;

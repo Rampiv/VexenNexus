@@ -2,16 +2,14 @@ import { useMemo, useState } from "react"
 import "./Resonators.scss"
 import { DataResonators } from "../../data"
 import { Link } from "react-router"
-import React from "react"
-import { Card } from "../../components"
 import Electro from "@assets/image/Element/Electro.webp"
 import Havoc from "@assets/image/Element/Havoc.webp"
 import Aero from "@assets/image/Element/Aero.webp"
 import Fusion from "@assets/image/Element/Fusion.webp"
 import Spectro from "@assets/image/Element/Spectro.webp"
 import Glacio from "@assets/image/Element/Glacio.webp"
+import reset from "@assets/image/Element/reset.webp"
 
-const CardMemo = React.memo(Card)
 
 // Массив элементов для фильтрации
 const ELEMENTS = [
@@ -25,7 +23,6 @@ const ELEMENTS = [
 
 export const Resonators = () => {
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedRole] = useState("all")
   const [selectedElement, setSelectedElement] = useState("all")
   const [selectedGuide, setSelectedGuide] = useState("resonators")
 
@@ -41,16 +38,12 @@ export const Resonators = () => {
       )
     }
 
-    if (selectedRole !== "all") {
-      result = result.filter(item => item.role === selectedRole)
-    }
-
     if (selectedElement !== "all") {
       result = result.filter(item => item.element === selectedElement)
     }
 
     return result.sort((a, b) => a.name.localeCompare(b.name, "ru"))
-  }, [searchTerm, selectedRole, selectedElement])
+  }, [searchTerm, selectedElement])
 
   const handleSelectElement = (element: string) => {
     setSelectedElement(element)
@@ -80,7 +73,7 @@ export const Resonators = () => {
               onClick={() => handleSelectElement("all")}
             >
               <img
-                src={Electro}
+                src={reset}
                 alt="reset"
                 className="resonators__elements-img resonators__elements-img_reset"
               />
@@ -119,12 +112,25 @@ export const Resonators = () => {
       </div>
 
       {selectedGuide === "resonators" ? (
-        <ul className="resonators__list">
+        <ul className="resonators-list__list">
           {filteredAndSortedResonators.map(item => (
-            <li className="resonators__item" key={`${item.id}resonator`}>
-              <Link to={item.link}>
-                <CardMemo resonator={item.resonator} rarity={item.rarity} />
-              </Link>
+            <li className="resonators-list__item" key={`${item.id}resonator`}>
+              <img
+                src={item.resonator}
+                alt="Изображение резонатора"
+                className="resonators-list__img"
+              />
+              <div className="resonators-list__links">
+                <h3 className="resonators-list__h3">{item.name}</h3>
+                <Link to={item.link} className="resonators-list__link">
+                  Базовый гайд
+                </Link>
+                {item.isPro && (
+                  <Link to={item.link} className="resonators-list__link">
+                    Продвинутый гайд
+                  </Link>
+                )}
+              </div>
             </li>
           ))}
         </ul>
