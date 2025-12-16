@@ -40,7 +40,6 @@ import bulingTeam3 from "@assets/image/Resonators/Buling/bulingTeam3.webp"
 import bulingFinalReview1 from "@assets/image/Resonators/Buling/bulingFinalReview1.webp"
 import bulingConstelarion from "@assets/image/Resonators/Buling/bulingConstelarion.webp"
 
-
 import kumokiri from "@assets/image/Weapon/kumokiri.webp"
 import wildfireMark from "@assets/image/Weapon/wildfireMark.webp"
 import agesOfHarvest from "@assets/image/Weapon/agesOfHarvest.webp"
@@ -164,11 +163,13 @@ export const DataResonators = [
         <br />и <span className="red">3-й</span> — Несколько отрядов с разными
         инвестициями в созвездия для наглядности.. <br />
       </>,
-      "Личный урон Чисы в рамках одной ротации — сравнение двух сетов: ToSF и RJV:",
       <>
-        ToSF — C0: 260 387 <br />
-        RJV — C0: 221 597
+        Личный урон Чисы в рамках одной ротации — сравнение двух сетов: ToSF и
+        RJV:
       </>,
+      <span style={{"display": "block","width": "100%", "textAlign": "center"}}>
+        ToSF — C0: 260 387 <br /> RJV — C0: 221 597{" "}
+      </span>,
     ],
     ConstellationTeamDamage: chisaConstellationTeamDamage,
     ConstellationSoloDamage: chisaConstellationSoloDamage,
