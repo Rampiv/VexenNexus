@@ -366,18 +366,15 @@
   }
 }
 
-
 @media (max-width: 700px) {
-
   .name {
     &__preview-img {
       width: 80%;
     }
   }
-
 }
 
-@media (max-width: 400px) {
+@media (max-width: 560px) {
   .resonator {
     &__h2 {
       @include textType15();
@@ -442,7 +439,7 @@
     }
   }
   .utility {
-    &__img{
+    &__img {
       max-height: 200px;
     }
     &__h3 {
@@ -477,6 +474,7 @@
   }
   .team {
     &__accordion-item {
+      @include textType05();
       h3 {
         @include textType05();
         @include textBold();
@@ -555,7 +553,7 @@
     }
   }
   .utility {
-    &__img{
+    &__img {
       max-height: 100px;
     }
     &__h3 {
