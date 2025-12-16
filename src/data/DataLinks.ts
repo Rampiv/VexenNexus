@@ -22,7 +22,7 @@ export const DataLinks = [
     {
     img: Discord,
     text: "DISCORD",
-    link: "https://www.tiktok.com/@realvexen",
+    link: "https://discord.gg/TEMd7SjNhX",
     id: "IMGDISCORD",
   },
 ]
