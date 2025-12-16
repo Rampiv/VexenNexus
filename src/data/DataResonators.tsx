@@ -38,6 +38,8 @@ import bulingTeam3Rotation1 from "@assets/image/Resonators/Buling/bulingTeam3Rot
 import bulingTeam2 from "@assets/image/Resonators/Buling/bulingTeam2.webp"
 import bulingTeam3 from "@assets/image/Resonators/Buling/bulingTeam3.webp"
 import bulingFinalReview1 from "@assets/image/Resonators/Buling/bulingFinalReview1.webp"
+import bulingConstelarion from "@assets/image/Resonators/Buling/bulingConstelarion.webp"
+
 
 import kumokiri from "@assets/image/Weapon/kumokiri.webp"
 import wildfireMark from "@assets/image/Weapon/wildfireMark.webp"
@@ -352,6 +354,7 @@ export const DataResonators = [
       </>,
     ],
     ConstellationDescr: [
+      bulingConstelarion,
       <>
         с1 - бустит крит шанс, мусорное ни на что не влияющее созвездие идем
         дальше
