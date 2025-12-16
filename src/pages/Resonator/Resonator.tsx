@@ -294,9 +294,13 @@ export const Resonator = () => {
           >
             <h2 className="resonator__h2">СОЗВЕЗДИЯ</h2>
             <div className="constellation__descr">
-              {resonator.ConstellationDescr?.map((item, index) => (
-                <p key={index}>{item}</p>
-              ))}
+              {resonator.ConstellationDescr?.map((item, index) => {
+                if (typeof item === "string") {
+                  return <img key={index} src={item} alt="Созвездие" />
+                }
+                return <p key={index}>{item}</p>
+              })}
+
               {resonator.ConstellationTeamDamage && (
                 <>
                   <h3 className="constellation__h3">
