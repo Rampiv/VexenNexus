@@ -30,12 +30,12 @@
     @include btnReset();
     @include standartTransition();
     @include textType15();
+    @include backgroundGradient();
     @include standartAnimZoom();
     & {
       margin: 10px 0;
       padding: 6px 18px;
       border-radius: 22px;
-      background-color: $color5;
     }
   }
 }
