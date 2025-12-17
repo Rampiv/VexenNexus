@@ -5,8 +5,6 @@ import chisaMiniGuide from "@assets/image/Resonators/Chisa/chisaMiniGuide.webp"
 import chisaYTPreview from "@assets/image/Resonators/Chisa/chisaYTPreview.webp"
 import chisaUtility from "@assets/image/Resonators/Chisa/chisaUtility.webp"
 import chisaGlossary from "@assets/image/Resonators/Chisa/chisaGlossary.webp"
-import chisaConstellationTeamDamage from "@assets/image/Resonators/Chisa/chisaConstellationTeamDamage.webp"
-import chisaConstellationSoloDamage from "@assets/image/Resonators/Chisa/chisaConstellationSoloDamage.webp"
 import chisaInvestmentsDamage from "@assets/image/Resonators/Chisa/chisaInvestmentsDamage.webp"
 import chisaTeam1 from "@assets/image/Resonators/Chisa/chisaTeam1.webp"
 import chisaTeam2 from "@assets/image/Resonators/Chisa/chisaTeam2.webp"
@@ -18,10 +16,6 @@ import chisaTeam2Rotation2 from "@assets/image/Resonators/Chisa/chisaTeam2Rotati
 import chisaTeam3Rotation1 from "@assets/image/Resonators/Chisa/chisaTeam3Rotation2.webp"
 import chisaTeam3Rotation2 from "@assets/image/Resonators/Chisa/chisaTeam3Rotation2.webp"
 import chisaDamageImg from "@assets/image/Resonators/Chisa/chisaDamageImg.webp"
-import chisaWeapon1 from "@assets/image/Resonators/Chisa/chisaWeapon1.webp"
-import chisaWeapon2 from "@assets/image/Resonators/Chisa/chisaWeapon2.webp"
-import chisaWeapon3 from "@assets/image/Resonators/Chisa/chisaWeapon3.webp"
-import chisaWeapon4 from "@assets/image/Resonators/Chisa/chisaWeapon4.webp"
 import chisaFinalReview1 from "@assets/image/Resonators/Chisa/chisaFinalReview1.webp"
 import chisaFinalReview2 from "@assets/image/Resonators/Chisa/chisaFinalReview2.webp"
 
@@ -40,12 +34,14 @@ import bulingTeam3 from "@assets/image/Resonators/Buling/bulingTeam3.webp"
 import bulingFinalReview1 from "@assets/image/Resonators/Buling/bulingFinalReview1.webp"
 import bulingConstelarion from "@assets/image/Resonators/Buling/bulingConstelarion.webp"
 
-import kumokiri from "@assets/image/Weapon/kumokiri.webp"
-import wildfireMark from "@assets/image/Weapon/wildfireMark.webp"
-import agesOfHarvest from "@assets/image/Weapon/agesOfHarvest.webp"
-import lustrousRazon from "@assets/image/Weapon/lustrousRazon.webp"
-import variation from "@assets/image/Weapon/variation.webp"
-import callOfTheAbyss from "@assets/image/Weapon/callOfTheAbyss.webp"
+import {
+  agesOfHarvest,
+  callOfTheAbyss,
+  cumokiri,
+  lustrousRazon,
+  variation,
+  wildfireMark,
+} from "./DataWeapons"
 
 const status = [
   {
@@ -139,10 +135,34 @@ export const DataResonators = [
       },
     ],
     Weapon: [
-      { weapon: kumokiri, damage: chisaWeapon1 },
-      { weapon: wildfireMark, damage: chisaWeapon2 },
-      { weapon: agesOfHarvest, damage: chisaWeapon3 },
-      { weapon: lustrousRazon, damage: chisaWeapon4 },
+      {
+        weapon: cumokiri,
+        damage: [
+          { name: "TOSF", damage: 260387 },
+          { name: "RJG", damage: 260387 },
+        ],
+      },
+      {
+        weapon: wildfireMark,
+        damage: [
+          { name: "TOSF", damage: 233640 },
+          { name: "RJG", damage: 194850 },
+        ],
+      },
+      {
+        weapon: agesOfHarvest,
+        damage: [
+          { name: "TOSF", damage: 214399 },
+          { name: "RJG", damage: 178393 },
+        ],
+      },
+      {
+        weapon: lustrousRazon,
+        damage: [
+          { name: "TOSF", damage: 209252 },
+          { name: "RJG", damage: 172978 },
+        ],
+      },
     ],
     WeaponDescr: [
       "Если говорить чуть подробнее:",
@@ -167,12 +187,51 @@ export const DataResonators = [
         Личный урон Чисы в рамках одной ротации — сравнение двух сетов: ToSF и
         RJV:
       </>,
-      <span style={{"display": "block","width": "100%", "textAlign": "center"}}>
-        ToSF — C0: 260 387 <br /> RJV — C0: 221 597{" "}
-      </span>,
+      <>
+        ToSF — C0: 260 387 <br />
+        RJV — C0: 221 597
+      </>,
     ],
-    ConstellationTeamDamage: chisaConstellationTeamDamage,
-    ConstellationSoloDamage: chisaConstellationSoloDamage,
+    ConstellationOneDamage: [
+      {
+        nameSet: "TOSF",
+        C1: 335056,
+        C2: 428767,
+        C3: 522931,
+        C4: 0,
+        C5: 551628,
+        C6: 741742,
+      },
+      {
+        nameSet: "RJV",
+        C1: 293888,
+        C2: 38463660,
+        C3: 463660,
+        C4: 0,
+        C5: 492851,
+        C6: 659642,
+      },
+    ],
+    ConstellationThreeDamage: [
+      {
+        nameSet: "TOSF",
+        C1: 881532,
+        C2: 1162695,
+        C3: 1445187,
+        C4: 0,
+        C5: 1593081,
+        C6: 2101620,
+      },
+      {
+        nameSet: "RJV",
+        C1: 758058,
+        C2: 1026864,
+        C3: 1267374,
+        C4: 0,
+        C5: 1354947,
+        C6: 1855320,
+      },
+    ],
     InvestmentsDamage: chisaInvestmentsDamage,
     InvestmentsReview: (
       <>
@@ -300,7 +359,7 @@ export const DataResonators = [
     resonator: ResonatorBuling,
     element: "Electro",
     id: "ResonatorBuiling",
-    link: "/resonator/Buling",
+    link: `/resonator/Buling`,
     rarity: 4,
     weapon: "Rectifier",
     previewImg: bulingPreview,
@@ -337,8 +396,8 @@ export const DataResonators = [
       },
     ],
     Weapon: [
-      { weapon: variation, damage: "" },
-      { weapon: callOfTheAbyss, damage: "" },
+      { weapon: variation, damage: [] },
+      { weapon: callOfTheAbyss, damage: [] },
     ],
     WeaponDescr: [
       "Если говорить чуть более развернуто, то...",
@@ -379,8 +438,8 @@ export const DataResonators = [
         циферки
       </>,
     ],
-    ConstellationTeamDamage: "",
-    ConstellationSoloDamage: "",
+    ConstellationOneDamage: [],
+    ConstellationThreeDamage: [],
     InvestmentsDamage: "",
     InvestmentsReview: (
       <>

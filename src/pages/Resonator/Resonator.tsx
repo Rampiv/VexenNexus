@@ -265,17 +265,57 @@ export const Resonator = () => {
             <ul className="weapon__list">
               {resonator.Weapon?.map((item, index) => (
                 <li className="weapon__item" key={`weapon-${index}`}>
-                  <img
-                    src={item.weapon}
-                    alt="Оружие"
-                    className="weapon__item-weapon"
-                  />
-                  {item.damage && (
+                  <div className="weapon__content">
                     <img
-                      src={item.damage}
-                      alt="Дамаг оружия"
-                      className="weapon__item-damage"
+                      src={item.weapon.img}
+                      alt="Картинка оружия"
+                      className="weapon__img"
                     />
+
+                    <div className="weapon__base">
+                      <h3 className="weapon__h3">{item.weapon.name}</h3>
+                      <p className="weapon__base-descr weapon__base-descr_font">
+                        {item.weapon.base.map((item, index) => (
+                          <span key={`${index} weapon base`}>{item}</span>
+                        ))}
+                      </p>
+                      <p className="weapon__base-descr weapon__base-descr_font">
+                        {item.weapon.stat.map((item, index) => (
+                          <span key={`${index} weapon stat`}>{item}</span>
+                        ))}
+                      </p>
+                      <ul className="weapon__passive">
+                        {item.weapon.passive.map((item, index) => {
+                          return (
+                            <li
+                              className="weapon__base-descr"
+                              key={`${index} passive descr`}
+                            >
+                              {item}
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </div>
+                  </div>
+                  {item.damage && (
+                    <div className="weapon__item-damage">
+                      {item.damage.map((item, index) => {
+                        return (
+                          <div>
+                            <h3>{item.name}</h3>
+                            <span>
+                              Урон:{" "}
+                              <span>
+                                {typeof item.damage === "number"
+                                  ? item.damage.toLocaleString("ru-RU")
+                                  : item.damage}
+                              </span>
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
                   )}
                 </li>
               ))}
@@ -300,27 +340,84 @@ export const Resonator = () => {
                 }
                 return <p key={index}>{item}</p>
               })}
-
-              {resonator.ConstellationTeamDamage && (
+              {resonator.ConstellationOneDamage && (
                 <>
                   <h3 className="constellation__h3">
                     Персональный урон за 1 ротацию
                   </h3>
-                  <img
-                    src={resonator.ConstellationTeamDamage}
-                    alt="Урон Team"
-                  />
+                  <div className="constellation__damage">
+                    {resonator.ConstellationOneDamage.map(item => {
+                      const { nameSet, ...damageValues } = item
+
+                      return (
+                        <div className="constellation__damage-content">
+                          <h3 className="constellation__damage-h3">
+                            {nameSet}
+                          </h3>
+                          <ul className="constellation__damage-list">
+                            {Object.entries(damageValues).map(
+                              ([key, value]) => (
+                                <li
+                                  className="constellation__damage-item"
+                                  key={`${key} ${value}`}
+                                >
+                                  <span
+                                    className={`constellation__damage-name`}
+                                  >{`${key} -`}</span>
+
+                                  <span className="constellation__damage-value">
+                                    {typeof value === "number"
+                                      ? value.toLocaleString("ru-RU")
+                                      : value}
+                                  </span>
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </>
               )}
-              {resonator.ConstellationSoloDamage && (
+              {resonator.ConstellationThreeDamage && (
                 <>
                   <h3 className="constellation__h3">
                     Персональный урон за 3 ротации
                   </h3>
-                  <img
-                    src={resonator.ConstellationSoloDamage}
-                    alt="Урон Solo"
-                  />
+                  <div className="constellation__damage">
+                    {resonator.ConstellationThreeDamage.map(item => {
+                      const { nameSet, ...damageValues } = item
+
+                      return (
+                        <div className="constellation__damage-content">
+                          <h3 className="constellation__damage-h3">
+                            {nameSet}
+                          </h3>
+                          <ul className="constellation__damage-list">
+                            {Object.entries(damageValues).map(
+                              ([key, value]) => (
+                                <li
+                                  className="constellation__damage-item"
+                                  key={`${key} ${value}`}
+                                >
+                                  <span
+                                    className={`constellation__damage-name`}
+                                  >{`${key} -`}</span>
+
+                                  <span className="constellation__damage-value">
+                                    {typeof value === "number"
+                                      ? value.toLocaleString("ru-RU")
+                                      : value}
+                                  </span>
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </>
               )}
             </div>

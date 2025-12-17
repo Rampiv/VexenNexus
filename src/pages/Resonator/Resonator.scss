@@ -229,21 +229,90 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  &__glossary {
+    margin-bottom: 10px;
+  }
 
   &__list {
     @include listReset();
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 10px;
   }
   &__item {
     position: relative;
+    background: $color10;
+    border-radius: 15px;
+    padding: 20px;
+    width: 100%;
   }
   &__item-damage {
+    @include flexible();
+    flex-direction: column;
     position: absolute;
-    top: 5%;
+    top: 80px;
     right: 5%;
-    width: 25%;
+    width: fit-content;
+    div {
+      @include flexible();
+      flex-direction: column;
+    }
+    h3 {
+      @include textType1();
+    }
+    span {
+      @include textType1();
+      span {
+        color: $green;
+      }
+    }
+  }
+
+  &__h3 {
+    @include textType3();
+    text-decoration: underline;
+    margin-bottom: 10px;
+  }
+
+  &__img {
+    // height: 100%;
+    width: 100%;
+    object-fit: contain;
+  }
+  &__content {
+    display: grid;
+    grid-template-columns: 2fr 6fr;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+  }
+  &__base {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  &__base-descr {
+    @include textType2();
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    text-align: start;
+  }
+
+  &__base-descr_font {
+    @include textBold();
+  }
+
+  &__passive {
+    display: flex;
+    flex-direction: column;
+    background-color: $color1;
+    padding: 10px;
+    border-radius: 15px;
+    gap: 10px;
+    position: relative;
   }
 
   &__descr-container {
@@ -280,9 +349,43 @@
   }
   &__h3 {
     @include textReset();
-    @include textType3();
+    @include textType25();
     margin-bottom: 20px;
     text-decoration: underline;
+  }
+  &__damage {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    &:not(:last-child) {
+      margin-bottom: 10px;
+    }
+  }
+  &__damage-content {
+    @include flexible();
+    flex-direction: column;
+  }
+  &__damage-h3 {
+    @include textType2();
+    width: fit-content;
+  }
+  &__damage-list {
+    @include listReset();
+    @include flexible();
+    flex-direction: column;
+    align-items: flex-start;
+    width: fit-content;
+    gap: 5px;
+  }
+  &__damage-item {
+    @include flexible();
+    @include textType2();
+    width: 100%;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+  &__damage-name {
+    color: $green;
   }
 }
 
@@ -372,6 +475,13 @@
       width: 80%;
     }
   }
+  .weapon {
+    &__item-damage {
+      right: auto;
+      left: 5%;
+      top: 10px;
+    }
+  }
 }
 
 @media (max-width: 560px) {
@@ -422,6 +532,7 @@
       @include textType1();
       @include textBold();
       padding: 5px;
+      margin-bottom: 10px;
     }
     &__container {
       gap: 20px;
@@ -448,6 +559,36 @@
     }
   }
   .weapon {
+    &__item-damage {
+      left: auto;
+      right: 5%;
+      h3 {
+        @include textType05();
+      }
+      span {
+        @include textType05();
+      }
+    }
+
+    &__item {
+      padding: 5px;
+    }
+    &__base {
+      gap: 5px;
+    }
+
+    &__h3 {
+      @include textType1();
+    }
+    &__base-descr {
+      @include textType08();
+      text-align: start;
+    }
+
+    &__base-descr_font {
+      @include textBold();
+    }
+
     &__descr-container {
       p {
         @include textType08();
@@ -465,6 +606,12 @@
     }
     &__h3 {
       @include textType15();
+    }
+    &__damage-h3 {
+      @include textType15();
+    }
+    &__damage-item {
+      @include textType08();
     }
   }
   .investments {
@@ -489,6 +636,15 @@
     &__descr {
       @include textType08();
       margin-bottom: 10px;
+    }
+  }
+}
+
+@media (max-width: 420px) {
+  .weapon {
+    &__item-damage {
+      left: 5%;
+      right: auto;
     }
   }
 }
@@ -545,6 +701,7 @@
       @include textType08();
       @include textBold();
       padding: 5px;
+      margin-bottom: 10px;
     }
     &__list {
       @include textType05();
@@ -562,8 +719,37 @@
     }
   }
   .weapon {
+    &__item-damage {
+      h3 {
+        @include textType03();
+      }
+      span {
+        @include textType03();
+      }
+    }
+
+    &__item {
+      padding: 5px;
+    }
+
+    &__h3 {
+      @include textType08();
+    }
+    &__base-descr {
+      @include textType05();
+      text-align: start;
+    }
+
+    &__base-descr_font {
+      @include textBold();
+    }
+
     &__list {
       gap: 5px;
+    }
+    &__passive {
+      gap: 5px;
+      padding: 5px;
     }
     &__descr-container {
       p {
@@ -582,6 +768,12 @@
     }
     &__h3 {
       @include textType1();
+    }
+    &__damage-h3 {
+      @include textType1();
+    }
+    &__damage-item {
+      @include textType05();
     }
   }
   .investments {
@@ -605,6 +797,17 @@
     &__descr {
       @include textType05();
       margin-bottom: 5px;
+    }
+  }
+}
+
+@media (max-width: 200px){
+  .weapon{
+     &__item-damage {
+      span {
+        @include flexible();
+        flex-direction: column;
+      }
     }
   }
 }
