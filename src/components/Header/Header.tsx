@@ -18,7 +18,7 @@ export const Header = () => {
               </Link>
             </li>
             <li className="header__item">
-              <Link to="/resonators" className="header__link">
+              <Link to="/resonators/" className="header__link">
                 Гайды
               </Link>
             </li>

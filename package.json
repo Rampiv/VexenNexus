@@ -1,7 +1,7 @@
 {
   "name": "vexennexus",
   "private": true,
-  "version": "0.3.6",
+  "version": "0.3.7",
   "type": "module",
   "homepage": "https://rvexen.github.io/VexenNexus/",
   "scripts": {

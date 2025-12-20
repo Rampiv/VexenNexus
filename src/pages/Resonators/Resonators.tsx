@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import "./Resonators.scss"
-import { DataResonators } from "../../data"
-import { Link } from "react-router"
+import { DataMechanics, DataResonators } from "../../data"
+import { Link, useLocation } from "react-router"
 import Electro from "@assets/image/Element/Electro.webp"
 import Havoc from "@assets/image/Element/Havoc.webp"
 import Aero from "@assets/image/Element/Aero.webp"
@@ -9,7 +9,6 @@ import Fusion from "@assets/image/Element/Fusion.webp"
 import Spectro from "@assets/image/Element/Spectro.webp"
 import Glacio from "@assets/image/Element/Glacio.webp"
 import reset from "@assets/image/Element/reset.webp"
-
 
 // Массив элементов для фильтрации
 const ELEMENTS = [
@@ -24,7 +23,11 @@ const ELEMENTS = [
 export const Resonators = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedElement, setSelectedElement] = useState("all")
-  const [selectedGuide, setSelectedGuide] = useState("resonators")
+  const location = useLocation()
+
+  const selectedGuide = location.pathname.startsWith("/mechanics")
+    ? "mechanics"
+    : "resonators"
 
   const filteredAndSortedResonators = useMemo(() => {
     let result = DataResonators
@@ -95,22 +98,23 @@ export const Resonators = () => {
         <div className="filter__choose">
           <h2 className="filter__h2">ВЫБЕРИ ГАЙД</h2>
           <div className="filter__btn-block">
-            <button
+            <Link
               className={`filter__btn ${selectedGuide === "resonators" && "filter__btn-borderbottom"}`.trim()}
-              onClick={() => setSelectedGuide("resonators")}
+              to={"/resonators/"}
             >
               ПЕРСОНАЖИ
-            </button>
-            <button
+            </Link>
+            <Link
               className={`filter__btn ${selectedGuide === "mechanics" && "filter__btn-borderbottom"}`.trim()}
-              onClick={() => setSelectedGuide("mechanics ")}
+              to={"/mechanics/"}
             >
               МЕХАНИКИ
-            </button>
+            </Link>
           </div>
         </div>
       </div>
 
+      {/* ПЕРСОНАЖИ */}
       {selectedGuide === "resonators" ? (
         <ul className="resonators-list__list">
           {filteredAndSortedResonators.map(item => (
@@ -132,6 +136,27 @@ export const Resonators = () => {
                 )}
               </div>
             </li>
+          ))}
+        </ul>
+      ) : (
+        <></>
+      )}
+      {/* МЕХАНИКИ */}
+      {selectedGuide === "mechanics" ? (
+        <ul className="resonators-list__list">
+          {DataMechanics.map((item, index) => (
+            <Link
+              to={item.link}
+              className="resonators-list__item resonators-list__mechanics-item"
+              key={`${index} mechanics list`}
+            >
+              <img
+                src={item.cardIcon}
+                alt="Иконка карточки"
+                className="resonators-list__mechanics-img"
+              />
+              <p className="resonators-list__mechanics-link">{item.name}</p>
+            </Link>
           ))}
         </ul>
       ) : (

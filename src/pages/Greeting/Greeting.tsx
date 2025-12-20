@@ -6,8 +6,8 @@ import { RealiseTimer } from "../../components"
 
 const PATCH_2_7_RELEASE = new Date("2025-12-24T11:00:00Z").getTime()
 const links = [
-  { link: "/resonators", title: "Гайд на персонажей" },
-  { link: "/", title: "Гайды на механики (скоро)" },
+  { link: "/resonators/", title: "Гайд на персонажей" },
+  { link: "/mechanics", title: "Гайды на механики" },
   { link: "/", title: "Глоссарий (скоро)" },
 ]
 const changes = [

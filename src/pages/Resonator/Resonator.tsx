@@ -340,7 +340,7 @@ export const Resonator = () => {
                 }
                 return <p key={index}>{item}</p>
               })}
-              {resonator.ConstellationOneDamage && (
+              {resonator.ConstellationOneDamage[0] && (
                 <>
                   <h3 className="constellation__h3">
                     Персональный урон за 1 ротацию
@@ -380,7 +380,7 @@ export const Resonator = () => {
                   </div>
                 </>
               )}
-              {resonator.ConstellationThreeDamage && (
+              {resonator.ConstellationThreeDamage[0] && (
                 <>
                   <h3 className="constellation__h3">
                     Персональный урон за 3 ротации
