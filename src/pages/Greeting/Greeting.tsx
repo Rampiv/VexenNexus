@@ -4,14 +4,18 @@ import { DataFutureResonators, DataLinks } from "../../data"
 import habImg from "@assets/image/habImg.webp"
 import { RealiseTimer } from "../../components"
 
-const PATCH_2_7_RELEASE = new Date("2025-12-24T11:00:00Z").getTime()
+const PATCH_2_7_RELEASE = new Date("2026-01-15T11:00:00Z").getTime()
 const links = [
   { link: "/resonators/", title: "Гайд на персонажей" },
   { link: "/mechanics", title: "Гайды на механики" },
   { link: "/", title: "Глоссарий (скоро)" },
 ]
 const changes = [
-  {
+    {
+    link: "/mechanics/off-tune",
+    text: <>Добавлена механика <span style={{"textDecoration": "underline", "fontWeight": "bold"}}>off-tune</span></>,
+    data: "- 20.12.25 -",
+  },{
     link: "/resonator/Buling",
     text: <>Добавлен базовый гайд на <span style={{"textDecoration": "underline", "fontWeight": "bold"}}>Булинг</span></>,
     data: "- 16.12.25 -",
@@ -93,7 +97,7 @@ export const Greeting = () => {
 
           <p className="banners-block__descr">
             Дата релиза:{" "}
-            <span className="banners-block__descr-date">25 декабря</span>
+            <span className="banners-block__descr-date">15 января</span>
           </p>
           <ul className="banners-block__banners">
             {DataFutureResonators.map(item =>
