@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client"
 import App from "./App"
-import { HashRouter } from "react-router"
 import { StrictMode } from "react"
+import { BrowserRouter } from "react-router"
 
 const container = document.getElementById("root")
 
@@ -10,9 +10,9 @@ if (container) {
 
   root.render(
     <StrictMode>
-      <HashRouter>
+      <BrowserRouter>
         <App />
-      </HashRouter>
+      </BrowserRouter>
     </StrictMode>,
   )
 } else {
