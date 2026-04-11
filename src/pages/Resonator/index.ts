@@ -1,1 +1,1 @@
-export { Resonator } from "./Resonator"
+export { ResonatorPage } from "./Resonator"

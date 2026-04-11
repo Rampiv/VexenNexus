@@ -26,9 +26,9 @@ interface UpdateItem {
 }
 
 const links = [
-  { link: "/resonators/", title: "Гайд на персонажей" },
-  { link: "/mechanics", title: "Гайды на механики" },
-  { link: "/", title: "Глоссарий (скоро)" },
+  { link: "/", title: "Оружия" },
+  { link: "/", title: "Сеты" },
+  { link: "/", title: "Тир-листы" },
 ]
 
 export const Greeting = () => {

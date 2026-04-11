@@ -12,29 +12,32 @@ import {
   where,
   serverTimestamp,
   setDoc,
-  getDoc, // Добавлено для получения настроек
+  getDoc,
 } from "firebase/firestore"
 import "./Admin.scss"
 import type { Resonator } from "../../types/resonator"
 import type { Weapon } from "../../types/weapon"
 import type { SiteSettings } from "../../types/siteSettings"
-import { db } from "../../firebase/config"
 import type { Mechanic } from "../../types/mechanic"
-import { TeamEditor } from "../../components"
-import type { Team } from "../../types/team"
+import type { EchoSet } from "../../types/echoSet"
+import { db } from "../../firebase/config"
+import { ArrayEditor, TeamEditor } from "../../components"
 
 const ADMIN_KEYS_COLLECTION = "admin_keys"
 const RESONATORS_COLLECTION = "resonators"
 const WEAPONS_COLLECTION = "weapons"
 const MECHANICS_COLLECTION = "mechanics"
+const ECHO_SETS_COLLECTION = "echo_sets" 
 const SETTINGS_DOC_ID = "site_settings"
 
-type Tab = "resonators" | "weapons" | "mechanics" | "settings"
+// <-- 3. Добавляем 'echoSets' в типы табов
+type Tab = "resonators" | "weapons" | "mechanics" | "echoSets" | "settings"
 
 // --- Типы для форм ---
 interface ResonatorForm extends Partial<Resonator> {}
 interface WeaponForm extends Partial<Weapon> {}
 interface MechanicForm extends Partial<Mechanic> {}
+interface EchoSetForm extends Partial<EchoSet> {}
 
 export const Admin = () => {
   // --- Auth State ---
@@ -50,6 +53,7 @@ export const Admin = () => {
   const [resonators, setResonators] = useState<Resonator[]>([])
   const [weapons, setWeapons] = useState<Weapon[]>([])
   const [mechanics, setMechanics] = useState<Mechanic[]>([])
+  const [echoSets, setEchoSets] = useState<EchoSet[]>([]) // <-- 5. Состояние для списока сетов
 
   // Настройки
   const [nextBannerDate, setNextBannerDate] = useState<string>("")
@@ -68,6 +72,7 @@ export const Admin = () => {
     resonatorImg: "",
     resonatorPreview: "",
     teams: [],
+    descr: [],
   })
   const [weaponForm, setWeaponForm] = useState<WeaponForm>({
     name: "",
@@ -81,10 +86,15 @@ export const Admin = () => {
     img: "",
     paragraphs: [],
   })
+  // <-- 6. Состояние формы для Эхо сета
+  const [echoSetForm, setEchoSetForm] = useState<EchoSetForm>({
+    name: "",
+    img: "",
+  })
 
   const [editingId, setEditingId] = useState<string | null>(null)
 
-  // 1. Проверка сессии
+  // Проверка сессии
   useEffect(() => {
     const checkSession = async () => {
       const storedAuth = localStorage.getItem("vexen_admin_auth")
@@ -125,7 +135,15 @@ export const Admin = () => {
         mechSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Mechanic[],
       )
 
-      // 4. Настройки
+      // 4. Эхо Сеты <-- 7. Загрузка Эхо сетов
+      const echoSnap = await getDocs(
+        query(collection(db, ECHO_SETS_COLLECTION), orderBy("name")),
+      )
+      setEchoSets(
+        echoSnap.docs.map(d => ({ id: d.id, ...d.data() })) as EchoSet[],
+      )
+
+      // 5. Настройки
       const settingsRef = doc(db, "settings", SETTINGS_DOC_ID)
       const docSnap = await getDoc(settingsRef)
       if (docSnap.exists()) {
@@ -140,7 +158,7 @@ export const Admin = () => {
     }
   }
 
-  // 2. Логика входа
+  // Логика входа
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setAuthError("")
@@ -172,9 +190,10 @@ export const Admin = () => {
     setResonators([])
     setWeapons([])
     setMechanics([])
+    setEchoSets([]) // <-- 8. Очистка при выходе
   }
 
-  // 3. Обработчики ввода для каждой формы
+  // Обработчики ввода
   const handleResonatorChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -196,27 +215,12 @@ export const Admin = () => {
     setMechanicForm(prev => ({ ...prev, [name]: value }))
   }
 
-  // Специальный обработчик для параграфов механик
-  const handleParagraphChange = (index: number, value: string) => {
-    const newParagraphs = [...(mechanicForm.paragraphs || [])]
-    newParagraphs[index] = value
-    setMechanicForm({ ...mechanicForm, paragraphs: newParagraphs })
+  // <-- 9. Обработчик для Эхо сетов
+  const handleEchoSetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setEchoSetForm(prev => ({ ...prev, [name]: value }))
   }
 
-  const addParagraph = () => {
-    setMechanicForm({
-      ...mechanicForm,
-      paragraphs: [...(mechanicForm.paragraphs || []), ""],
-    })
-  }
-
-  const removeParagraph = (index: number) => {
-    const newParagraphs =
-      mechanicForm.paragraphs?.filter((_: any, i: number) => i !== index) || []
-    setMechanicForm({ ...mechanicForm, paragraphs: newParagraphs })
-  }
-
-  // 4. Сохранение данных
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -228,13 +232,12 @@ export const Admin = () => {
         await setDoc(
           settingsRef,
           {
-            nextBannerDate: nextBannerDate, // Используем состояние, а не форму
+            nextBannerDate: nextBannerDate,
             futureResonatorIds: futureResonatorIds,
             updatedAt: serverTimestamp(),
           },
           { merge: true },
         )
-
         alert("Настройки сохранены!")
         setIsSubmitting(false)
         return
@@ -243,9 +246,13 @@ export const Admin = () => {
       // --- ЛОГИКА ОСТАЛЬНЫХ КОЛЛЕКЦИЙ ---
       let collectionName = ""
       let dataToSave: any = {}
+      let objTitle = ""
+      let objLink = ""
 
       if (activeTab === "resonators") {
         collectionName = RESONATORS_COLLECTION
+        objTitle = resonatorForm.name || ""
+        objLink = `/resonator/${resonatorForm.engName}`
         dataToSave = {
           ...resonatorForm,
           updatedAt: serverTimestamp(),
@@ -253,6 +260,9 @@ export const Admin = () => {
         }
       } else if (activeTab === "weapons") {
         collectionName = WEAPONS_COLLECTION
+        objTitle = weaponForm.engName || ""
+        // Исправлена ошибка: ссылка на оружие должна вести на оружие, а не на резонатора
+        objLink = `/weapon/${weaponForm.engName}`
         dataToSave = {
           ...weaponForm,
           updatedAt: serverTimestamp(),
@@ -260,8 +270,23 @@ export const Admin = () => {
         }
       } else if (activeTab === "mechanics") {
         collectionName = MECHANICS_COLLECTION
+        objTitle = mechanicForm.title || ""
+        if (mechanicForm.title) {
+          objLink = `/mechanics/${mechanicForm.title.toLowerCase().replace(/\s+/g, "-")}`
+        }
+
         dataToSave = {
           ...mechanicForm,
+          updatedAt: serverTimestamp(),
+          ...(editingId ? {} : { createdAt: serverTimestamp() }),
+        }
+      } else if (activeTab === "echoSets") {
+        // <-- 10. Логика сохранения Эхо сетов
+        collectionName = ECHO_SETS_COLLECTION
+        objTitle = echoSetForm.name || ""
+        objLink = "" // У эхо сетов может не быть отдельной страницы, пока оставим пустым
+        dataToSave = {
+          ...echoSetForm,
           updatedAt: serverTimestamp(),
           ...(editingId ? {} : { createdAt: serverTimestamp() }),
         }
@@ -270,9 +295,24 @@ export const Admin = () => {
       if (editingId) {
         const docRef = doc(db, collectionName, editingId)
         await updateDoc(docRef, dataToSave)
+
+        // Логируем только важные изменения
+        if (activeTab === "resonators")
+          await addUpdateLog("Изменено", `гайд на ${objTitle}`, objLink)
+        if (activeTab === "mechanics")
+          await addUpdateLog("Изменено", `механика: ${objTitle}`, objLink)
+
         alert("Объект обновлен!")
       } else {
         await addDoc(collection(db, collectionName), dataToSave)
+
+        if (activeTab === "resonators")
+          await addUpdateLog("Добавлено", `гайд на ${objTitle}`, objLink)
+        if (activeTab === "mechanics")
+          await addUpdateLog("Добавлено", `механика: ${objTitle}`, objLink)
+        if (activeTab === "echoSets")
+          await addUpdateLog("Добавлено", `эхо сет: ${objTitle}`, objLink)
+
         alert("Объект добавлен!")
       }
 
@@ -286,7 +326,7 @@ export const Admin = () => {
     }
   }
 
-  // 5. Редактирование
+  // Редактирование
   const handleEdit = (item: any) => {
     setEditingId(item.id || null)
 
@@ -301,7 +341,8 @@ export const Admin = () => {
         resonatorPreview: item.resonatorPreview || "",
         resonatorImgGuide: item.resonatorImgGuide || "",
         resonatorYTLink: item.resonatorYTLink || "",
-        teams: item.teams && item.teams.length > 0 ? item.teams : [], 
+        teams: item.teams && item.teams.length > 0 ? item.teams : [],
+        descr: item.descr && item.descr.length > 0 ? item.descr : [],
       })
     } else if (activeTab === "weapons") {
       setWeaponForm({
@@ -317,12 +358,18 @@ export const Admin = () => {
         img: item.img || "",
         paragraphs: item.paragraphs || [],
       })
+    } else if (activeTab === "echoSets") {
+      // <-- 11. Заполнение формы Эхо сета
+      setEchoSetForm({
+        name: item.name || "",
+        img: item.img || "",
+      })
     }
 
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
-  // 6. Удаление
+  // Удаление
   const handleDelete = async (id: string) => {
     if (!window.confirm("Вы уверены?")) return
 
@@ -330,6 +377,7 @@ export const Admin = () => {
     if (activeTab === "resonators") collectionName = RESONATORS_COLLECTION
     else if (activeTab === "weapons") collectionName = WEAPONS_COLLECTION
     else if (activeTab === "mechanics") collectionName = MECHANICS_COLLECTION
+    else if (activeTab === "echoSets") collectionName = ECHO_SETS_COLLECTION // <-- 12. Удаление Эхо сета
 
     try {
       await deleteDoc(doc(db, collectionName, id))
@@ -339,7 +387,7 @@ export const Admin = () => {
     }
   }
 
-  // 7. Управление списком ID в настройках
+  // Управление списком ID в настройках
   const handleAddResonatorToBanner = (resonatorId: string) => {
     if (!futureResonatorIds.includes(resonatorId)) {
       setFutureResonatorIds([...futureResonatorIds, resonatorId])
@@ -360,6 +408,7 @@ export const Admin = () => {
       resonatorImg: "",
       resonatorPreview: "",
       teams: [],
+      descr: [],
     })
 
     setWeaponForm({
@@ -376,17 +425,23 @@ export const Admin = () => {
       paragraphs: [],
     })
 
+    // <-- 13. Сброс формы Эхо сета
+    setEchoSetForm({
+      name: "",
+      img: "",
+    })
+
     setEditingId(null)
   }
 
-  // Обработчик смены вкладки с очисткой форм
+  // Обработчик смены вкладки
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab)
     resetForms()
   }
 
   // --- Рендеринг экранов ---
-
+  if (loading) return <>loading</>
   if (authLoading) return <div className="admin-loading">Проверка...</div>
   if (!isAuthenticated)
     return (
@@ -428,6 +483,13 @@ export const Admin = () => {
         >
           Механики
         </button>
+        {/* <-- 14. Кнопка таба Эхо Сетов */}
+        <button
+          className={`tab-btn ${activeTab === "echoSets" ? "active" : ""}`}
+          onClick={() => handleTabChange("echoSets")}
+        >
+          Эхо Сеты
+        </button>
         <button
           className={`tab-btn ${activeTab === "settings" ? "active" : ""}`}
           onClick={() => handleTabChange("settings")}
@@ -447,10 +509,14 @@ export const Admin = () => {
                 ? "механику"
                 : activeTab === "weapons"
                   ? "оружие"
-                  : "персонажа"}
+                  : activeTab === "echoSets"
+                    ? "эхо сет" // <-- 15. Заголовок формы
+                    : "персонажа"}
           </h2>
 
           <form onSubmit={handleSubmit} className="admin-form">
+            {/* ... (Формы Персонажей, Оружия, Механик без изменений) ... */}
+
             {/* --- ФОРМА ПЕРСОНАЖЕЙ --- */}
             {activeTab === "resonators" && (
               <>
@@ -508,9 +574,16 @@ export const Admin = () => {
                   />
                 </div>
                 <InputGroup
-                  label="URL основной картинки"
+                  label="URL большой картинки"
                   name="resonatorImg"
                   value={resonatorForm.resonatorImg || ""}
+                  onChange={handleResonatorChange}
+                  placeholder="https://..."
+                />
+                <InputGroup
+                  label="URL мини картинки"
+                  name="resonatorImgMini"
+                  value={resonatorForm.resonatorImgMini || ""}
                   onChange={handleResonatorChange}
                   placeholder="https://..."
                 />
@@ -521,23 +594,23 @@ export const Admin = () => {
                   onChange={handleResonatorChange}
                   placeholder="https://..."
                 />
-                <InputGroup
-                  label="URL Гайда"
-                  name="resonatorImgGuide"
-                  value={resonatorForm.resonatorImgGuide || ""}
-                  onChange={handleResonatorChange}
-                  placeholder="https://..."
-                />
-                <InputGroup
-                  label="URL YouTube"
-                  name="resonatorYTLink"
-                  value={resonatorForm.resonatorYTLink || ""}
-                  onChange={handleResonatorChange}
-                  placeholder="https://..."
+                <ArrayEditor
+                  title="Описание персонажа"
+                  items={resonatorForm.descr || []}
+                  setItems={newDescr =>
+                    setResonatorForm(prev => ({
+                      ...prev,
+                      descr:
+                        typeof newDescr === "function"
+                          ? newDescr(prev.descr || [])
+                          : newDescr,
+                    }))
+                  }
+                  placeholder="Информация..."
                 />
                 <TeamEditor
                   teams={resonatorForm.teams || []}
-                  setTeams={(newTeams: React.SetStateAction<Team[]>) => {
+                  setTeams={newTeams =>
                     setResonatorForm(prev => ({
                       ...prev,
                       teams:
@@ -545,7 +618,7 @@ export const Admin = () => {
                           ? newTeams(prev.teams || [])
                           : newTeams,
                     }))
-                  }}
+                  }
                   allResonators={resonators}
                 />
               </>
@@ -614,70 +687,46 @@ export const Admin = () => {
                   required
                 />
                 <InputGroup
-                  label="URL Иконки/Картинки"
+                  label="URL Иконки"
                   name="img"
                   value={mechanicForm.img || ""}
                   onChange={handleMechanicChange}
                   placeholder="https://..."
                 />
+                <ArrayEditor
+                  title="Описание (Абзацы)"
+                  items={mechanicForm.paragraphs || []}
+                  setItems={newParagraphs =>
+                    setMechanicForm(prev => ({
+                      ...prev,
+                      paragraphs:
+                        typeof newParagraphs === "function"
+                          ? newParagraphs(prev.paragraphs || [])
+                          : newParagraphs,
+                    }))
+                  }
+                  placeholder="Текст абзаца..."
+                />
+              </>
+            )}
 
-                <div className="form-group">
-                  <label>Описание (Абзацы)</label>
-                  {(mechanicForm.paragraphs || []).map(
-                    (p: string, idx: number) => (
-                      <div
-                        key={idx}
-                        style={{
-                          display: "flex",
-                          gap: "10px",
-                          marginBottom: "10px",
-                        }}
-                      >
-                        <textarea
-                          rows={3}
-                          value={p}
-                          onChange={e =>
-                            handleParagraphChange(idx, e.target.value)
-                          }
-                          placeholder={`Абзац ${idx + 1}`}
-                          style={{
-                            flex: 1,
-                            background: "#2a2a2a",
-                            color: "#fff",
-                            border: "1px solid #444",
-                            padding: "8px",
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeParagraph(idx)}
-                          style={{
-                            background: "#ff4444",
-                            color: "#fff",
-                            border: "none",
-                            cursor: "pointer",
-                          }}
-                        >
-                          X
-                        </button>
-                      </div>
-                    ),
-                  )}
-                  <button
-                    type="button"
-                    onClick={addParagraph}
-                    style={{
-                      marginTop: "10px",
-                      background: "#444",
-                      color: "#fff",
-                      border: "none",
-                      padding: "5px 10px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    + Добавить абзац
-                  </button>
-                </div>
+            {/* <-- 16. НОВАЯ ФОРМА: ЭХО СЕТЫ */}
+            {activeTab === "echoSets" && (
+              <>
+                <InputGroup
+                  label="Название сета (RU/ENG)"
+                  name="name"
+                  value={echoSetForm.name || ""}
+                  onChange={handleEchoSetChange}
+                  required
+                />
+                <InputGroup
+                  label="URL Иконки сета"
+                  name="img"
+                  value={echoSetForm.img || ""}
+                  onChange={handleEchoSetChange}
+                  placeholder="https://..."
+                />
               </>
             )}
 
@@ -698,7 +747,6 @@ export const Admin = () => {
                     }
                   />
                 </div>
-
                 <div className="form-group">
                   <label>Персонажи на будущем баннере</label>
                   <div
@@ -734,7 +782,6 @@ export const Admin = () => {
                       ))}
                     </select>
                   </div>
-
                   <ul
                     style={{
                       listStyle: "none",
@@ -821,7 +868,9 @@ export const Admin = () => {
                 ? "Оружие"
                 : activeTab === "mechanics"
                   ? "Механики"
-                  : "Настройки"}
+                  : activeTab === "echoSets"
+                    ? "Эхо Сеты" // <-- 17. Заголовок списка
+                    : "Настройки"}
           </h2>
 
           {activeTab === "settings" ? (
@@ -832,38 +881,42 @@ export const Admin = () => {
                 ? resonators
                 : activeTab === "weapons"
                   ? weapons
-                  : mechanics
-              ).map((item: any) => (
-                <li key={item.id} className="admin-list-item">
-                  <img
-                    src={item.resonatorImg || item.img}
-                    alt={item.name || item.title}
-                    className="admin-thumb"
-                  />
-                  <div className="admin-info">
-                    <strong>{item.name || item.title}</strong>
-                    {item.engName && `(${item.engName})`}
-                    <span className="admin-meta">
-                      {item.element || item.type || "Механика"} |{" "}
-                      {item.rarity ? `${item.rarity}★` : ""}
-                    </span>
-                  </div>
-                  <div className="admin-actions">
-                    <button
-                      onClick={() => handleEdit(item)}
-                      className="btn-edit"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="btn-delete"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                </li>
-              ))}
+                  : activeTab === "mechanics"
+                    ? mechanics
+                    : echoSets
+              ) // <-- 18. Отображение списка Эхо сетов
+                .map((item: any) => (
+                  <li key={item.id} className="admin-list-item">
+                    <img
+                      src={item.resonatorImg || item.img}
+                      alt={item.name || item.title}
+                      className="admin-thumb"
+                    />
+                    <div className="admin-info">
+                      <strong>{item.name || item.title}</strong>
+                      {item.engName && `(${item.engName})`}
+                      <span className="admin-meta">
+                        {item.element ||
+                          item.type ||
+                          (activeTab === "echoSets" ? "Сет" : "Механика")}
+                      </span>
+                    </div>
+                    <div className="admin-actions">
+                      <button
+                        onClick={() => handleEdit(item)}
+                        className="btn-edit"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="btn-delete"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </li>
+                ))}
             </ul>
           )}
         </div>
@@ -872,7 +925,8 @@ export const Admin = () => {
   )
 }
 
-// --- Вспомогательные компоненты ---
+// ... (Вспомогательные компоненты InputGroup, SelectGroup, AuthScreen и функция addUpdateLog остаются без изменений) ...
+
 const InputGroup = ({
   label,
   name,
@@ -941,3 +995,21 @@ const AuthScreen = ({
     </div>
   </section>
 )
+
+const addUpdateLog = async (
+  type: "Добавлено" | "Изменено",
+  title: string,
+  link: string,
+) => {
+  try {
+    await addDoc(collection(db, "updates"), {
+      type: type,
+      title: title,
+      link: link,
+      date: new Date().toISOString(),
+      createdAt: serverTimestamp(),
+    })
+  } catch (error) {
+    console.error("Ошибка при создании лога обновления:", error)
+  }
+}

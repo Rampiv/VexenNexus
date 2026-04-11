@@ -200,11 +200,6 @@ export const Resonators = ({ customClassname }: Prop) => {
                 <Link to={`/resonator/${item.engName}`} className="resonators-list__link">
                   Гайд
                 </Link>
-                {item.isPro && (
-                  <Link to={`${item.link}-pro`} className="resonators-list__link">
-                    Продвинутый гайд
-                  </Link>
-                )}
               </div>
             </li>
           ))}

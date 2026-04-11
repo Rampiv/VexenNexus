@@ -1,1 +1,0 @@
-export { GlossaryLink } from "./GlossaryLink"

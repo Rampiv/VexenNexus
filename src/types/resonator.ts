@@ -8,10 +8,12 @@ export interface Resonator {
   rarity: 4 | 5;
   weaponType: 'Sword' | 'Broadblade' | 'Gauntlets' | 'Pistols' | 'Rectifier';
   resonatorImg: string;
+  resonatorImgMini: string;
   resonatorPreview: string;
   releaseDate?: string;
   createdAt?: any;
   resonatorImgGuide?: string;
   resonatorYTLink?: string;
   teams?: Team[]
+  descr?: string[]
 }

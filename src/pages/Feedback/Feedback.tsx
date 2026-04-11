@@ -31,9 +31,6 @@ export const Feedback = () => {
             <Link to={"https://t.me/Vanpinvan"} className="feedback__link">
               Написать в телеграм
             </Link>
-            <Link to={"/egg"} className="feedback__egg">
-              Пасхалка
-            </Link>
           </div>
         </div>
       </div>
