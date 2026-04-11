@@ -1,0 +1,235 @@
+import { useMemo, useState, useEffect } from "react"
+import { 
+  collection, 
+  getDocs, 
+  query, 
+  orderBy 
+} from "firebase/firestore"
+import "./Resonators.scss"
+import { Link } from "react-router"
+import { db } from "../../firebase/config" // Убедитесь, что путь верный
+
+// Типы данных
+interface ElementData {
+  id: string;
+  name: string;
+  iconUrl: string;
+}
+
+interface ResonatorData {
+  id: string;
+  name: string;
+  engName: string;
+  element: string;
+  rarity: number;
+  weaponType: string;
+  resonatorImg: string;
+  link: string;
+  isPro?: boolean;
+}
+
+interface MechanicData {
+  id: string;
+  title: string;
+  img: string;
+  link: string;
+}
+
+interface Prop {
+  customClassname?: string
+}
+
+export const Resonators = ({ customClassname }: Prop) => {
+  // Состояния для данных из Firebase
+  const [elements, setElements] = useState<ElementData[]>([]);
+  const [resonators, setResonators] = useState<ResonatorData[]>([]);
+  const [mechanics, setMechanics] = useState<MechanicData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Состояния для фильтрации
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedElement, setSelectedElement] = useState("all");
+  const [selectedGuide, setSelectedGuide] = useState('filterBtnResonators');
+
+  // Загрузка данных из Firebase при монтировании
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // 1. Загрузка стихий
+        const elementsSnap = await getDocs(collection(db, "elements"));
+        const elementsList = elementsSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as ElementData[];
+        setElements(elementsList);
+
+        // 2. Загрузка персонажей
+        const resonatorsSnap = await getDocs(
+          query(collection(db, "resonators"), orderBy("name"))
+        );
+        const resonatorsList = resonatorsSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as ResonatorData[];
+        setResonators(resonatorsList);
+
+        // 3. Загрузка механик
+        const mechanicsSnap = await getDocs(
+          query(collection(db, "mechanics"), orderBy("title"))
+        );
+        const mechanicsList = mechanicsSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as MechanicData[];
+        setMechanics(mechanicsList);
+
+      } catch (error) {
+        console.error("Ошибка загрузки данных Resonators:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Фильтрация и сортировка персонажей
+  const filteredAndSortedResonators = useMemo(() => {
+    let result = resonators;
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(
+        item =>
+          item.name.toLowerCase().includes(term) ||
+          item.engName.toLowerCase().includes(term),
+      );
+    }
+
+    if (selectedElement !== "all") {
+      result = result.filter(item => item.element === selectedElement);
+    }
+
+    return result.sort((a, b) => a.name.localeCompare(b.name, "ru"));
+  }, [searchTerm, selectedElement, resonators]);
+
+  const handleSelectElement = (elementId: string) => {
+    if (selectedElement === elementId) {
+      setSelectedElement("all");
+    } else {
+      setSelectedElement(elementId);
+    }
+  };
+
+  const handleFilter = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setSelectedGuide(e.currentTarget.id);
+  };
+
+  if (loading) {
+    return <div className="resonators-loading">Загрузка...</div>;
+  }
+
+  return (
+    <div className={`resonators ${customClassname}`.trim()}>
+      {/* Список стихий */}
+      <div className="resonators__elements-listContainer">
+        <ul className="resonators__elements-list">
+          {elements.map(({ id, iconUrl }) => (
+            <li className="resonators__elements-item" key={id}>
+              <button
+                className="resonators__elements-btn"
+                onClick={() => handleSelectElement(id)}
+              >
+                <img
+                  src={iconUrl}
+                  alt={`Element ${id}`}
+                  className={`resonators__elements-img ${selectedElement === id && "resonators__elements-img_zoom"}`.trim()}
+                />
+              </button>
+            </li>
+          ))}
+        </ul>
+        <span className="resonators__elements-background"></span>
+      </div>
+
+      {/* Поиск и фильтры */}
+      <div className="filter">
+        <input
+          type="text"
+          placeholder="поиск"
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          className="filter__search"
+          maxLength={18}
+        />
+        <div className="filter__choose">
+          <h2 className="filter__h2">ВЫБЕРИ ГАЙД</h2>
+          <div className="filter__btn-block">
+            <button
+              className={`filter__btn ${selectedGuide === "filterBtnResonators" && "filter__btn-borderbottom"}`.trim()}
+              id="filterBtnResonators"
+              onClick={handleFilter}
+            >
+              ПЕРСОНАЖИ
+            </button>
+            <button
+              className={`filter__btn ${selectedGuide === "filterBtnMechanics" && "filter__btn-borderbottom"}`.trim()}
+              id="filterBtnMechanics"
+              onClick={handleFilter}
+            >
+              МЕХАНИКИ
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ПЕРСОНАЖИ */}
+      {selectedGuide === "filterBtnResonators" ? (
+        <ul className="resonators-list__list">
+          {filteredAndSortedResonators.map((item) => (
+            <li className="resonators-list__item" key={item.id}>
+              <img
+                src={item.resonatorImg}
+                alt={item.name}
+                className="resonators-list__img"
+              />
+              <div className="resonators-list__links">
+                <h3 className="resonators-list__h3">{item.name}</h3>
+                <Link to={`/resonator/${item.engName}`} className="resonators-list__link">
+                  Гайд
+                </Link>
+                {item.isPro && (
+                  <Link to={`${item.link}-pro`} className="resonators-list__link">
+                    Продвинутый гайд
+                  </Link>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {/* МЕХАНИКИ */}
+      {selectedGuide === "filterBtnMechanics" ? (
+        <ul className="resonators-list__list">
+          {mechanics.map((item) => (
+            <Link
+              to={item.link}
+              className="resonators-list__item resonators-list__mechanics-item"
+              key={item.id}
+            >
+              <img
+                src={item.img}
+                alt={item.title}
+                className="resonators-list__mechanics-img"
+              />
+              <p className="resonators-list__mechanics-link">{item.title}</p>
+            </Link>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}

@@ -1,0 +1,317 @@
+// src/pages/Admin/Admin.scss
+
+.admin {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #fff; // Предполагаем темную тему как на скриншоте
+
+  h1, h2 {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #444;
+    padding-bottom: 0.5rem;
+  }
+
+  &-form-container {
+    background: #1e1e1e;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 3rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  }
+
+  .admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      label {
+        font-size: 0.9rem;
+        color: #aaa;
+      }
+
+      input, select {
+        padding: 0.8rem;
+        background: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 4px;
+        color: #fff;
+        font-size: 1rem;
+
+        &:focus {
+          outline: none;
+          border-color: #7d40ff; // Фиолетовый акцент Vexen Hub
+        }
+      }
+    }
+
+    .checkbox-group {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.5rem;
+      
+      input[type="checkbox"] {
+        width: 1.2rem;
+        height: 1.2rem;
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+
+      button {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: opacity 0.2s;
+
+        &[type="submit"] {
+          background: #7d40ff;
+          color: white;
+          
+          &:hover {
+            background: #6a35d6;
+          }
+          
+          &:disabled {
+            background: #555;
+            cursor: not-allowed;
+          }
+        }
+
+        &.btn-cancel {
+          background: #444;
+          color: #fff;
+          
+          &:hover {
+            background: #555;
+          }
+        }
+      }
+    }
+  }
+
+  &-list-container {
+    background: #1e1e1e;
+    padding: 2rem;
+    border-radius: 8px;
+  }
+
+  .admin-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+
+  .admin-list-item {
+    background: #2a2a2a;
+    padding: 1rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid #333;
+
+    .admin-thumb {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 50%;
+      background: #000;
+    }
+
+    .admin-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      
+      strong {
+        font-size: 1.1rem;
+        color: #fff;
+      }
+      
+      .admin-meta {
+        font-size: 0.85rem;
+        color: #888;
+        margin-top: 0.2rem;
+      }
+    }
+
+    .admin-actions {
+      display: flex;
+      gap: 0.5rem;
+
+      button {
+        background: transparent;
+        border: 1px solid #444;
+        color: #fff;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        cursor: pointer;
+        
+        &:hover {
+          background: #333;
+        }
+        
+        &.btn-delete:hover {
+          background: #ff4444;
+          border-color: #ff4444;
+        }
+        
+        &.btn-edit:hover {
+          background: #4488ff;
+          border-color: #4488ff;
+        }
+      }
+    }
+  }
+}
+
+.admin-error {
+  text-align: center;
+  padding: 5rem;
+  font-size: 1.5rem;
+  color: #ff4444;
+}
+
+/* Стили для экрана входа */
+.admin-auth-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background-color: #121212; // Темный фон
+}
+
+.admin-auth-box {
+  background: #1e1e1e;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  border: 1px solid #333;
+
+  h2 {
+    margin-bottom: 1rem;
+    color: #fff;
+    font-size: 1.5rem;
+  }
+
+  p {
+    color: #aaa;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+.admin-key-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  input {
+    padding: 0.8rem;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 2px;
+
+    &:focus {
+      outline: none;
+      border-color: #7d40ff;
+      box-shadow: 0 0 0 2px rgba(125, 64, 255, 0.2);
+    }
+  }
+
+  button {
+    padding: 0.8rem;
+    background: #7d40ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #6a35d6;
+    }
+
+    &:disabled {
+      background: #444;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.admin-error-msg {
+  color: #ff4444;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  animation: shake 0.3s ease-in-out;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  .btn-logout {
+    background: transparent;
+    border: 1px solid #ff4444;
+    color: #ff4444;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      background: #ff4444;
+      color: white;
+    }
+  }
+}
+
+.admin-tabs{
+  display:  flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  button{
+    background: green;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .active{
+    background: red;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}

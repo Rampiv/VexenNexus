@@ -1,33 +1,100 @@
 import { Link } from "react-router"
 import "./Greeting.scss"
-import { DataFutureResonators, DataLinks } from "../../data"
+import { DataLinks } from "../../data"
 import habImg from "@assets/image/habImg.webp"
 import { RealiseTimer } from "../../components"
+import { Resonators } from "../../components/Resonators"
+import { useEffect, useState } from "react"
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+} from "firebase/firestore"
+import { db } from "../../firebase/config"
+import type { SiteSettings } from "../../types/siteSettings"
 
-const PATCH_2_7_RELEASE = new Date("2026-01-15T11:00:00Z").getTime()
+interface UpdateItem {
+  id: string
+  title: string
+  link: string
+  date: string
+  type: "Добавлено" | "Изменено"
+}
+
 const links = [
   { link: "/resonators/", title: "Гайд на персонажей" },
   { link: "/mechanics", title: "Гайды на механики" },
   { link: "/", title: "Глоссарий (скоро)" },
 ]
-const changes = [
-    {
-    link: "/mechanics/off-tune",
-    text: <>Добавлена механика <span style={{"textDecoration": "underline", "fontWeight": "bold"}}>off-tune</span></>,
-    data: "- 20.12.25 -",
-  },{
-    link: "/resonator/Buling",
-    text: <>Добавлен базовый гайд на <span style={{"textDecoration": "underline", "fontWeight": "bold"}}>Булинг</span></>,
-    data: "- 16.12.25 -",
-  },
-  {
-    link: "/resonator/Chisa",
-    text: <>Добавлен базовый гайд на <span style={{"textDecoration": "underline", "fontWeight": "bold"}}>Чису</span></>,
-    data: "- 16.12.25 -",
-  },
-]
 
 export const Greeting = () => {
+  const [patchDate, setPatchDate] = useState<number>(0)
+  const [updates, setUpdates] = useState<UpdateItem[]>([])
+  const [futureResonatorIds, setFutureResonatorIds] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // 1. Загрузка настроек (Дата патча и ID будущих персонажей)
+        const settingsRef = doc(db, "settings", "site_settings")
+        const settingsSnap = await getDoc(settingsRef)
+
+        if (settingsSnap.exists()) {
+          const data = settingsSnap.data() as SiteSettings
+
+          // Дата патча
+          if (data.nextBannerDate) {
+            setPatchDate(new Date(data.nextBannerDate).getTime())
+          }
+
+          // ID будущих персонажей
+          if (data.futureResonatorIds) {
+            setFutureResonatorIds(data.futureResonatorIds)
+          }
+        }
+
+        // 2. Загрузка последних изменений (Changelog)
+        const updatesQuery = query(
+          collection(db, "updates"),
+          orderBy("date", "desc"),
+          limit(5),
+        )
+        const updatesSnap = await getDocs(updatesQuery)
+
+        const updatesList = updatesSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as UpdateItem[]
+        setUpdates(updatesList)
+      } catch (error) {
+        console.error("Ошибка загрузки данных приветствия:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  const formatDate = (isoString: string) => {
+    if (!isoString) return ""
+    const date = new Date(isoString)
+    return date.toLocaleDateString("ru-RU", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+    })
+  }
+
+  if (loading) {
+    return <div className="greeting-loading">Загрузка...</div>
+  }
+
   return (
     <>
       <section className="greeting">
@@ -63,12 +130,11 @@ export const Greeting = () => {
           <ul className="nav-block__list">
             {links.map((item, index) => {
               return (
-                <li className="nav-block__item">
-                  <Link
-                    to={item.link}
-                    className="nav-block__link"
-                    key={`${index}список ссылок greeting`}
-                  >
+                <li
+                  className="nav-block__item"
+                  key={`${index}список ссылок greeting`}
+                >
+                  <Link to={item.link} className="nav-block__link">
                     {item.title}
                   </Link>
                 </li>
@@ -76,68 +142,92 @@ export const Greeting = () => {
             })}
           </ul>
         </div>
+        {/* Последние изменения (из Firebase) */}
+        <div className="greeting__block changes-block">
+          <h2 className="nav-block__h2">Последние изменения</h2>
+          <ul className="changes-block__list">
+            {updates.length > 0 ? (
+              updates.map(item => (
+                <li className="changes-block__item" key={item.id}>
+                  <p className="changes-block__descr">{`${item.type}: ${item.title}`}</p>
+                  <p className="changes-block__data">
+                    {item.date ? `- ${formatDate(item.date)} -` : ""}
+                  </p>
+                </li>
+              ))
+            ) : (
+              <li className="changes-block__item">Нет новых изменений</li>
+            )}
+          </ul>
+        </div>
+        <Resonators customClassname={"greeting__resonators"} />
+        {/* Баннеры и Таймер */}
         <div className="greeting__block banners-block">
           <div className="banners-block__timer-container">
             <div className="banners-block__timer">
               <h3 className="banners-block__h3">Европа</h3>
-              <RealiseTimer newDateProp={PATCH_2_7_RELEASE} region={"europe"} />
+              <RealiseTimer newDateProp={patchDate} region={"europe"} />
             </div>
             <div className="banners-block__timer">
               <h3 className="banners-block__h3">АЗИЯ</h3>
-              <RealiseTimer newDateProp={PATCH_2_7_RELEASE} region={"asia"} />
+              <RealiseTimer newDateProp={patchDate} region={"asia"} />
             </div>
             <div className="banners-block__timer">
               <h3 className="banners-block__h3">АМЕРИКА</h3>
-              <RealiseTimer
-                newDateProp={PATCH_2_7_RELEASE}
-                region={"america"}
-              />
+              <RealiseTimer newDateProp={patchDate} region={"america"} />
             </div>
           </div>
 
           <p className="banners-block__descr">
             Дата релиза:{" "}
-            <span className="banners-block__descr-date">15 января</span>
+            <span className="banners-block__descr-date">
+              {patchDate
+                ? new Date(patchDate).toLocaleDateString("ru-RU", {
+                    day: "numeric",
+                    month: "long",
+                  })
+                : "Скоро"}
+            </span>
           </p>
+
+          {/* Отображение будущих персонажей на баннере */}
           <ul className="banners-block__banners">
-            {DataFutureResonators.map(item =>
-              item.bannerImg ? (
-                item.bannerImg.map(itemnew => {
-                  return (
-                    <li
-                      className="banners-block__item"
-                      key={`${itemnew}banners-block`}
-                    >
-                      <img src={itemnew} alt="Картинка баннера" />
-                    </li>
-                  )
-                })
-              ) : (
-                <></>
-              ),
-            )}
-          </ul>
-        </div>
-        <div className="greeting__block changes-block">
-          <h2 className="nav-block__h2">Последние изменения</h2>
-          <ul className="changes-block__list">
-            {changes.map((item, index) => {
-              return (
-                <li className="changes-block__item">
-                  <Link
-                    to={item.link}
-                    className="changes-block__link"
-                    key={`${index}список ссылок greeting`}
-                  >
-                    <p className="changes-block__descr">{item.text}</p>
-                    <p className="changes-block__data">{item.data}</p>
-                  </Link>
-                </li>
-              )
-            })}
+            {futureResonatorIds.map(id => (
+              <FutureResonatorBanner key={id} resonatorId={id} />
+            ))}
           </ul>
         </div>
       </section>
     </>
+  )
+}
+
+const FutureResonatorBanner = ({ resonatorId }: { resonatorId: string }) => {
+  const [resonator, setResonator] = useState<any>(null)
+
+  useEffect(() => {
+    const fetchResonator = async () => {
+      try {
+        const docRef = doc(db, "resonators", resonatorId)
+        const docSnap = await getDoc(docRef)
+        if (docSnap.exists()) {
+          setResonator({ id: docSnap.id, ...docSnap.data() })
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    fetchResonator()
+  }, [resonatorId])
+
+  if (!resonator) return null
+
+  return (
+    <li className="banners-block__item">
+      <img
+        src={resonator.resonatorPreview || resonator.resonatorImg}
+        alt={resonator.name}
+      />
+    </li>
   )
 }

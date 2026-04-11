@@ -12,11 +12,11 @@ export const Mechanic = () => {
 
   if (!mechanic) {
     return (
-      <section className="mechanic">
+      <div className="mechanic">
         <div className="error red">Механика "{mechanicName}" не найдена.</div>
-      </section>
+      </div>
     )
   }
 
-  return <section className="mechanic">{mechanic.text}</section>
+  return <div className="mechanic">{mechanic.text}</div>
 }

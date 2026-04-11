@@ -8,14 +8,13 @@ import {
   Greeting,
   Privacy,
   Resonator,
-  Resonators,
   Mechanic,
+  Admin,
 } from "./pages"
 
 const HeaderMemo = React.memo(Header)
 const FooterMemo = React.memo(Footer)
 const GreetingMemo = React.memo(Greeting)
-const ResonatorsMemo = React.memo(Resonators)
 const ResonatorMemo = React.memo(Resonator)
 const PrivacyMemo = React.memo(Privacy)
 const FeedbackMemo = React.memo(Feedback)
@@ -30,13 +29,12 @@ export default function App() {
         <div className="container">
           <Routes>
             <Route path="/" element={<GreetingMemo />} />
-            <Route path="/resonators/" element={<ResonatorsMemo />} />
-            <Route path="/mechanics" element={<ResonatorsMemo />} />
             <Route path="/resonator/:id" element={<ResonatorMemo />} />
             <Route path="/mechanics/:id" element={<MechanicMemo />} />
             <Route path="/privacy" element={<PrivacyMemo />} />
             <Route path="/feedback" element={<FeedbackMemo />} />
             <Route path="/egg" element={<EggMemo />} />
+            <Route path="/admin" element={<Admin />} />
           </Routes>
         </div>
       </main>

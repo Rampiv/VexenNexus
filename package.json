@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.3.9",
   "type": "module",
-  "homepage": "https://rvexen.github.io/VexenNexus/",
+  "homepage": "https://rampiv.github.io/VexenNexus/",
   "scripts": {
     "dev": "vite",
     "start": "vite",
@@ -17,6 +17,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "firebase": "^12.12.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router": "^7.4.0"

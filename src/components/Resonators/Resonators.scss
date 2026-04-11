@@ -1,6 +1,7 @@
 @use "../../styles/style.scss" as *;
 
 .resonators {
+  width: 100%;
   @include flexible();
   flex-direction: column;
   margin-bottom: 20px;
@@ -28,7 +29,7 @@
   &__elements-list {
     @include listReset();
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 10px;
     padding: 0 10px;
   }
