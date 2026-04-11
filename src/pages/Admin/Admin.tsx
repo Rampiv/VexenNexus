@@ -441,7 +441,7 @@ export const Admin = () => {
   }
 
   // --- Рендеринг экранов ---
-  if (loading) return <>loading</>
+  // if (loading) return <>loading</>
   if (authLoading) return <div className="admin-loading">Проверка...</div>
   if (!isAuthenticated)
     return (
