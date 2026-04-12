@@ -2,4 +2,174 @@
 
 .resonator {
   color: white;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto auto auto;
+  gap: 15px;
+  &__name-block {
+    @include flexible();
+    grid-column: 1;
+    grid-row: span 2;
+
+    flex-direction: column;
+    gap: 15px;
+  }
+  &__YT-block {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    .youtube-player-wrapper {
+      min-height: 250px;
+    }
+  }
+  &__guide-block {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  &__teams-block {
+    @include flexible();
+    flex-direction: column;
+    grid-column: span 2;
+    grid-row: 3;
+  }
+  &__result {
+    grid-column: span 2;
+    grid-row: 4;
+  }
+  &__h2 {
+    @include flexible();
+    background-color: $color1;
+    width: 100%;
+    border-radius: $standartborder;
+    padding: 5px;
+
+    font-size: 64px;
+    line-height: 64px;
+    font-weight: 400;
+    text-align: center;
+  }
+
+  &__h3 {
+    font-size: 36px;
+    @include flexible();
+    background-color: $color1;
+    width: 100%;
+    border-radius: $standartborder;
+    padding: 5px;
+  }
+  &__name-img {
+    max-height: 60vh;
+  }
+  &__name-list {
+    @include listReset();
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+  }
+  &__name-item {
+    padding: 5px;
+    background-color: $color1;
+    border-radius: 5px;
+
+    text-align: center;
+    font-size: 14px;
+  }
+  // КОМАНДЫ
+
+  &__teams-lists {
+    @include flexible();
+    flex-direction: column;
+    width: 60%;
+  }
+}
+
+.teams-header {
+  @include listReset();
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100%;
+  padding-top: 15px;
+  gap: 10px;
+  margin-bottom: 10px;
+  &__item {
+    @include flexible();
+    background-color: $color1;
+    width: 100%;
+    border-radius: $standartborder;
+    padding: 5px 10px;
+
+    font-size: 36px;
+  }
+}
+
+.teams {
+  @include listReset();
+  @include flexible();
+  width: 100%;
+  flex-direction: column;
+  gap: 15px;
+
+  &__item {
+    @include flexible();
+    flex-direction: column;
+    width: 100%;
+    gap: 15px;
+  }
+
+  &__row-slots {
+    @include listReset();
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    width: 100%;
+  }
+
+  &__slot {
+    position: relative;
+  }
+  &__echo-sets {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  &__echo-icon {
+    @include standartTransition();
+
+    width: 40px;
+    @media (hover) {
+      &:hover {
+        transform: scale(1.3);
+      }
+    }
+    &:focus,
+    &:active {
+      transform: scale(1.03);
+      z-index: 2;
+    }
+  }
+  &__character {
+    @include flexible();
+    flex-direction: column;
+  }
+  &__char-img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    margin-bottom: 5px;
+  }
+  &__char-name {
+  }
+}
+
+.result {
+  @include listReset();
+  padding: 20px;
+  font-size: 24px;
 }

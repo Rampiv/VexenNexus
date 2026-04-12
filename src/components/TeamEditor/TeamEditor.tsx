@@ -1,12 +1,14 @@
 import type React from "react"
 import type { Team, TeamSlot, TeamRow } from "../../types/team"
 import type { Resonator } from "../../types/resonator"
-import './TeamEditor.scss'
+import type { EchoSet } from "../../types/echoSet"
+import "./TeamEditor.scss"
 
 interface TeamEditorProps {
   teams: Team[]
   setTeams: React.Dispatch<React.SetStateAction<Team[]>>
   allResonators: Resonator[]
+  allEchoSets: EchoSet[] 
 }
 
 const emptySlot: TeamSlot = {
@@ -14,12 +16,10 @@ const emptySlot: TeamSlot = {
   echoSetIcons: [],
 }
 
-// Функция для создания пустой строки из 3 слотов
 const createEmptyRow = (): TeamRow => ({
   slots: [null, null, null],
 })
 
-// Функция для создания пустого отряда с одной строкой
 const createEmptyTeam = (): Team => ({
   name: "",
   rows: [createEmptyRow()],
@@ -29,103 +29,149 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
   teams,
   setTeams,
   allResonators,
+  allEchoSets, 
 }) => {
-  // Добавление нового отряда (с одной пустой строкой)
   const addTeam = () => {
-    setTeams([...teams, createEmptyTeam()])
+    setTeams(prev => [...prev, createEmptyTeam()])
   }
 
-  // Удаление отряда
   const removeTeam = (index: number) => {
-    const newTeams = teams.filter((_, i) => i !== index)
-    setTeams(newTeams)
+    setTeams(prev => prev.filter((_, i) => i !== index))
   }
 
-  // Изменение названия отряда
   const handleTeamNameChange = (index: number, value: string) => {
-    const newTeams = [...teams]
-    newTeams[index].name = value
-    setTeams(newTeams)
+    setTeams(prev =>
+      prev.map((team, i) => (i === index ? { ...team, name: value } : team)),
+    )
   }
 
-  // --- ЛОГИКА СТРОК ---
-
-  // Добавление новой строки в отряд
   const addRowToTeam = (teamIndex: number) => {
-    const newTeams = [...teams]
-    newTeams[teamIndex].rows.push(createEmptyRow())
-    setTeams(newTeams)
+    setTeams(prev =>
+      prev.map((team, i) =>
+        i === teamIndex
+          ? { ...team, rows: [...team.rows, createEmptyRow()] }
+          : team,
+      ),
+    )
   }
 
-  // Удаление строки из отряда
   const removeRowFromTeam = (teamIndex: number, rowIndex: number) => {
-    const newTeams = [...teams]
-    // Не удаляем последнюю строку, чтобы отряд не стал пустым (опционально)
-    if (newTeams[teamIndex].rows.length > 1) {
-      newTeams[teamIndex].rows.splice(rowIndex, 1)
-      setTeams(newTeams)
-    }
+    setTeams(prev =>
+      prev.map((team, i) => {
+        if (i !== teamIndex) return team
+        if (team.rows.length <= 1) return team
+
+        return {
+          ...team,
+          rows: team.rows.filter((_, rIdx) => rIdx !== rowIndex),
+        }
+      }),
+    )
   }
 
-  // --- ЛОГИКА СЛОТОВ ---
-
-  const handleResonatorSelect = (
+const handleResonatorSelect = (
     teamIndex: number,
     rowIndex: number,
     slotIndex: number,
     resonatorId: string,
   ) => {
-    const newTeams = [...teams]
-    // Инициализируем слот, если он null
-    if (!newTeams[teamIndex].rows[rowIndex].slots[slotIndex]) {
-       newTeams[teamIndex].rows[rowIndex].slots[slotIndex] = { ...emptySlot }
-    }
-    
-    newTeams[teamIndex].rows[rowIndex].slots[slotIndex]!.resonatorId = resonatorId
-    setTeams(newTeams)
-  }
+    setTeams(prev => prev.map((team, tIdx) => {
+      if (tIdx !== teamIndex) return team;
 
-  const addEchoIcon = (
+      return {
+        ...team,
+        rows: team.rows.map((row, rIdx) => {
+          if (rIdx !== rowIndex) return row;
+
+          return {
+            ...row,
+
+            slots: row.slots.map((slot, sIdx) => {
+              if (sIdx !== slotIndex) return slot;
+              
+              const currentSlot = slot || { ...emptySlot };
+              return {
+                ...currentSlot,
+                resonatorId: resonatorId
+              };
+            }) as [TeamSlot | null, TeamSlot | null, TeamSlot | null] 
+          };
+        })
+      };
+    }));
+  };
+
+  // Функция добавления ID сета (вместо URL)
+  const addEchoSetId = (
     teamIndex: number,
     rowIndex: number,
     slotIndex: number,
-    iconUrl: string,
+    echoSetId: string,
   ) => {
-    const newTeams = [...teams]
-    if (!newTeams[teamIndex].rows[rowIndex].slots[slotIndex]) {
-       newTeams[teamIndex].rows[rowIndex].slots[slotIndex] = { ...emptySlot }
-    }
-    newTeams[teamIndex].rows[rowIndex].slots[slotIndex]!.echoSetIcons.push(iconUrl)
-    setTeams(newTeams)
+    if (!echoSetId) return
+
+    setTeams(prev =>
+      prev.map((team, tIdx) => {
+        if (tIdx !== teamIndex) return team
+
+        return {
+          ...team,
+          rows: team.rows.map((row, rIdx) => {
+            if (rIdx !== rowIndex) return row
+
+            return {
+              ...row,
+             
+              slots: row.slots.map((slot, sIdx) => {
+                if (sIdx !== slotIndex) return slot
+
+                const currentSlot = slot || { ...emptySlot }
+                
+               
+                if (currentSlot.echoSetIcons.includes(echoSetId))
+                  return currentSlot
+
+                return {
+                  ...currentSlot,
+                  echoSetIcons: [...currentSlot.echoSetIcons, echoSetId],
+                }
+              }) as [TeamSlot | null, TeamSlot | null, TeamSlot | null], 
+            }
+          }),
+        }
+      }),
+    )
   }
 
-  const removeEchoIcon = (
+const removeEchoIcon = (
     teamIndex: number,
     rowIndex: number,
     slotIndex: number,
     iconIndex: number,
   ) => {
-    const newTeams = [...teams]
-    if (newTeams[teamIndex].rows[rowIndex].slots[slotIndex]) {
-      newTeams[teamIndex].rows[rowIndex].slots[slotIndex]!.echoSetIcons.splice(iconIndex, 1)
-      setTeams(newTeams)
-    }
-  }
+    setTeams(prev => prev.map((team, tIdx) => {
+      if (tIdx !== teamIndex) return team;
 
-  const handleEchoIconInput = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    teamIndex: number,
-    rowIndex: number,
-    slotIndex: number,
-  ) => {
-    if (e.key === "Enter") {
-      const url = e.currentTarget.value.trim()
-      if (url) {
-        addEchoIcon(teamIndex, rowIndex, slotIndex, url)
-        e.currentTarget.value = ""
-      }
-    }
-  }
+      return {
+        ...team,
+        rows: team.rows.map((row, rIdx) => {
+          if (rIdx !== rowIndex) return row;
+
+          return {
+            ...row,
+            slots: row.slots.map((slot, sIdx) => {
+              if (sIdx !== slotIndex || !slot) return slot;
+
+              return {
+                ...slot,
+                echoSetIcons: slot.echoSetIcons.filter((_, iIdx) => iIdx !== iconIndex)
+              };
+            }) as [TeamSlot | null, TeamSlot | null, TeamSlot | null]
+          };
+        })
+      };
+    }));
+  };
 
   return (
     <div className="team-editor">
@@ -138,10 +184,11 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
               type="text"
               placeholder="Название отряда (например, Аэро пачка)"
               value={team.name}
-              onChange={(e) => handleTeamNameChange(tIdx, e.target.value)}
+              onChange={e => handleTeamNameChange(tIdx, e.target.value)}
               className="team-name-input"
             />
             <button
+              type="button"
               onClick={() => removeTeam(tIdx)}
               className="btn-remove-team"
             >
@@ -149,15 +196,15 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
             </button>
           </div>
 
-          {/* Рендеринг строк */}
           {team.rows.map((row, rIdx) => (
             <div key={rIdx} className="team-row-wrapper">
               <div className="team-row">
                 {row.slots.map((slot, sIdx) => (
                   <div key={sIdx} className="team-slot">
+                    {/* Выбор персонажа */}
                     <select
                       value={slot?.resonatorId || ""}
-                      onChange={(e) =>
+                      onChange={e =>
                         handleResonatorSelect(tIdx, rIdx, sIdx, e.target.value)
                       }
                       className="slot-resonator-select"
@@ -178,7 +225,7 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
                           )
                           return res ? (
                             <img
-                              src={res.resonatorImg}
+                              src={res.resonatorImgMini || res.resonatorImg}
                               alt={res.name}
                               className="resonator-thumb"
                             />
@@ -187,47 +234,82 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
                       </div>
                     )}
 
+                    {/* Отображение выбранных сетов (по ID) */}
                     <div className="echo-icons-container">
-                      {slot?.echoSetIcons.map((icon, iconIdx) => (
-                        <div key={iconIdx} className="echo-icon-wrapper">
-                          <img src={icon} alt="Echo Set" className="echo-icon" />
-                          <button
-                            onClick={() =>
-                              removeEchoIcon(tIdx, rIdx, sIdx, iconIdx)
-                            }
-                            className="btn-remove-icon"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
+                      {slot?.echoSetIcons.map((echoSetId, iconIdx) => {
+                        // Находим объект сета по ID, чтобы показать картинку
+                        const echoSetObj = allEchoSets.find(
+                          es => es.id === echoSetId,
+                        )
+
+                        return (
+                          <div key={iconIdx} className="echo-icon-wrapper">
+                            <img
+                              src={
+                                echoSetObj?.img ||
+                                ""
+                              }
+                              alt={echoSetObj?.name || "Set"}
+                              className="echo-icon"
+                              title={echoSetObj?.name}
+                            />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                removeEchoIcon(tIdx, rIdx, sIdx, iconIdx)
+                              }
+                              className="btn-remove-icon"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        )
+                      })}
                     </div>
 
-                    <input
-                      type="text"
-                      placeholder="URL иконки сета + Enter"
-                      onKeyDown={(e) => handleEchoIconInput(e, tIdx, rIdx, sIdx)}
-                      className="echo-icon-input"
-                    />
+                    {/* ВЫБОР СЕТА ИЗ СПИСКА */}
+                    <select
+                      className="echo-set-select"
+                      onChange={e => {
+                        addEchoSetId(tIdx, rIdx, sIdx, e.target.value)
+                        e.target.value = "" 
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: "5px",
+                        background: "#2a2a2a",
+                        color: "#fff",
+                        border: "1px solid #444",
+                        borderRadius: "4px",
+                        marginTop: "5px",
+                      }}
+                    >
+                      <option value="">+ Добавить сет</option>
+                      {allEchoSets.map(set => (
+                        <option key={set.id} value={set.id}>
+                          {set.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 ))}
               </div>
-              
-              {/* Кнопка удаления строки (если строк больше 1) */}
+
               {team.rows.length > 1 && (
-                 <button 
-                   onClick={() => removeRowFromTeam(tIdx, rIdx)}
-                   className="btn-remove-row"
-                 >
-                   Удалить эту строку
-                 </button>
+                <button
+                  type="button"
+                  onClick={() => removeRowFromTeam(tIdx, rIdx)}
+                  className="btn-remove-row"
+                >
+                  Удалить эту строку
+                </button>
               )}
             </div>
           ))}
 
-          {/* Кнопка добавления новой строки внутри отряда */}
-          <button 
-            onClick={() => addRowToTeam(tIdx)} 
+          <button
+            type="button"
+            onClick={() => addRowToTeam(tIdx)}
             className="btn-add-row"
           >
             + Добавить строку (3 персонажа)
@@ -235,7 +317,7 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
         </div>
       ))}
 
-      <button onClick={addTeam} className="btn-add-team">
+      <button type="button" onClick={addTeam} className="btn-add-team">
         + Добавить новый отряд
       </button>
     </div>

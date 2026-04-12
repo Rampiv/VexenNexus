@@ -14,6 +14,8 @@ export interface Resonator {
   createdAt?: any;
   resonatorImgGuide?: string;
   resonatorYTLink?: string;
+  resonatorImgBanner?: string;
   teams?: Team[]
   descr?: string[]
+  result?: string[]
 }

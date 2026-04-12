@@ -27,7 +27,7 @@ const ADMIN_KEYS_COLLECTION = "admin_keys"
 const RESONATORS_COLLECTION = "resonators"
 const WEAPONS_COLLECTION = "weapons"
 const MECHANICS_COLLECTION = "mechanics"
-const ECHO_SETS_COLLECTION = "echo_sets" 
+const ECHO_SETS_COLLECTION = "echo_sets"
 const SETTINGS_DOC_ID = "site_settings"
 
 // <-- 3. Добавляем 'echoSets' в типы табов
@@ -70,9 +70,14 @@ export const Admin = () => {
     rarity: 5,
     weaponType: "Sword",
     resonatorImg: "",
+    resonatorImgMini: "",
+    resonatorImgBanner: "",
     resonatorPreview: "",
+    resonatorImgGuide: "",
+    resonatorYTLink: "",
     teams: [],
     descr: [],
+    result: [],
   })
   const [weaponForm, setWeaponForm] = useState<WeaponForm>({
     name: "",
@@ -83,12 +88,14 @@ export const Admin = () => {
   })
   const [mechanicForm, setMechanicForm] = useState<MechanicForm>({
     title: "",
+    engName: "",
     img: "",
     paragraphs: [],
   })
   // <-- 6. Состояние формы для Эхо сета
   const [echoSetForm, setEchoSetForm] = useState<EchoSetForm>({
     name: "",
+    engName: "",
     img: "",
   })
 
@@ -261,7 +268,6 @@ export const Admin = () => {
       } else if (activeTab === "weapons") {
         collectionName = WEAPONS_COLLECTION
         objTitle = weaponForm.engName || ""
-        // Исправлена ошибка: ссылка на оружие должна вести на оружие, а не на резонатора
         objLink = `/weapon/${weaponForm.engName}`
         dataToSave = {
           ...weaponForm,
@@ -270,9 +276,9 @@ export const Admin = () => {
         }
       } else if (activeTab === "mechanics") {
         collectionName = MECHANICS_COLLECTION
-        objTitle = mechanicForm.title || ""
-        if (mechanicForm.title) {
-          objLink = `/mechanics/${mechanicForm.title.toLowerCase().replace(/\s+/g, "-")}`
+        objTitle = mechanicForm.engName || ""
+        if (mechanicForm.engName) {
+          objLink = `/mechanics/${mechanicForm.engName.toLowerCase().replace(/\s+/g, "-")}`
         }
 
         dataToSave = {
@@ -281,10 +287,12 @@ export const Admin = () => {
           ...(editingId ? {} : { createdAt: serverTimestamp() }),
         }
       } else if (activeTab === "echoSets") {
-        // <-- 10. Логика сохранения Эхо сетов
         collectionName = ECHO_SETS_COLLECTION
         objTitle = echoSetForm.name || ""
-        objLink = "" // У эхо сетов может не быть отдельной страницы, пока оставим пустым
+        objLink = echoSetForm.engName || ""
+        if (echoSetForm.engName) {
+          objLink = `/echoSets/${echoSetForm.engName.toLowerCase().replace(/\s+/g, "-")}`
+        }
         dataToSave = {
           ...echoSetForm,
           updatedAt: serverTimestamp(),
@@ -338,11 +346,14 @@ export const Admin = () => {
         rarity: item.rarity || 5,
         weaponType: item.weaponType || "Sword",
         resonatorImg: item.resonatorImg || "",
+        resonatorImgMini: item.resonatorImgMini || "",
+        resonatorImgBanner: item.resonatorImgBanner || "",
         resonatorPreview: item.resonatorPreview || "",
         resonatorImgGuide: item.resonatorImgGuide || "",
         resonatorYTLink: item.resonatorYTLink || "",
         teams: item.teams && item.teams.length > 0 ? item.teams : [],
         descr: item.descr && item.descr.length > 0 ? item.descr : [],
+        result: item.result && item.result.length > 0 ? item.result : [],
       })
     } else if (activeTab === "weapons") {
       setWeaponForm({
@@ -355,13 +366,14 @@ export const Admin = () => {
     } else if (activeTab === "mechanics") {
       setMechanicForm({
         title: item.title || "",
+        engName: item.engName || "",
         img: item.img || "",
         paragraphs: item.paragraphs || [],
       })
     } else if (activeTab === "echoSets") {
-      // <-- 11. Заполнение формы Эхо сета
       setEchoSetForm({
         name: item.name || "",
+        engName: item.engName || "",
         img: item.img || "",
       })
     }
@@ -406,9 +418,14 @@ export const Admin = () => {
       rarity: 5,
       weaponType: "Sword",
       resonatorImg: "",
+      resonatorImgMini: "",
+      resonatorImgBanner: "",
       resonatorPreview: "",
+      resonatorImgGuide: "",
+      resonatorYTLink: "",
       teams: [],
       descr: [],
+      result: [],
     })
 
     setWeaponForm({
@@ -421,14 +438,15 @@ export const Admin = () => {
 
     setMechanicForm({
       title: "",
+      engName: "",
       img: "",
       paragraphs: [],
     })
 
-    // <-- 13. Сброс формы Эхо сета
     setEchoSetForm({
       name: "",
       img: "",
+      engName: "",
     })
 
     setEditingId(null)
@@ -574,28 +592,49 @@ export const Admin = () => {
                   />
                 </div>
                 <InputGroup
-                  label="URL большой картинки"
+                  label="URL большой картинки (в гайде)"
                   name="resonatorImg"
                   value={resonatorForm.resonatorImg || ""}
                   onChange={handleResonatorChange}
                   placeholder="https://..."
                 />
                 <InputGroup
-                  label="URL мини картинки"
+                  label="URL мини картинки (на карточках)"
                   name="resonatorImgMini"
                   value={resonatorForm.resonatorImgMini || ""}
                   onChange={handleResonatorChange}
                   placeholder="https://..."
                 />
                 <InputGroup
-                  label="URL Превью (Баннер)"
+                  label="URL фото карточки персонажа  для баннера"
+                  name="resonatorImgBanner"
+                  value={resonatorForm.resonatorImgBanner || ""}
+                  onChange={handleResonatorChange}
+                  placeholder="https://..."
+                />
+                <InputGroup
+                  label="URL Превью ютуб ролика"
                   name="resonatorPreview"
                   value={resonatorForm.resonatorPreview || ""}
                   onChange={handleResonatorChange}
                   placeholder="https://..."
                 />
+                <InputGroup
+                  label="URL ютуб ролика"
+                  name="resonatorYTLink"
+                  value={resonatorForm.resonatorYTLink || ""}
+                  onChange={handleResonatorChange}
+                  placeholder="https://..."
+                />
+                <InputGroup
+                  label="URL гайда"
+                  name="resonatorImgGuide"
+                  value={resonatorForm.resonatorImgGuide || ""}
+                  onChange={handleResonatorChange}
+                  placeholder="https://..."
+                />
                 <ArrayEditor
-                  title="Описание персонажа"
+                  title="Описание персонажа (под большой картинкой)"
                   items={resonatorForm.descr || []}
                   setItems={newDescr =>
                     setResonatorForm(prev => ({
@@ -607,6 +646,20 @@ export const Admin = () => {
                     }))
                   }
                   placeholder="Информация..."
+                />
+                <ArrayEditor
+                  title="Заключение по персонажу"
+                  items={resonatorForm.result || []}
+                  setItems={newResult =>
+                    setResonatorForm(prev => ({
+                      ...prev,
+                      result:
+                        typeof newResult === "function"
+                          ? newResult(prev.result || [])
+                          : newResult,
+                    }))
+                  }
+                  placeholder="Перс заебись"
                 />
                 <TeamEditor
                   teams={resonatorForm.teams || []}
@@ -620,6 +673,7 @@ export const Admin = () => {
                     }))
                   }
                   allResonators={resonators}
+                  allEchoSets={echoSets}
                 />
               </>
             )}
@@ -714,9 +768,16 @@ export const Admin = () => {
             {activeTab === "echoSets" && (
               <>
                 <InputGroup
-                  label="Название сета (RU/ENG)"
+                  label="Название сета (RU)"
                   name="name"
                   value={echoSetForm.name || ""}
+                  onChange={handleEchoSetChange}
+                  required
+                />
+                <InputGroup
+                  label="Название сета (ENG)"
+                  name="engName"
+                  value={echoSetForm.engName || ""}
                   onChange={handleEchoSetChange}
                   required
                 />
@@ -924,8 +985,6 @@ export const Admin = () => {
     </section>
   )
 }
-
-// ... (Вспомогательные компоненты InputGroup, SelectGroup, AuthScreen и функция addUpdateLog остаются без изменений) ...
 
 const InputGroup = ({
   label,

@@ -1,10 +1,14 @@
-import { useParams } from "react-router"
+import { Link, useParams } from "react-router"
 import "./Resonator.scss"
 import { useEffect, useState } from "react"
 import { collection, getDocs, query, where } from "firebase/firestore"
 import { db } from "../../firebase/config"
 import type { Resonator } from "../../types/resonator"
 import { YouTubePlayer } from "../../components"
+import { useResonators } from "../../hook/useResonators"
+import { useEchoSets } from "../../hook/useEchoSets"
+import Lightbox from "yet-another-react-lightbox"
+import "yet-another-react-lightbox/styles.css"
 
 const getResonatorByEngName = async (
   engName: string,
@@ -36,8 +40,13 @@ const getResonatorByEngName = async (
 
 export const ResonatorPage = () => {
   const { engName } = useParams<{ engName: string }>()
-  const [loading, setLoading] = useState(true)
+  const [loadingCommon, setLoading] = useState(true)
   const [resonator, setResonator] = useState<Resonator>()
+  const { resonators: allResonators, loading: loadingResonators } =
+    useResonators()
+  const { echoSets: allEchoSets, loading: loadingEchoSets } = useEchoSets()
+  // Состояние для лайтбокса
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
 
   useEffect(() => {
     if (!engName) {
@@ -59,8 +68,8 @@ export const ResonatorPage = () => {
     loadCharacter()
   }, [engName])
 
-  if (loading) {
-    return <>ЗАГРУЗКА</>
+  if (loadingCommon || loadingResonators || loadingEchoSets) {
+    return <div>Загрузка...</div>
   }
 
   if (!resonator) {
@@ -112,15 +121,128 @@ export const ResonatorPage = () => {
           src={resonator.resonatorImgGuide}
           alt="Гайд"
           className="resonator__guide-img"
+          onClick={() => setIsLightboxOpen(true)}
+          style={{ cursor: "zoom-in" }}
         />
       </div>
       <div className="resonator__teams-block">
         <h2 className="resonator__h2">Отряды</h2>
-        <ul className="team"></ul>
-        <ul className="teams">
-          
+        <div className="resonator__teams-lists">
+          <ul className="teams-header">
+            <li className="teams-header__item">1 слот</li>
+            <li className="teams-header__item">2 слот</li>
+            <li className="teams-header__item">3 слот</li>
+          </ul>
+          <ul className="teams">
+            {resonator.teams &&
+              resonator.teams.map((team, teamIndex) => (
+                <li
+                  className="teams__item"
+                  key={`team-${team.name}-${teamIndex}`}
+                >
+                  <h3 className="resonator__h3">{team.name}</h3>
+
+                  {team.rows.map((row, rowIndex) => (
+                    <div
+                      className="teams__row-slots"
+                      key={`row-${teamIndex}-${rowIndex}`}
+                    >
+                      {row.slots.map((slot, slotIndex) => {
+                        // Находим персонажа по ID
+                        const character = slot?.resonatorId
+                          ? allResonators.find(r => r.id === slot.resonatorId)
+                          : null
+
+                        return (
+                          <li
+                            className="teams__slot"
+                            key={`slot-${teamIndex}-${rowIndex}-${slotIndex}`}
+                          >
+                            {/* Отображение персонажа */}
+                            {character ? (
+                              <Link
+                                to={`/resonator/${character.engName}`}
+                                className="teams__character"
+                              >
+                                <img
+                                  src={
+                                    character.resonatorImgMini ||
+                                    character.resonatorImg
+                                  }
+                                  alt={character.name}
+                                  className="teams__char-img"
+                                />
+                                <span className="teams__char-name">
+                                  {character.name}
+                                </span>
+                              </Link>
+                            ) : (
+                              <div className="teams__empty-slot">Пусто</div>
+                            )}
+
+                            {/* Отображение эхо-сетов */}
+                            {slot?.echoSetIcons &&
+                              slot.echoSetIcons.length > 0 && (
+                                <div className="teams__echo-sets">
+                                  {slot.echoSetIcons.map(
+                                    (echoSetId, iconIdx) => {
+                                      const echoSetObj = allEchoSets.find(
+                                        es => es.id === echoSetId,
+                                      )
+
+                                      let echoLink = ""
+                                      if (echoSetObj) {
+                                        echoLink = echoSetObj.engName
+                                          .toLowerCase()
+                                          .replace(/\s+/g, "-")
+                                      }
+
+                                      return (
+                                        <Link to={`/echoSets/${echoLink}`}>
+                                          <img
+                                            key={iconIdx}
+                                            src={echoSetObj?.img || ""}
+                                            alt={echoSetObj?.name || "Echo Set"}
+                                            className="teams__echo-icon"
+                                            title={
+                                              echoSetObj?.name || "Эхо сет"
+                                            }
+                                          />
+                                        </Link>
+                                      )
+                                    },
+                                  )}
+                                </div>
+                              )}
+                          </li>
+                        )
+                      })}
+                    </div>
+                  ))}
+                </li>
+              ))}
+          </ul>
+        </div>
+      </div>
+      <div className="resonator__result">
+        <h2 className="resonator__h2">Заключение</h2>
+        <ul className="result">
+          {resonator.result
+            ? resonator.result.map((item, index) => {
+                return (
+                  <li className="result__item" key={`Результат ${index}`}>
+                    {item}
+                  </li>
+                )
+              })
+            : "Заключение в процессе написания"}
         </ul>
       </div>
+      <Lightbox
+        open={isLightboxOpen}
+        close={() => setIsLightboxOpen(false)}
+        slides={[{ src: resonator.resonatorImgGuide || "" }]}
+      />
     </section>
   )
 }

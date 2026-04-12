@@ -32,7 +32,7 @@ export const YouTubePlayer = ({ videoId, title, YT }: YouTubePlayerProps) => {
         onLoad={() => setIsLoaded(true)}
         style={{
           display: isLoaded ? "block" : "none",
-          borderRadius: "44px",
+          borderRadius: "10px",
         }}
         className="youtube-player-frame"
       />

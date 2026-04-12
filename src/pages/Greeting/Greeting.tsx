@@ -225,7 +225,7 @@ const FutureResonatorBanner = ({ resonatorId }: { resonatorId: string }) => {
   return (
     <li className="banners-block__item">
       <img
-        src={resonator.resonatorPreview || resonator.resonatorImg}
+        src={resonator.resonatorImgBanner || resonator.resonatorImg}
         alt={resonator.name}
       />
     </li>

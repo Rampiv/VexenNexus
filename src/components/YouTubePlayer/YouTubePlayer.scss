@@ -4,8 +4,8 @@
   @include flexible();
   position: relative;
   overflow: hidden;
-  width: 80%;
-  min-height: 500px;
+  width: 100%;
+  height: 100%;
   iframe {
     position: absolute;
     top: 0;
