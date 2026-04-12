@@ -18,8 +18,18 @@ export const Header = () => {
               </Link>
             </li>
             <li className="header__item">
-              <Link to="/resonators/" className="header__link">
-                Гайды
+              <Link to="/" className="header__link">
+                Оружия
+              </Link>
+            </li>
+            <li className="header__item">
+              <Link to="/" className="header__link">
+                Сеты
+              </Link>
+            </li>
+            <li className="header__item">
+              <Link to="/" className="header__link">
+                Тирлисты
               </Link>
             </li>
           </ul>

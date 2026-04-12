@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { collection, getDocs, query, where } from "firebase/firestore"
 import { db } from "../../firebase/config"
 import type { Resonator } from "../../types/resonator"
-import { YouTubePlayer } from "../../components"
+import { Loader, YouTubePlayer } from "../../components"
 import { useResonators } from "../../hook/useResonators"
 import { useEchoSets } from "../../hook/useEchoSets"
 import Lightbox from "yet-another-react-lightbox"
@@ -69,7 +69,7 @@ export const ResonatorPage = () => {
   }, [engName])
 
   if (loadingCommon || loadingResonators || loadingEchoSets) {
-    return <div>Загрузка...</div>
+    return <Loader width={"300px"} height={"300px"} />
   }
 
   if (!resonator) {
@@ -96,9 +96,8 @@ export const ResonatorPage = () => {
                 <li
                   className="resonator__name-item"
                   key={`резонатор описание ${index}`}
-                >
-                  {item}
-                </li>
+                  dangerouslySetInnerHTML={{ __html: item }}
+                />
               )
             })}
         </ul>
@@ -143,7 +142,7 @@ export const ResonatorPage = () => {
                   <h3 className="resonator__h3">{team.name}</h3>
 
                   {team.rows.map((row, rowIndex) => (
-                    <div
+                    <ul
                       className="teams__row-slots"
                       key={`row-${teamIndex}-${rowIndex}`}
                     >
@@ -198,7 +197,7 @@ export const ResonatorPage = () => {
                                       }
 
                                       return (
-                                        <Link to={`/echoSets/${echoLink}`}>
+                                        <Link to={`/echoSets/${echoLink}`} key={`ссылки на сеты ${iconIdx + echoSetId}`}>
                                           <img
                                             key={iconIdx}
                                             src={echoSetObj?.img || ""}
@@ -217,7 +216,7 @@ export const ResonatorPage = () => {
                           </li>
                         )
                       })}
-                    </div>
+                    </ul>
                   ))}
                 </li>
               ))}

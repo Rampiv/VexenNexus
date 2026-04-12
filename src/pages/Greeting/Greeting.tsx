@@ -2,7 +2,7 @@ import { Link } from "react-router"
 import "./Greeting.scss"
 import { DataLinks } from "../../data"
 import habImg from "@assets/image/habImg.webp"
-import { RealiseTimer } from "../../components"
+import { Loader, RealiseTimer } from "../../components"
 import { Resonators } from "../../components/Resonators"
 import { useEffect, useState } from "react"
 import {
@@ -92,7 +92,7 @@ export const Greeting = () => {
   }
 
   if (loading) {
-    return <div className="greeting-loading">Загрузка...</div>
+    return <Loader width="200px" height="300px"/>
   }
 
   return (

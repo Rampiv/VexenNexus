@@ -9,6 +9,7 @@ import {
   ResonatorPage,
   Mechanic,
   Admin,
+  EchoSets,
 } from "./pages"
 
 const HeaderMemo = React.memo(Header)
@@ -18,6 +19,7 @@ const ResonatorMemo = React.memo(ResonatorPage)
 const PrivacyMemo = React.memo(Privacy)
 const FeedbackMemo = React.memo(Feedback)
 const MechanicMemo = React.memo(Mechanic)
+const EchoSetsMemo = React.memo(EchoSets)
 
 export default function App() {
   return (
@@ -32,6 +34,7 @@ export default function App() {
             <Route path="/privacy" element={<PrivacyMemo />} />
             <Route path="/feedback" element={<FeedbackMemo />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/echoSets/:engName" element={<EchoSetsMemo />} />
           </Routes>
         </div>
       </main>

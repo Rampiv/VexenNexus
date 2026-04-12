@@ -1,38 +1,22 @@
 import { useMemo, useState, useEffect } from "react"
-import { 
-  collection, 
-  getDocs, 
-  query, 
-  orderBy 
-} from "firebase/firestore"
+import { collection, getDocs, query, orderBy } from "firebase/firestore"
 import "./Resonators.scss"
 import { Link } from "react-router"
 import { db } from "../../firebase/config" // Убедитесь, что путь верный
+import type { Resonator } from "../../types/resonator"
 
 // Типы данных
 interface ElementData {
-  id: string;
-  name: string;
-  iconUrl: string;
-}
-
-interface ResonatorData {
-  id: string;
-  name: string;
-  engName: string;
-  element: string;
-  rarity: number;
-  weaponType: string;
-  resonatorImg: string;
-  link: string;
-  isPro?: boolean;
+  id: string
+  name: string
+  iconUrl: string
 }
 
 interface MechanicData {
-  id: string;
-  title: string;
-  img: string;
-  link: string;
+  id: string
+  title: string
+  img: string
+  link: string
 }
 
 interface Prop {
@@ -41,94 +25,89 @@ interface Prop {
 
 export const Resonators = ({ customClassname }: Prop) => {
   // Состояния для данных из Firebase
-  const [elements, setElements] = useState<ElementData[]>([]);
-  const [resonators, setResonators] = useState<ResonatorData[]>([]);
-  const [mechanics, setMechanics] = useState<MechanicData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [elements, setElements] = useState<ElementData[]>([])
+  const [resonators, setResonators] = useState<Resonator[]>([])
+  const [mechanics, setMechanics] = useState<MechanicData[]>([])
+  const [loading, setLoading] = useState(true)
 
   // Состояния для фильтрации
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedElement, setSelectedElement] = useState("all");
-  const [selectedGuide, setSelectedGuide] = useState('filterBtnResonators');
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedElement, setSelectedElement] = useState("all")
+  const [selectedGuide, setSelectedGuide] = useState("filterBtnResonators")
 
   // Загрузка данных из Firebase при монтировании
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
+        setLoading(true)
 
         // 1. Загрузка стихий
-        const elementsSnap = await getDocs(collection(db, "elements"));
+        const elementsSnap = await getDocs(collection(db, "elements"))
         const elementsList = elementsSnap.docs.map(doc => ({
           id: doc.id,
-          ...doc.data()
-        })) as ElementData[];
-        setElements(elementsList);
+          ...doc.data(),
+        })) as ElementData[]
+        setElements(elementsList)
 
         // 2. Загрузка персонажей
         const resonatorsSnap = await getDocs(
-          query(collection(db, "resonators"), orderBy("name"))
-        );
+          query(collection(db, "resonators"), orderBy("name")),
+        )
         const resonatorsList = resonatorsSnap.docs.map(doc => ({
           id: doc.id,
-          ...doc.data()
-        })) as ResonatorData[];
-        setResonators(resonatorsList);
+          ...doc.data(),
+        })) as Resonator[]
+        setResonators(resonatorsList)
 
         // 3. Загрузка механик
         const mechanicsSnap = await getDocs(
-          query(collection(db, "mechanics"), orderBy("title"))
-        );
+          query(collection(db, "mechanics"), orderBy("title")),
+        )
         const mechanicsList = mechanicsSnap.docs.map(doc => ({
           id: doc.id,
-          ...doc.data()
-        })) as MechanicData[];
-        setMechanics(mechanicsList);
-
+          ...doc.data(),
+        })) as MechanicData[]
+        setMechanics(mechanicsList)
       } catch (error) {
-        console.error("Ошибка загрузки данных Resonators:", error);
+        console.error("Ошибка загрузки данных Resonators:", error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   // Фильтрация и сортировка персонажей
   const filteredAndSortedResonators = useMemo(() => {
-    let result = resonators;
+    let result = resonators
 
     if (searchTerm) {
-      const term = searchTerm.toLowerCase();
+      const term = searchTerm.toLowerCase()
       result = result.filter(
         item =>
           item.name.toLowerCase().includes(term) ||
           item.engName.toLowerCase().includes(term),
-      );
+      )
     }
 
     if (selectedElement !== "all") {
-      result = result.filter(item => item.element === selectedElement);
+      result = result.filter(item => item.element === selectedElement)
     }
 
-    return result.sort((a, b) => a.name.localeCompare(b.name, "ru"));
-  }, [searchTerm, selectedElement, resonators]);
+    return result.sort((a, b) => a.name.localeCompare(b.name, "ru"))
+  }, [searchTerm, selectedElement, resonators])
 
   const handleSelectElement = (elementId: string) => {
     if (selectedElement === elementId) {
-      setSelectedElement("all");
+      setSelectedElement("all")
     } else {
-      setSelectedElement(elementId);
+      setSelectedElement(elementId)
     }
-  };
+  }
 
   const handleFilter = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setSelectedGuide(e.currentTarget.id);
-  };
-
-  if (loading) {
-    return <div className="resonators-loading">Загрузка...</div>;
+    setSelectedGuide(e.currentTarget.id)
   }
 
   return (
@@ -188,19 +167,30 @@ export const Resonators = ({ customClassname }: Prop) => {
       {/* ПЕРСОНАЖИ */}
       {selectedGuide === "filterBtnResonators" ? (
         <ul className="resonators-list__list">
-          {filteredAndSortedResonators.map((item) => (
-            <li className="resonators-list__item" key={item.id}>
-              <img
-                src={item.resonatorImg}
-                alt={item.name}
-                className="resonators-list__img"
-              />
-              <div className="resonators-list__links">
+          {filteredAndSortedResonators.map(item => (
+            <li
+              className={`resonators-list__item ${item.rarity == 4 ? "resonators-list__item-4" : "resonators-list__item-5"}`.trim()}
+              key={item.id}
+            >
+              <Link
+                to={`/resonator/${item.engName}`}
+                className="resonators-list__link"
+              >
+                <img
+                  src={item.resonatorImgMini}
+                  alt={item.name}
+                  className="resonators-list__img"
+                />
+                <img
+                  src={
+                    elements.find(itemEl => itemEl.id === item.element)?.iconUrl
+                  }
+                  alt={item.element}
+                  className="resonators-list__element"
+                />
+
                 <h3 className="resonators-list__h3">{item.name}</h3>
-                <Link to={`/resonator/${item.engName}`} className="resonators-list__link">
-                  Гайд
-                </Link>
-              </div>
+              </Link>
             </li>
           ))}
         </ul>
@@ -209,22 +199,24 @@ export const Resonators = ({ customClassname }: Prop) => {
       {/* МЕХАНИКИ */}
       {selectedGuide === "filterBtnMechanics" ? (
         <ul className="resonators-list__list">
-          {mechanics.map((item) => (
-            <Link
-              to={item.link}
-              className="resonators-list__item resonators-list__mechanics-item"
-              key={item.id}
-            >
-              <img
-                src={item.img}
-                alt={item.title}
-                className="resonators-list__mechanics-img"
-              />
-              <p className="resonators-list__mechanics-link">{item.title}</p>
-            </Link>
+          {mechanics.map(item => (
+            <li className="resonators-list__item" key={item.id}>
+              <Link
+                to={item.link}
+                className="resonators-list__link"
+                key={item.id}
+              >
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="resonators-list__img"
+                />
+                <h3 className="resonators-list__h3">{item.title}</h3>
+              </Link>
+            </li>
           ))}
         </ul>
       ) : null}
     </div>
-  );
+  )
 }
