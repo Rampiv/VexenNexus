@@ -2,13 +2,15 @@ import { useState } from "react"
 import "./YouTubePlayer.scss"
 
 interface YouTubePlayerProps {
-  videoId: string
+  videoUrl: string
   title: string
   YT: string
 }
 
-export const YouTubePlayer = ({ videoId, title, YT }: YouTubePlayerProps) => {
+export const YouTubePlayer = ({ videoUrl, title, YT }: YouTubePlayerProps) => {
   const [isLoaded, setIsLoaded] = useState(false)
+  const [videoId] = useState(videoUrl.split("youtu.be/")[1]?.split("?")[0])
+
 
   return (
     <div className="youtube-player-wrapper">
@@ -24,6 +26,7 @@ export const YouTubePlayer = ({ videoId, title, YT }: YouTubePlayerProps) => {
       {/* iframe — появляется при загрузке */}
       <iframe
         src={`https://www.youtube.com/embed/${videoId}?si=kdixMruqvqRGPp0a`}
+
         title={title}
         frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

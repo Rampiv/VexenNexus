@@ -10,6 +10,7 @@ import {
   Mechanic,
   Admin,
   EchoSets,
+  Weapons,
 } from "./pages"
 
 const HeaderMemo = React.memo(Header)
@@ -20,6 +21,7 @@ const PrivacyMemo = React.memo(Privacy)
 const FeedbackMemo = React.memo(Feedback)
 const MechanicMemo = React.memo(Mechanic)
 const EchoSetsMemo = React.memo(EchoSets)
+const WeaponsMemo = React.memo(Weapons)
 
 export default function App() {
   return (
@@ -30,11 +32,12 @@ export default function App() {
           <Routes>
             <Route path="/" element={<GreetingMemo />} />
             <Route path="/resonator/:engName" element={<ResonatorMemo />} />
-            <Route path="/mechanics/:engName" element={<MechanicMemo />} />
+            <Route path="/mechanics/:engName?" element={<MechanicMemo />} />
             <Route path="/privacy" element={<PrivacyMemo />} />
             <Route path="/feedback" element={<FeedbackMemo />} />
             <Route path="/admin" element={<Admin />} />
-            <Route path="/echoSets/:engName" element={<EchoSetsMemo />} />
+            <Route path="/echoSets/:engName?" element={<EchoSetsMemo />} />
+            <Route path="/weapons/:engName?" element={<WeaponsMemo />} />
           </Routes>
         </div>
       </main>

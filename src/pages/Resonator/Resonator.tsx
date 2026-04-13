@@ -106,7 +106,7 @@ export const ResonatorPage = () => {
         <h2 className="resonator__h2">Ролик по базе</h2>
         {resonator.resonatorYTLink ? (
           <YouTubePlayer
-            videoId={resonator.resonatorYTLink}
+            videoUrl={resonator.resonatorYTLink}
             title={""}
             YT={resonator.resonatorPreview}
           />

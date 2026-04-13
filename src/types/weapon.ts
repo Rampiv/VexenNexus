@@ -6,4 +6,5 @@ export interface Weapon {
   rarity: 4 | 5;
   img: string;
   createdAt?: any;
+  description: string[]
 }

@@ -143,7 +143,7 @@ export const Resonators = ({ customClassname }: Prop) => {
           className="filter__search"
           maxLength={18}
         />
-        <div className="filter__choose">
+        {/* <div className="filter__choose">
           <h2 className="filter__h2">ВЫБЕРИ ГАЙД</h2>
           <div className="filter__btn-block">
             <button
@@ -161,7 +161,7 @@ export const Resonators = ({ customClassname }: Prop) => {
               МЕХАНИКИ
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* ПЕРСОНАЖИ */}
@@ -197,7 +197,7 @@ export const Resonators = ({ customClassname }: Prop) => {
       ) : null}
 
       {/* МЕХАНИКИ */}
-      {selectedGuide === "filterBtnMechanics" ? (
+      {/* {selectedGuide === "filterBtnMechanics" ? (
         <ul className="resonators-list__list">
           {mechanics.map(item => (
             <li className="resonators-list__item" key={item.id}>
@@ -216,7 +216,7 @@ export const Resonators = ({ customClassname }: Prop) => {
             </li>
           ))}
         </ul>
-      ) : null}
+      ) : null} */}
     </div>
   )
 }

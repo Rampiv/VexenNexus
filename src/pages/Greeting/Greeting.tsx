@@ -26,9 +26,11 @@ interface UpdateItem {
 }
 
 const links = [
-  { link: "/", title: "Оружия" },
+  { link: "/weapons/", title: "Оружия" },
   { link: "/", title: "Сеты" },
   { link: "/", title: "Тир-листы" },
+  { link: "/", title: "Механики" },
+
 ]
 
 export const Greeting = () => {

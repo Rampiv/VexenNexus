@@ -85,6 +85,7 @@ export const Admin = () => {
     type: "Sword",
     rarity: 5,
     img: "",
+    description: [],
   })
   const [mechanicForm, setMechanicForm] = useState<MechanicForm>({
     title: "",
@@ -309,6 +310,12 @@ export const Admin = () => {
           await addUpdateLog("Изменено", `гайд на ${objTitle}`, objLink)
         if (activeTab === "mechanics")
           await addUpdateLog("Изменено", `механика: ${objTitle}`, objLink)
+        if (activeTab === "weapons")
+          await addUpdateLog("Изменено", `оружие: ${objTitle}`, objLink)
+        if (activeTab === "echoSets")
+          await addUpdateLog("Изменено", `эхо сет: ${objTitle}`, objLink)
+
+        alert("Объект обновлен!")
 
         alert("Объект обновлен!")
       } else {
@@ -318,6 +325,8 @@ export const Admin = () => {
           await addUpdateLog("Добавлено", `гайд на ${objTitle}`, objLink)
         if (activeTab === "mechanics")
           await addUpdateLog("Добавлено", `механика: ${objTitle}`, objLink)
+        if (activeTab === "weapons")
+          await addUpdateLog("Добавлено", `оружие: ${objTitle}`, objLink)
         if (activeTab === "echoSets")
           await addUpdateLog("Добавлено", `эхо сет: ${objTitle}`, objLink)
 
@@ -362,6 +371,7 @@ export const Admin = () => {
         type: item.type || "Sword",
         rarity: item.rarity || 5,
         img: item.img || "",
+        description: item.description || [],
       })
     } else if (activeTab === "mechanics") {
       setMechanicForm({
@@ -434,6 +444,7 @@ export const Admin = () => {
       type: "Sword",
       rarity: 5,
       img: "",
+      description: [],
     })
 
     setMechanicForm({
@@ -726,6 +737,20 @@ export const Admin = () => {
                   value={weaponForm.img || ""}
                   onChange={handleWeaponChange}
                   placeholder="https://..."
+                />
+                <ArrayEditor
+                  title="Описание пассивки"
+                  items={weaponForm.description || []}
+                  setItems={newDescription =>
+                    setWeaponForm(prev => ({
+                      ...prev,
+                      description:
+                        typeof newDescription === "function"
+                          ? newDescription(prev.description || [])
+                          : newDescription,
+                    }))
+                  }
+                  placeholder="Описание пассивки абзац"
                 />
               </>
             )}
