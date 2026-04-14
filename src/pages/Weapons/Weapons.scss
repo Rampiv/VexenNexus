@@ -2,23 +2,29 @@
 
 .weapons {
   @include flexible();
-  flex-direction: column;
-  padding-bottom: 15px;
+  & {
+    flex-direction: column;
+    padding-bottom: 15px;
+  }
 
   &__list {
     @include listReset();
     @include flexible();
-    justify-content: flex-start;
-    gap: 20px;
-    width: 100%;
-    margin-bottom: 30px;
+    & {
+      justify-content: flex-start;
+      gap: 20px;
+      width: 100%;
+      margin-bottom: 30px;
+    }
   }
   &__item {
     @include standartTransition();
     @include flexible();
-    position: relative;
-    flex-direction: column;
-    width: 100px;
+    & {
+      position: relative;
+      flex-direction: column;
+      width: 100px;
+    }
   }
   &__img {
     object-fit: cover;
@@ -27,8 +33,10 @@
   }
   &__h2 {
     @include textType2();
-    text-align: start;
-    font-weight: bold;
+    & {
+      text-align: start;
+      font-weight: bold;
+    }
   }
   &__h3 {
     @include textType1();
@@ -36,7 +44,9 @@
   }
   &__h4 {
     @include textType13();
-    text-align: start;
+    & {
+      text-align: start;
+    }
   }
   &__btn {
     @include textType05();
@@ -67,13 +77,15 @@
 
   &__content {
     @include flexible();
-    justify-content: flex-start;
-    border: 1px solid #8d53ff42;
-    box-shadow: 0px 0px 15px #8d53ff42;
-    border-radius: 15px;
-    padding: 15px;
-    gap: 15px;
-    width: 70%;
+    & {
+      justify-content: flex-start;
+      border: 1px solid #8d53ff42;
+      box-shadow: 0px 0px 15px #8d53ff42;
+      border-radius: 15px;
+      padding: 15px;
+      gap: 15px;
+      width: 70%;
+    }
   }
   &__content-img {
     width: 206px;
@@ -89,16 +101,20 @@
   &__description-list {
     @include listReset();
     @include textType1();
-    text-align: start;
+    & {
+      text-align: start;
+    }
   }
 
   &__typedescr {
     @include flexible();
-    gap: 15px;
-    width: 50%;
-    background-color: $color1;
-    border-radius: 15px;
-    padding: 5px;
+    & {
+      gap: 15px;
+      width: 50%;
+      background-color: $color1;
+      border-radius: 15px;
+      padding: 5px;
+    }
   }
   &__typedescr-icon {
     width: 30px;
@@ -120,30 +136,38 @@
   &__list {
     @include listReset();
     @include flexible();
-    gap: 15px;
-    width: 100%;
+    & {
+      gap: 15px;
+      width: 100%;
+    }
   }
   &__btn {
     @include btnReset();
     @include standartTransition();
-    width: 70px;
+    & {
+      width: 70px;
+    }
     &:hover {
       transform: scale(1.15);
     }
   }
   &__img_zoom {
     @include standartTransition();
-    transform: scale(1.2);
-    filter: drop-shadow(4px 4px purple);
+    & {
+      transform: scale(1.2);
+      filter: drop-shadow(4px 4px purple);
+    }
   }
   &__search {
     @include textType1();
-    width: 50%;
-    background: $color1;
-    border-radius: 5px;
-    padding: 15px;
-    outline: none;
-    margin-bottom: 20px;
+    & {
+      width: 50%;
+      background: $color1;
+      border-radius: 5px;
+      padding: 15px;
+      outline: none;
+      margin-bottom: 20px;
+    }
     &::placeholder {
       text-align: center;
       font-weight: 400;
@@ -180,20 +204,14 @@
 }
 
 @media (max-width: 350px) {
-  .weapons__typedescr-text {
-    @include textType1();
-  }
   .weapons__h2 {
-    @include textType15();
     font-weight: bold;
     text-align: start;
   }
   .weapons__h4 {
-    @include textType1();
     text-align: start;
   }
   .weapons__description {
-    @include textType08();
     text-align: start;
   }
   .weapons-filter__list {

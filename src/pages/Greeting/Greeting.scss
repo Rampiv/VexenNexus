@@ -27,17 +27,23 @@
   }
   &__descr {
     @include textType1();
-    color: $white;
-    margin-bottom: 10px;
+    & {
+      color: $white;
+      margin-bottom: 10px;
+    }
   }
   &__list {
     @include listReset();
     @include flexible();
-    gap: 10px;
+    & {
+      gap: 10px;
+    }
   }
   &__link {
     @include flexible();
-    width: 100%;
+    & {
+      width: 100%;
+    }
 
     svg {
       width: 30px;
@@ -48,21 +54,27 @@
 
 .nav-block {
   @include flexible();
-  grid-column: 3;
-  flex-direction: column;
-  justify-content: flex-start;
+  & {
+    grid-column: 3;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
   &__h2 {
     @include textType15();
-    font-weight: 400;
-    border-bottom: 1px solid $color2;
-    margin-bottom: 15px;
+    & {
+      font-weight: 400;
+      border-bottom: 1px solid $color2;
+      margin-bottom: 15px;
+    }
   }
   &__list {
     @include listReset();
     @include flexible();
-    flex-direction: column;
-    gap: 5px;
-    width: 100%;
+    & {
+      flex-direction: column;
+      gap: 5px;
+      width: 100%;
+    }
   }
   &__item {
     width: 100%;
@@ -72,12 +84,14 @@
     @include textType1();
     @include standartTransition();
     @include backgroundGradient();
-    display: block;
-    width: 100%;
-    padding: 5px;
-    color: $white;
-    border-radius: 5px;
-    text-align: start;
+    & {
+      display: block;
+      width: 100%;
+      padding: 5px;
+      color: $white;
+      border-radius: 5px;
+      text-align: start;
+    }
     &:hover,
     &:focus {
       filter: contrast(1.2);
@@ -95,22 +109,28 @@
   align-items: center;
   &__timer-container {
     @include flexible();
-    gap: 20px;
+    & {
+      gap: 20px;
+    }
   }
   &__h3 {
     @include textType1();
-    font-family: "bebas";
-    font-weight: 400;
-    text-align: center;
+    & {
+      font-family: "bebas";
+      font-weight: 400;
+      text-align: center;
 
-    color: $white;
-    margin-bottom: 10px;
+      color: $white;
+      margin-bottom: 10px;
+    }
   }
   &__banners {
     @include listReset();
     @include flexible();
-    flex-wrap: wrap;
-    gap: 12px;
+    & {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
   }
 
   &__item {
@@ -122,10 +142,12 @@
   }
   &__descr {
     @include textType1();
-    font-family: "Helvetica";
-    font-weight: 400;
-    color: $white;
-    margin-bottom: 10px;
+    & {
+      font-family: "Helvetica";
+      font-weight: 400;
+      color: $white;
+      margin-bottom: 10px;
+    }
     &-date {
       border-bottom: 1px solid $color9;
     }
@@ -135,9 +157,11 @@
 .changes-block {
   &__list {
     @include listReset();
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    & {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
   }
   &__link {
     display: flex;
@@ -146,7 +170,9 @@
   &__descr,
   &__data {
     @include textType07();
-    text-align: start;
+    & {
+      text-align: start;
+    }
   }
   &__data {
     color: $color2;
@@ -190,18 +216,11 @@
       padding: 10px;
     }
   }
-  .preview-block {
-    &__descr {
-      @include textType08();
-    }
-  }
   .nav-block {
     &__h2 {
-      @include textType1();
       margin-bottom: 10px;
     }
     &__link {
-      @include textType08();
       text-align: start;
       padding: 5px;
     }
@@ -212,8 +231,6 @@
       row-gap: 0px;
     }
     &__descr {
-      @include textType08();
-      font-family: "Helvetica";
       font-weight: 400;
       color: $white;
       margin-bottom: 10px;

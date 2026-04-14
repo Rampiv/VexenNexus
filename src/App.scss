@@ -95,8 +95,10 @@ body {
 
 .h1 {
   @include textReset();
-  text-align: center;
-  display: none;
+  & {
+    text-align: center;
+    display: none;
+  }
 }
 
 section {
@@ -122,10 +124,12 @@ section {
 
 .App {
   @include flexible();
-  flex-direction: column;
-  min-height: 100vh;
-  overflow: hidden;
-  justify-content: flex-start;
+  & {
+    flex-direction: column;
+    min-height: 100vh;
+    overflow: hidden;
+    justify-content: flex-start;
+  }
 }
 
 // z-index

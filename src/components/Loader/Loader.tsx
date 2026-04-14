@@ -7,7 +7,8 @@ interface Prop {
 
 export const Loader = ({ width, height }: Prop) => {
   return (
-    <svg
+    <div className="loader-container">
+      <svg
       className="loader"
       width={width}
       height={height}
@@ -20,5 +21,6 @@ export const Loader = ({ width, height }: Prop) => {
     >
       <circle cx="12" cy="12" r="10" />
     </svg>
+    </div>
   )
 }

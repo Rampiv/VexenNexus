@@ -22,13 +22,13 @@ export const Footer = () => {
           </ul>
         </div>
         <div className="navigation__container">
-          <ul className="navigation__list">
-            <li className="navigation__item">
-              <span className="navigation__text">ТЕОРИКРАФТЕР - CODY</span>
+          <ul className="contacts-footer">
+            <li className="contacts-footer__item contacts-footer__item_custom">
+              <span>ТЕОРИКРАФТЕР - CODY</span>
             </li>
-            <li className="navigation__item">
-              <span className="navigation__text">
-                РАЗРАБОТЧИК: <Link to={"https://t.me/Vanpinvan"}>RAMPIV</Link>
+            <li className="contacts-footer__item contacts-footer__item_custom">
+              <span>
+                РАЗРАБОТЧИК: <Link to={"https://t.me/Vanpinvan"} className="contacts-footer__link">RAMPIV</Link>
               </span>
             </li>
           </ul>

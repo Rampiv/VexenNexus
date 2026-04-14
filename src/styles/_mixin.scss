@@ -1,33 +1,43 @@
 @use "variables" as *;
 
 @mixin flexible() {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  & {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 @mixin listReset() {
-  margin-top: 0;
-  margin-bottom: 0;
-  list-style: none;
-  padding-left: 0;
+  & {
+    margin-top: 0;
+    margin-bottom: 0;
+    list-style: none;
+    padding-left: 0;
+  }
 }
 
 @mixin textReset() {
-  margin: 0;
-  padding: 0;
+  & {
+    margin: 0;
+    padding: 0;
+  }
 }
 
 @mixin btnReset() {
-  padding: 0;
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
-  outline: none;
+  & {
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    outline: none;
+  }
 }
 
 @mixin standartTransition() {
-  transition: all ease-out 0.3s;
+  & {
+    transition: all ease-out 0.3s;
+  }
 }
 
 @mixin standartAnimZoom() {
@@ -44,105 +54,157 @@
 }
 
 @mixin textSettings() {
-  font-family: "helvetica-regular", sans-serif;
-  letter-spacing: 0.5px;
-  text-align: center;
-  color: $white;
-  font-weight: 400;
+  & {
+    font-family: "helvetica-regular", sans-serif;
+    letter-spacing: 0.5px;
+    color: $white;
+  }
 }
 
 @mixin textBold() {
-  font-family: "helvetica-bold", sans-serif;
-  font-weight: bold;
+  & {
+    font-family: "helvetica-bold", sans-serif;
+    font-weight: bold;
+  }
 }
 
 @mixin backgroundGradient() {
-  background: #646366;
-  background: linear-gradient(
-    90deg,
-    rgba(100, 99, 102, 1) 0%,
-    rgba(42, 40, 47, 1) 100%
-  );
+  & {
+    background: #646366;
+    background: linear-gradient(
+      90deg,
+      rgba(100, 99, 102, 1) 0%,
+      rgba(42, 40, 47, 1) 100%
+    );
+  }
 }
 
 @mixin textType02() {
   @include textReset();
   @include textSettings();
-  font-size: 0.2em;
+  & {
+    font-size: 0.2em;
+  }
 }
 
 @mixin textType03() {
   @include textReset();
   @include textSettings();
-  font-size: 0.3em;
+  & {
+    font-size: 0.3em;
+  }
 }
 
 @mixin textType05() {
   @include textReset();
   @include textSettings();
-  font-size: 0.5em;
+  & {
+    font-size: 0.5em;
+  }
 }
 
 @mixin textType07() {
   @include textReset();
   @include textSettings();
-  font-size: 0.7em;
+  & {
+    font-size: 0.7em;
+  }
+  @media (max-width: 350px) {
+    font-size: 0.5em;
+  }
 }
 
 @mixin textType08() {
   @include textReset();
   @include textSettings();
-  font-size: 0.8em;
+  & {
+    font-size: 0.8em;
+  }
+  @media (max-width: 350px) {
+    font-size: 0.5em;
+  }
 }
 
 @mixin textType1() {
   @include textReset();
   @include textSettings();
-  font-size: 1em;
+  & {
+    font-size: 1em;
+  }
+  @media (max-width: 350px) {
+    font-size: 0.8em;
+  }
 }
 
 @mixin textType13() {
   @include textReset();
   @include textSettings();
-  font-size: 1.3em;
+  & {
+    font-size: 1.3em;
+  }
+  @media (max-width: 350px) {
+    font-size: 1em;
+  }
 }
 
 @mixin textType15() {
   @include textSettings();
-  font-size: 1.5em;
+  & {
+    font-size: 1.5em;
+  }
+  @media (max-width: 350px) {
+    font-size: 1.3em;
+  }
 }
 
 @mixin textType2() {
   @include textSettings();
-  font-size: 2em;
+  & {
+    font-size: 2em;
+  }
+  @media (max-width: 350px) {
+    font-size: 1.5em;
+  }
 }
 
 @mixin textType25() {
   @include textSettings();
-  font-size: 2.5em;
+  & {
+    font-size: 2.5em;
+  }
 }
 
 @mixin textType3() {
   @include textSettings();
-  font-size: 3em;
+  & {
+    font-size: 3em;
+  }
 }
 
 @mixin textType35() {
   @include textSettings();
-  font-size: 3.5em;
+  & {
+    font-size: 3.5em;
+  }
 }
 
 @mixin textType4() {
   @include textSettings();
-  font-size: 4em;
+  & {
+    font-size: 4em;
+  }
 }
 
 @mixin textType5() {
   @include textSettings();
-  font-size: 5em;
+  & {
+    font-size: 5em;
+  }
 }
 
 @mixin textType7() {
   @include textSettings();
-  font-size: 7em;
+  & {
+    font-size: 7em;
+  }
 }

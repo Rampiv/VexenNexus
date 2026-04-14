@@ -5,19 +5,23 @@
   width: 100%;
   &__nav {
     @include flexible();
-    padding: 10px 0;
-    position: relative;
-    user-select: none;
-    width: 100%;
-    justify-content: flex-start;
-    padding-left: 50px;
-    gap: 20px;
+    & {
+      padding: 10px 0;
+      position: relative;
+      user-select: none;
+      width: 100%;
+      justify-content: flex-start;
+      padding-left: 50px;
+      gap: 20px;
+    }
   }
   &__list {
     @include listReset();
     @include flexible();
-    gap: 10px;
-    flex-wrap: wrap;
+    & {
+      gap: 10px;
+      flex-wrap: wrap;
+    }
   }
   &__item {
     display: flex;
@@ -38,9 +42,11 @@
   &__link {
     @include standartTransition();
     @include textType1();
-    padding: 9px;
-    outline: none;
-    text-align: center;
+    & {
+      padding: 9px;
+      outline: none;
+      text-align: center;
+    }
     &:hover,
     &:focus {
       color: $color2;
@@ -65,15 +71,26 @@
   .header {
     &__nav {
       @include flexible();
-      padding: 5px 15px;
-      gap: 10px;
+      & {
+        padding: 5px 15px;
+        gap: 10px;
+      }
     }
     &__link {
-      @include textType08();
-      padding: 5px;
+      padding: 0px;
     }
-    &__list {
-      display: none;
+  }
+}
+
+@media (max-width: 280px) {
+  .header {
+    &__nav {
+      @include flexible();
+      & {
+        justify-content: flex-start;
+        padding: 5px 15px;
+        gap: 5px;
+      }
     }
   }
 }

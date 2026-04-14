@@ -1,9 +1,12 @@
+@use "../../styles/style.scss" as *;
+
 .loader {
-  position: fixed;
-  top: 35%;
-  left: 45%;
   animation: rotate 2s linear infinite;
   color: #5300e2;
+}
+
+.loader-container {
+  @include flexible();
 }
 
 @keyframes rotate {

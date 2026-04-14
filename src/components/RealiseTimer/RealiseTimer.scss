@@ -2,28 +2,32 @@
 
 .countdown {
   @include flexible();
-  @include textType1();
-  gap: 3px;
-  font-weight: bold;
-  color: $color8;
-  font-family: "lcdnormal";
-  margin-bottom: 20px;
-  align-items: flex-start;
+  & {
+    font-size: 1em;
+    gap: 3px;
+    font-weight: bold;
+    color: $color8;
+    font-family: "lcdnormal";
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
 
   &__item {
     @include flexible();
-    flex-direction: column;
-    font-family: "lcdnormal";
+    & {
+      flex-direction: column;
+      font-family: "lcdnormal";
+    }
   }
 
   &__value {
-    @include textType1();
+    font-size: 1em;
     color: inherit;
     font-family: "lcdnormal";
   }
 
   &__label {
-    @include textType05();
+    font-size: 0.5em;
     color: #999;
   }
 

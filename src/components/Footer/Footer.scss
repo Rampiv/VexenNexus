@@ -2,11 +2,13 @@
 
 .footer {
   @include flexible();
-  flex-direction: column;
-  width: 100%;
-  background: $color1;
-  padding: 10px 0;
-  position: relative;
+  & {
+    flex-direction: column;
+    width: 100%;
+    background: $color1;
+    padding: 10px 0;
+    position: relative;
+  }
   &__privacy {
     display: flex;
     justify-content: center;
@@ -25,74 +27,7 @@
   }
   &__copyright {
     @include textType08();
-    display: block;
-    color: $white;
-    text-align: center;
-  }
-}
-
-.navigation {
-  @include flexible();
-  align-items: flex-start;
-  width: 100%;
-  height: fit-content;
-  gap: 20px;
-  margin-bottom: 5px;
-
-  &__container {
-    @include flexible();
-    flex-direction: column;
-  }
-  &__list {
-    @include listReset();
-    @include flexible();
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  &__text {
-    @include textType08();
-  }
-  &__h2-margin {
-    margin-bottom: 13px;
-  }
-  &__item-margin {
-    margin-bottom: 9px;
-  }
-}
-
-.contacts-footer {
-  @include listReset();
-  @include flexible();
-  width: 100%;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 5px;
-  &__item {
-    @include textType08();
-    color: $white;
-    text-decoration: underline;
-  }
-}
-
-
-@media (max-width: 480px) {
-  .navigation {
-    &__list {
-      &:nth-child(2) {
-        gap: 0;
-      }
-    }
-    &__text {
-      @include textType05();
-    }
-  }
-  .footer {
-    &__privacy-link {
-      @include textType05();
-    }
-    &__copyright {
-      @include textType05();
+    & {
       display: block;
       color: $white;
       text-align: center;
@@ -100,23 +35,61 @@
   }
 }
 
+.navigation {
+  @include flexible();
+  & {
+    align-items: flex-start;
+    width: 100%;
+    height: fit-content;
+    gap: 20px;
+    margin-bottom: 5px;
+  }
 
-@media (max-width: 209px) {
-  .navigation__text {
-    @include textType05();
+  &__container {
+    @include flexible();
+    & {
+      flex-direction: column;
+    }
+  }
+}
+
+.contacts-footer {
+  @include listReset();
+  @include flexible();
+  & {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  &__item {
+    @include textType08();
+    & {
+      color: $white;
+      text-decoration: underline;
+    }
+    &_custom {
+      text-decoration: none;
+    }
+  }
+  &__link {
+    text-decoration: underline;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    &__copyright {
+      display: block;
+      color: $white;
+      text-align: center;
+    }
   }
 }
 
 @media (max-width: 179px) {
-  .navigation__text {
-    @include textType03();
-  }
   .footer {
-    &__privacy-link {
-      @include textType03();
-    }
     &__copyright {
-      @include textType03();
       display: block;
       color: $white;
       text-align: center;
