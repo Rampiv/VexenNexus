@@ -63,13 +63,17 @@
 
 @media (max-width: 350px) {
   .header {
-    &__nav{
+    &__nav {
+      @include flexible();
       padding: 5px 15px;
       gap: 10px;
     }
     &__link {
       @include textType08();
       padding: 5px;
+    }
+    &__list {
+      display: none;
     }
   }
 }

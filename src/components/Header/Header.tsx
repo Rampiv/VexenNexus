@@ -23,15 +23,15 @@ export const Header = () => {
               </Link>
             </li>
             <li className="header__item">
-              <Link to="/" className="header__link">
+              <Link to="/echoSets/" className="header__link">
                 Сеты
               </Link>
             </li>
-            <li className="header__item">
+            {/* <li className="header__item">
               <Link to="/" className="header__link">
                 Тирлисты
               </Link>
-            </li>
+            </li> */}
           </ul>
         </nav>
       </div>

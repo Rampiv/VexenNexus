@@ -13,8 +13,8 @@
     background-color: $color1;
     border-radius: 12px;
   }
-  &__resonators{
-      grid-column: span 3;
+  &__resonators {
+    grid-column: span 3;
   }
 }
 
@@ -146,13 +146,27 @@
   &__descr,
   &__data {
     @include textType07();
+    text-align: start;
   }
   &__data {
     color: $color2;
+    text-wrap: nowrap;
   }
-  &__item{
+  &__item {
     display: flex;
     justify-content: space-between;
+  }
+}
+
+@media (max-width: 750px) {
+  .preview-block {
+    grid-column: span 3;
+  }
+  .nav-block {
+    grid-column: span 3;
+  }
+  .changes-block {
+    grid-column: span 3;
   }
 }
 

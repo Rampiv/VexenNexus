@@ -53,7 +53,7 @@ export const Admin = () => {
   const [resonators, setResonators] = useState<Resonator[]>([])
   const [weapons, setWeapons] = useState<Weapon[]>([])
   const [mechanics, setMechanics] = useState<Mechanic[]>([])
-  const [echoSets, setEchoSets] = useState<EchoSet[]>([]) // <-- 5. Состояние для списока сетов
+  const [echoSets, setEchoSets] = useState<EchoSet[]>([])
 
   // Настройки
   const [nextBannerDate, setNextBannerDate] = useState<string>("")
@@ -93,11 +93,15 @@ export const Admin = () => {
     img: "",
     paragraphs: [],
   })
-  // <-- 6. Состояние формы для Эхо сета
+
   const [echoSetForm, setEchoSetForm] = useState<EchoSetForm>({
     name: "",
     engName: "",
     img: "",
+    twoPartsDescr: [],
+    fivePartsDescr: [],
+    threePartsDescr: [],
+    important: [],
   })
 
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -385,6 +389,10 @@ export const Admin = () => {
         name: item.name || "",
         engName: item.engName || "",
         img: item.img || "",
+        twoPartsDescr: item.twoPartsDescr || [],
+        fivePartsDescr: item.fivePartsDescr || [],
+        threePartsDescr: item.threePartsDescr || [],
+        important: item.important || [],
       })
     }
 
@@ -458,6 +466,10 @@ export const Admin = () => {
       name: "",
       img: "",
       engName: "",
+      twoPartsDescr: [],
+      fivePartsDescr: [],
+      threePartsDescr: [],
+      important: [],
     })
 
     setEditingId(null)
@@ -813,6 +825,62 @@ export const Admin = () => {
                   onChange={handleEchoSetChange}
                   placeholder="https://..."
                 />
+                <ArrayEditor
+                  title="Описание сета 2 части"
+                  items={echoSetForm.twoPartsDescr || []}
+                  setItems={newDescription =>
+                    setEchoSetForm(prev => ({
+                      ...prev,
+                      twoPartsDescr:
+                        typeof newDescription === "function"
+                          ? newDescription(prev.twoPartsDescr || [])
+                          : newDescription,
+                    }))
+                  }
+                  placeholder="Описание сета"
+                />
+                <ArrayEditor
+                  title="Описание сета 5 частей"
+                  items={echoSetForm.fivePartsDescr || []}
+                  setItems={newDescription =>
+                    setEchoSetForm(prev => ({
+                      ...prev,
+                      fivePartsDescr:
+                        typeof newDescription === "function"
+                          ? newDescription(prev.fivePartsDescr || [])
+                          : newDescription,
+                    }))
+                  }
+                  placeholder="Описание сета"
+                />
+                <ArrayEditor
+                  title="Описание сета 3 части"
+                  items={echoSetForm.threePartsDescr || []}
+                  setItems={newDescription =>
+                    setEchoSetForm(prev => ({
+                      ...prev,
+                      threePartsDescr:
+                        typeof newDescription === "function"
+                          ? newDescription(prev.threePartsDescr || [])
+                          : newDescription,
+                    }))
+                  }
+                  placeholder="Описание сета"
+                />
+                <ArrayEditor
+                  title="Дополнение (важно)"
+                  items={echoSetForm.important || []}
+                  setItems={newDescription =>
+                    setEchoSetForm(prev => ({
+                      ...prev,
+                      important:
+                        typeof newDescription === "function"
+                          ? newDescription(prev.important || [])
+                          : newDescription,
+                    }))
+                  }
+                  placeholder="Важно"
+                />
               </>
             )}
 
@@ -955,7 +1023,7 @@ export const Admin = () => {
                 : activeTab === "mechanics"
                   ? "Механики"
                   : activeTab === "echoSets"
-                    ? "Эхо Сеты" // <-- 17. Заголовок списка
+                    ? "Эхо Сеты"
                     : "Настройки"}
           </h2>
 
