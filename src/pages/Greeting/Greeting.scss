@@ -32,22 +32,33 @@
       margin-bottom: 10px;
     }
   }
+  &__img-block {
+    position: relative;
+  }
+
   &__list {
     @include listReset();
     @include flexible();
     & {
+      position: absolute;
+      flex-direction: column;
+      left: 10px;
+      top: 50%;
+      transform: translate(0, -50%);
       gap: 10px;
     }
   }
   &__link {
     @include flexible();
+    @include standartTransition();
+    @include standartAnimZoom();
     & {
       width: 100%;
     }
 
     svg {
-      width: 30px;
-      height: 30px;
+      width: 4wh;
+      height: 4wh;
     }
   }
 }

@@ -30,7 +30,6 @@ const MECHANICS_COLLECTION = "mechanics"
 const ECHO_SETS_COLLECTION = "echo_sets"
 const SETTINGS_DOC_ID = "site_settings"
 
-// <-- 3. Добавляем 'echoSets' в типы табов
 type Tab = "resonators" | "weapons" | "mechanics" | "echoSets" | "settings"
 
 // --- Типы для форм ---
@@ -38,6 +37,12 @@ interface ResonatorForm extends Partial<Resonator> {}
 interface WeaponForm extends Partial<Weapon> {}
 interface MechanicForm extends Partial<Mechanic> {}
 interface EchoSetForm extends Partial<EchoSet> {}
+interface SettingsForm {
+  nextBannerDate: string
+  futureResonatorIds: string[]
+  preview_img: string
+  filter_img: string // Новое поле
+}
 
 export const Admin = () => {
   // --- Auth State ---
@@ -54,10 +59,6 @@ export const Admin = () => {
   const [weapons, setWeapons] = useState<Weapon[]>([])
   const [mechanics, setMechanics] = useState<Mechanic[]>([])
   const [echoSets, setEchoSets] = useState<EchoSet[]>([])
-
-  // Настройки
-  const [nextBannerDate, setNextBannerDate] = useState<string>("")
-  const [futureResonatorIds, setFutureResonatorIds] = useState<string[]>([])
 
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -79,6 +80,7 @@ export const Admin = () => {
     descr: [],
     result: [],
   })
+
   const [weaponForm, setWeaponForm] = useState<WeaponForm>({
     name: "",
     engName: "",
@@ -87,6 +89,7 @@ export const Admin = () => {
     img: "",
     description: [],
   })
+
   const [mechanicForm, setMechanicForm] = useState<MechanicForm>({
     title: "",
     engName: "",
@@ -102,6 +105,14 @@ export const Admin = () => {
     fivePartsDescr: [],
     threePartsDescr: [],
     important: [],
+  })
+
+  // Состояние для настроек
+  const [settingsForm, setSettingsForm] = useState<SettingsForm>({
+    nextBannerDate: "",
+    futureResonatorIds: [],
+    preview_img: "",
+    filter_img: "",
   })
 
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -147,7 +158,7 @@ export const Admin = () => {
         mechSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Mechanic[],
       )
 
-      // 4. Эхо Сеты <-- 7. Загрузка Эхо сетов
+      // 4. Эхо Сеты
       const echoSnap = await getDocs(
         query(collection(db, ECHO_SETS_COLLECTION), orderBy("name")),
       )
@@ -160,8 +171,20 @@ export const Admin = () => {
       const docSnap = await getDoc(settingsRef)
       if (docSnap.exists()) {
         const data = docSnap.data() as SiteSettings
-        setNextBannerDate(data.nextBannerDate || "")
-        setFutureResonatorIds(data.futureResonatorIds || [])
+        setSettingsForm({
+          nextBannerDate: data.nextBannerDate || "",
+          futureResonatorIds: data.futureResonatorIds || [],
+          preview_img: data.preview_img || "",
+          filter_img: data.filter_img || "", // Загрузка нового поля
+        })
+      } else {
+        // Если документа нет, инициализируем пустым
+        setSettingsForm({
+          nextBannerDate: "",
+          futureResonatorIds: [],
+          preview_img: "",
+          filter_img: "",
+        })
       }
     } catch (error) {
       console.error("Ошибка загрузки данных:", error)
@@ -202,7 +225,13 @@ export const Admin = () => {
     setResonators([])
     setWeapons([])
     setMechanics([])
-    setEchoSets([]) // <-- 8. Очистка при выходе
+    setEchoSets([])
+    setSettingsForm({
+      nextBannerDate: "",
+      futureResonatorIds: [],
+      preview_img: "",
+      filter_img: "",
+    })
   }
 
   // Обработчики ввода
@@ -227,10 +256,17 @@ export const Admin = () => {
     setMechanicForm(prev => ({ ...prev, [name]: value }))
   }
 
-  // <-- 9. Обработчик для Эхо сетов
   const handleEchoSetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setEchoSetForm(prev => ({ ...prev, [name]: value }))
+  }
+
+  // Обработчик для настроек (текстовые поля и дата)
+  const handleSettingsChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const { name, value } = e.target
+    setSettingsForm(prev => ({ ...prev, [name]: value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -238,107 +274,104 @@ export const Admin = () => {
     setIsSubmitting(true)
 
     try {
-      // --- ЛОГИКА НАСТРОЕК ---
-      if (activeTab === "settings") {
-        const settingsRef = doc(db, "settings", SETTINGS_DOC_ID)
-        await setDoc(
-          settingsRef,
-          {
-            nextBannerDate: nextBannerDate,
-            futureResonatorIds: futureResonatorIds,
-            updatedAt: serverTimestamp(),
-          },
-          { merge: true },
-        )
-        alert("Настройки сохранены!")
-        setIsSubmitting(false)
-        return
-      }
-
-      // --- ЛОГИКА ОСТАЛЬНЫХ КОЛЛЕКЦИЙ ---
       let collectionName = ""
       let dataToSave: any = {}
       let objTitle = ""
       let objLink = ""
+      let isSettings = false
 
-      if (activeTab === "resonators") {
-        collectionName = RESONATORS_COLLECTION
-        objTitle = resonatorForm.name || ""
-        objLink = `/resonator/${resonatorForm.engName}`
+      if (activeTab === "settings") {
+        isSettings = true
+        const settingsRef = doc(db, "settings", SETTINGS_DOC_ID)
         dataToSave = {
-          ...resonatorForm,
+          nextBannerDate: settingsForm.nextBannerDate,
+          futureResonatorIds: settingsForm.futureResonatorIds,
+          preview_img: settingsForm.preview_img,
+          filter_img: settingsForm.filter_img,
           updatedAt: serverTimestamp(),
-          ...(editingId ? {} : { createdAt: serverTimestamp() }),
         }
-      } else if (activeTab === "weapons") {
-        collectionName = WEAPONS_COLLECTION
-        objTitle = weaponForm.engName || ""
-        objLink = `/weapon/${weaponForm.engName}`
-        dataToSave = {
-          ...weaponForm,
-          updatedAt: serverTimestamp(),
-          ...(editingId ? {} : { createdAt: serverTimestamp() }),
-        }
-      } else if (activeTab === "mechanics") {
-        collectionName = MECHANICS_COLLECTION
-        objTitle = mechanicForm.engName || ""
-        if (mechanicForm.engName) {
-          objLink = `/mechanics/${mechanicForm.engName.toLowerCase().replace(/\s+/g, "-")}`
-        }
-
-        dataToSave = {
-          ...mechanicForm,
-          updatedAt: serverTimestamp(),
-          ...(editingId ? {} : { createdAt: serverTimestamp() }),
-        }
-      } else if (activeTab === "echoSets") {
-        collectionName = ECHO_SETS_COLLECTION
-        objTitle = echoSetForm.name || ""
-        objLink = echoSetForm.engName || ""
-        if (echoSetForm.engName) {
-          objLink = `/echoSets/${echoSetForm.engName.toLowerCase().replace(/\s+/g, "-")}`
-        }
-        dataToSave = {
-          ...echoSetForm,
-          updatedAt: serverTimestamp(),
-          ...(editingId ? {} : { createdAt: serverTimestamp() }),
-        }
-      }
-
-      if (editingId) {
-        const docRef = doc(db, collectionName, editingId)
-        await updateDoc(docRef, dataToSave)
-
-        // Логируем только важные изменения
-        if (activeTab === "resonators")
-          await addUpdateLog("Изменено", `гайд на ${objTitle}`, objLink)
-        if (activeTab === "mechanics")
-          await addUpdateLog("Изменено", `механика: ${objTitle}`, objLink)
-        if (activeTab === "weapons")
-          await addUpdateLog("Изменено", `оружие: ${objTitle}`, objLink)
-        if (activeTab === "echoSets")
-          await addUpdateLog("Изменено", `эхо сет: ${objTitle}`, objLink)
-
-        alert("Объект обновлен!")
-
-        alert("Объект обновлен!")
+        await setDoc(settingsRef, dataToSave, { merge: true })
+        alert("Настройки сохранены!")
       } else {
-        await addDoc(collection(db, collectionName), dataToSave)
+        // Логика для остальных коллекций
+        if (activeTab === "resonators") {
+          collectionName = RESONATORS_COLLECTION
+          objTitle = resonatorForm.name || ""
+          objLink = `/resonator/${resonatorForm.engName}`
+          dataToSave = {
+            ...resonatorForm,
+            updatedAt: serverTimestamp(),
+            ...(editingId ? {} : { createdAt: serverTimestamp() }),
+          }
+        } else if (activeTab === "weapons") {
+          collectionName = WEAPONS_COLLECTION
+          objTitle = weaponForm.engName || ""
+          objLink = `/weapon/${weaponForm.engName}`
+          dataToSave = {
+            ...weaponForm,
+            updatedAt: serverTimestamp(),
+            ...(editingId ? {} : { createdAt: serverTimestamp() }),
+          }
+        } else if (activeTab === "mechanics") {
+          collectionName = MECHANICS_COLLECTION
+          objTitle = mechanicForm.engName || ""
+          if (mechanicForm.engName) {
+            objLink = `/mechanics/${mechanicForm.engName.toLowerCase().replace(/\s+/g, "-")}`
+          }
+          dataToSave = {
+            ...mechanicForm,
+            updatedAt: serverTimestamp(),
+            ...(editingId ? {} : { createdAt: serverTimestamp() }),
+          }
+        } else if (activeTab === "echoSets") {
+          collectionName = ECHO_SETS_COLLECTION
+          objTitle = echoSetForm.name || ""
+          if (echoSetForm.engName) {
+            objLink = `/echoSets/${echoSetForm.engName.toLowerCase().replace(/\s+/g, "-")}`
+          }
+          dataToSave = {
+            ...echoSetForm,
+            updatedAt: serverTimestamp(),
+            ...(editingId ? {} : { createdAt: serverTimestamp() }),
+          }
+        }
 
-        if (activeTab === "resonators")
-          await addUpdateLog("Добавлено", `гайд на ${objTitle}`, objLink)
-        if (activeTab === "mechanics")
-          await addUpdateLog("Добавлено", `механика: ${objTitle}`, objLink)
-        if (activeTab === "weapons")
-          await addUpdateLog("Добавлено", `оружие: ${objTitle}`, objLink)
-        if (activeTab === "echoSets")
-          await addUpdateLog("Добавлено", `эхо сет: ${objTitle}`, objLink)
+        if (editingId) {
+          const docRef = doc(db, collectionName, editingId)
+          await updateDoc(docRef, dataToSave)
 
-        alert("Объект добавлен!")
+          if (activeTab === "resonators")
+            await addUpdateLog("Изменено", `гайд на ${objTitle}`, objLink)
+          if (activeTab === "mechanics")
+            await addUpdateLog("Изменено", `механика: ${objTitle}`, objLink)
+          if (activeTab === "weapons")
+            await addUpdateLog("Изменено", `оружие: ${objTitle}`, objLink)
+          if (activeTab === "echoSets")
+            await addUpdateLog("Изменено", `эхо сет: ${objTitle}`, objLink)
+
+          alert("Объект обновлен!")
+        } else {
+          await addDoc(collection(db, collectionName), dataToSave)
+
+          if (activeTab === "resonators")
+            await addUpdateLog("Добавлено", `гайд на ${objTitle}`, objLink)
+          if (activeTab === "mechanics")
+            await addUpdateLog("Добавлено", `механика: ${objTitle}`, objLink)
+          if (activeTab === "weapons")
+            await addUpdateLog("Добавлено", `оружие: ${objTitle}`, objLink)
+          if (activeTab === "echoSets")
+            await addUpdateLog("Добавлено", `эхо сет: ${objTitle}`, objLink)
+
+          alert("Объект добавлен!")
+        }
       }
 
       resetForms()
-      fetchData()
+      if (!isSettings) {
+        fetchData() // Обновляем списки, если это не настройки
+      } else {
+        fetchData() // Обновляем настройки, чтобы синхронизировать состояние
+      }
     } catch (error) {
       console.error("Ошибка сохранения:", error)
       alert("Ошибка при сохранении")
@@ -395,6 +428,7 @@ export const Admin = () => {
         important: item.important || [],
       })
     }
+    // Для настроек редактирование через список не предусмотрено, так как документ один
 
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
@@ -407,7 +441,7 @@ export const Admin = () => {
     if (activeTab === "resonators") collectionName = RESONATORS_COLLECTION
     else if (activeTab === "weapons") collectionName = WEAPONS_COLLECTION
     else if (activeTab === "mechanics") collectionName = MECHANICS_COLLECTION
-    else if (activeTab === "echoSets") collectionName = ECHO_SETS_COLLECTION // <-- 12. Удаление Эхо сета
+    else if (activeTab === "echoSets") collectionName = ECHO_SETS_COLLECTION
 
     try {
       await deleteDoc(doc(db, collectionName, id))
@@ -419,13 +453,19 @@ export const Admin = () => {
 
   // Управление списком ID в настройках
   const handleAddResonatorToBanner = (resonatorId: string) => {
-    if (!futureResonatorIds.includes(resonatorId)) {
-      setFutureResonatorIds([...futureResonatorIds, resonatorId])
+    if (!settingsForm.futureResonatorIds.includes(resonatorId)) {
+      setSettingsForm(prev => ({
+        ...prev,
+        futureResonatorIds: [...prev.futureResonatorIds, resonatorId],
+      }))
     }
   }
 
   const handleRemoveResonatorFromBanner = (resonatorId: string) => {
-    setFutureResonatorIds(futureResonatorIds.filter(id => id !== resonatorId))
+    setSettingsForm(prev => ({
+      ...prev,
+      futureResonatorIds: prev.futureResonatorIds.filter(id => id !== resonatorId),
+    }))
   }
 
   const resetForms = () => {
@@ -472,6 +512,14 @@ export const Admin = () => {
       important: [],
     })
 
+    // Сброс формы настроек (опционально, можно не сбрасывать, а оставлять текущие)
+    // Но для консистентности "Отмены" редактирования:
+    if (activeTab === "settings") {
+       // Здесь лучше перезагрузить данные из fetchData, чтобы отменить несохраненные изменения
+       // Или просто оставить как есть, так как настройки глобальные.
+       // Для простоты оставим текущие значения, так как "Reset" для настроек обычно не нужен.
+    }
+
     setEditingId(null)
   }
 
@@ -482,7 +530,6 @@ export const Admin = () => {
   }
 
   // --- Рендеринг экранов ---
-  // if (loading) return <>loading</>
   if (authLoading) return <div className="admin-loading">Проверка...</div>
   if (!isAuthenticated)
     return (
@@ -524,7 +571,6 @@ export const Admin = () => {
         >
           Механики
         </button>
-        {/* <-- 14. Кнопка таба Эхо Сетов */}
         <button
           className={`tab-btn ${activeTab === "echoSets" ? "active" : ""}`}
           onClick={() => handleTabChange("echoSets")}
@@ -535,7 +581,7 @@ export const Admin = () => {
           className={`tab-btn ${activeTab === "settings" ? "active" : ""}`}
           onClick={() => handleTabChange("settings")}
         >
-          Настройки Баннера
+          Настройки
         </button>
       </div>
 
@@ -543,7 +589,7 @@ export const Admin = () => {
         {/* Форма */}
         <div className="admin-form-container">
           <h2>
-            {editingId ? "Редактировать" : "Добавить"}{" "}
+            {editingId ? "Редактировать" : activeTab === "settings" ? "Сохранить" : "Добавить"}{" "}
             {activeTab === "settings"
               ? "настройки"
               : activeTab === "mechanics"
@@ -551,13 +597,12 @@ export const Admin = () => {
                 : activeTab === "weapons"
                   ? "оружие"
                   : activeTab === "echoSets"
-                    ? "эхо сет" // <-- 15. Заголовок формы
+                    ? "эхо сет"
                     : "персонажа"}
           </h2>
 
           <form onSubmit={handleSubmit} className="admin-form">
-            {/* ... (Формы Персонажей, Оружия, Механик без изменений) ... */}
-
+            
             {/* --- ФОРМА ПЕРСОНАЖЕЙ --- */}
             {activeTab === "resonators" && (
               <>
@@ -629,7 +674,7 @@ export const Admin = () => {
                   placeholder="https://..."
                 />
                 <InputGroup
-                  label="URL фото карточки персонажа  для баннера"
+                  label="URL фото карточки персонажа для баннера"
                   name="resonatorImgBanner"
                   value={resonatorForm.resonatorImgBanner || ""}
                   onChange={handleResonatorChange}
@@ -801,7 +846,7 @@ export const Admin = () => {
               </>
             )}
 
-            {/* <-- 16. НОВАЯ ФОРМА: ЭХО СЕТЫ */}
+            {/* --- ФОРМА ЭХО СЕТОВ --- */}
             {activeTab === "echoSets" && (
               <>
                 <InputGroup
@@ -891,16 +936,21 @@ export const Admin = () => {
                   <label>Дата следующего баннера</label>
                   <input
                     type="datetime-local"
+                    name="nextBannerDate"
                     value={
-                      nextBannerDate
-                        ? new Date(nextBannerDate).toISOString().slice(0, 16)
+                      settingsForm.nextBannerDate
+                        ? new Date(settingsForm.nextBannerDate).toISOString().slice(0, 16)
                         : ""
                     }
                     onChange={e =>
-                      setNextBannerDate(new Date(e.target.value).toISOString())
+                      setSettingsForm(prev => ({
+                        ...prev,
+                        nextBannerDate: new Date(e.target.value).toISOString(),
+                      }))
                     }
                   />
                 </div>
+
                 <div className="form-group">
                   <label>Персонажи на будущем баннере</label>
                   <div
@@ -929,7 +979,7 @@ export const Admin = () => {
                         <option
                           key={r.id}
                           value={r.id}
-                          disabled={futureResonatorIds.includes(r.id || "")}
+                          disabled={settingsForm.futureResonatorIds.includes(r.id || "")}
                         >
                           {r.name} ({r.engName})
                         </option>
@@ -945,7 +995,7 @@ export const Admin = () => {
                       gap: "10px",
                     }}
                   >
-                    {futureResonatorIds.map(id => {
+                    {settingsForm.futureResonatorIds.map(id => {
                       const res = resonators.find(r => r.id === id)
                       return res ? (
                         <li
@@ -988,6 +1038,22 @@ export const Admin = () => {
                     })}
                   </ul>
                 </div>
+
+                <InputGroup
+                  label="Ссылка на Preview Image (Баннер)"
+                  name="preview_img"
+                  value={settingsForm.preview_img || ""}
+                  onChange={handleSettingsChange}
+                  placeholder="https://..."
+                />
+                
+                <InputGroup
+                  label="Ссылка на Filter Image (Фильтр)"
+                  name="filter_img"
+                  value={settingsForm.filter_img || ""}
+                  onChange={handleSettingsChange}
+                  placeholder="https://..."
+                />
               </div>
             )}
 
@@ -995,11 +1061,11 @@ export const Admin = () => {
               <button type="submit" disabled={isSubmitting}>
                 {isSubmitting
                   ? "Сохранение..."
-                  : editingId
+                  : editingId && activeTab !== "settings"
                     ? "Обновить"
-                    : "Добавить"}
+                    : "Сохранить"}
               </button>
-              {editingId && (
+              {editingId && activeTab !== "settings" && (
                 <button
                   type="button"
                   onClick={resetForms}
@@ -1028,7 +1094,9 @@ export const Admin = () => {
           </h2>
 
           {activeTab === "settings" ? (
-            <></>
+            <div className="settings-info">
+              <p>Глобальные настройки сайта. Изменения применяются ко всем пользователям.</p>
+            </div>
           ) : (
             <ul className="admin-list">
               {(activeTab === "resonators"
@@ -1038,7 +1106,7 @@ export const Admin = () => {
                   : activeTab === "mechanics"
                     ? mechanics
                     : echoSets
-              ) // <-- 18. Отображение списка Эхо сетов
+              )
                 .map((item: any) => (
                   <li key={item.id} className="admin-list-item">
                     <img

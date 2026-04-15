@@ -30,7 +30,6 @@ const links = [
   { link: "/echoSets/", title: "Сеты" },
   // { link: "/", title: "Тир-листы" },
   // { link: "/", title: "Механики" },
-
 ]
 
 export const Greeting = () => {
@@ -38,6 +37,8 @@ export const Greeting = () => {
   const [updates, setUpdates] = useState<UpdateItem[]>([])
   const [futureResonatorIds, setFutureResonatorIds] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
+  const [previewImg, setPreviewImg] = useState<string>("")
+  const [filterImg, setFilterImg] = useState<string>("")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,6 +58,14 @@ export const Greeting = () => {
           // ID будущих персонажей
           if (data.futureResonatorIds) {
             setFutureResonatorIds(data.futureResonatorIds)
+          }
+
+          // preview картинка
+          if (data.preview_img) {
+            setPreviewImg(data.preview_img)
+          }
+          if (data.filter_img) {
+            setFilterImg(data.filter_img)
           }
         }
 
@@ -94,33 +103,39 @@ export const Greeting = () => {
   }
 
   if (loading) {
-    return <Loader width="200px" height="300px"/>
+    return <Loader width="200px" height="300px" />
   }
 
   return (
     <>
       <section className="greeting">
         <div className="greeting__block preview-block">
-          <img src={habImg} alt="previewHub" className="preview-block__img" />
-          <ul className="preview-block__list">
-            {DataLinks &&
-              DataLinks.map((item, index) => {
-                return (
-                  <li
-                    className="preview-block__item"
-                    key={`preview-block__item ${index}`}
-                  >
-                    <Link
-                      to={item.link}
-                      className="preview-block__link"
-                      title={`Перейти в ${item.text}`}
+          <div className="preview-block__img-block">
+            <img
+              src={previewImg}
+              alt="previewHub"
+              className="preview-block__img"
+            />
+            <ul className="preview-block__list">
+              {DataLinks &&
+                DataLinks.map((item, index) => {
+                  return (
+                    <li
+                      className="preview-block__item"
+                      key={`preview-block__item ${index}`}
                     >
-                      <item.img />
-                    </Link>
-                  </li>
-                )
-              })}
-          </ul>
+                      <Link
+                        to={item.link}
+                        className="preview-block__link"
+                        title={`Перейти в ${item.text}`}
+                      >
+                        <item.img />
+                      </Link>
+                    </li>
+                  )
+                })}
+            </ul>
+          </div>
           <p className="preview-block__descr">
             VEXEN HUB - В этом месте ты найдешь все что нужно игроку Wuthering
             Waves. Гайды на персонажей, руководства по ротациям и подсчеты цифр
@@ -162,7 +177,10 @@ export const Greeting = () => {
             )}
           </ul>
         </div>
-        <Resonators customClassname={"greeting__resonators"} />
+        <Resonators
+          customClassname={"greeting__resonators"}
+          filterBackImg={filterImg}
+        />
         {/* Баннеры и Таймер */}
         <div className="greeting__block banners-block">
           <div className="banners-block__timer-container">

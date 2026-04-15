@@ -19,20 +19,30 @@ interface MechanicData {
   link: string
 }
 
-interface Prop {
-  customClassname?: string
+interface WeaponsTypeData {
+  id: string
+  type: string
+  link: string
 }
 
-export const Resonators = ({ customClassname }: Prop) => {
+interface Prop {
+  customClassname?: string
+  filterBackImg?: string
+}
+
+export const Resonators = ({ customClassname, filterBackImg }: Prop) => {
   // Состояния для данных из Firebase
   const [elements, setElements] = useState<ElementData[]>([])
   const [resonators, setResonators] = useState<Resonator[]>([])
+  const [weaponsType, setWeaponsType] = useState<WeaponsTypeData[]>([])
+
   const [mechanics, setMechanics] = useState<MechanicData[]>([])
   const [loading, setLoading] = useState(true)
 
   // Состояния для фильтрации
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedElement, setSelectedElement] = useState("all")
+  const [selectedWeaponType, setSelectedWeaponType] = useState("all")
   const [selectedGuide, setSelectedGuide] = useState("filterBtnResonators")
 
   // Загрузка данных из Firebase при монтировании
@@ -48,6 +58,14 @@ export const Resonators = ({ customClassname }: Prop) => {
           ...doc.data(),
         })) as ElementData[]
         setElements(elementsList)
+
+        // загрузка типов оружий
+        const weaponTypeSnap = await getDocs(collection(db, "weapons_icon"))
+        const weaponTypesList = weaponTypeSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as WeaponsTypeData[]
+        setWeaponsType(weaponTypesList)
 
         // 2. Загрузка персонажей
         const resonatorsSnap = await getDocs(
@@ -95,8 +113,16 @@ export const Resonators = ({ customClassname }: Prop) => {
       result = result.filter(item => item.element === selectedElement)
     }
 
+    if (selectedWeaponType !== "all") {
+      result = result.filter(
+        item =>
+          item.weaponType.toLocaleLowerCase() ===
+          selectedWeaponType.toLocaleLowerCase(),
+      )
+    }
+
     return result.sort((a, b) => a.name.localeCompare(b.name, "ru"))
-  }, [searchTerm, selectedElement, resonators])
+  }, [resonators, searchTerm, selectedElement, selectedWeaponType])
 
   const handleSelectElement = (elementId: string) => {
     if (selectedElement === elementId) {
@@ -106,33 +132,20 @@ export const Resonators = ({ customClassname }: Prop) => {
     }
   }
 
+  const handleSelectWeaponType = (typeId: string) => {
+    if (selectedWeaponType.toLocaleLowerCase() === typeId.toLocaleLowerCase()) {
+      setSelectedWeaponType("all")
+    } else {
+      setSelectedWeaponType(typeId)
+    }
+  }
+
   const handleFilter = (e: React.MouseEvent<HTMLButtonElement>) => {
     setSelectedGuide(e.currentTarget.id)
   }
 
   return (
     <div className={`resonators ${customClassname}`.trim()}>
-      {/* Список стихий */}
-      <div className="resonators__elements-listContainer">
-        <ul className="resonators__elements-list">
-          {elements.map(({ id, iconUrl }) => (
-            <li className="resonators__elements-item" key={id}>
-              <button
-                className="resonators__elements-btn"
-                onClick={() => handleSelectElement(id)}
-              >
-                <img
-                  src={iconUrl}
-                  alt={`Element ${id}`}
-                  className={`resonators__elements-img ${selectedElement === id && "resonators__elements-img_zoom"}`.trim()}
-                />
-              </button>
-            </li>
-          ))}
-        </ul>
-        <span className="resonators__elements-background"></span>
-      </div>
-
       {/* Поиск и фильтры */}
       <div className="filter">
         <input
@@ -162,6 +175,50 @@ export const Resonators = ({ customClassname }: Prop) => {
             </button>
           </div>
         </div> */}
+        <div className="resonators__elements-listContainer">
+          <ul className="resonators__elements-list">
+            {elements.map(({ id, iconUrl }) => (
+              <li className="resonators__elements-item" key={id}>
+                <button
+                  className="resonators__elements-btn"
+                  onClick={() => handleSelectElement(id)}
+                >
+                  <img
+                    src={iconUrl}
+                    alt={`Element ${id}`}
+                    className={`resonators__elements-img ${selectedElement === id && "resonators__elements-img_zoom"}`.trim()}
+                  />
+                </button>
+              </li>
+            ))}
+          </ul>
+          <span className="resonators__elements-background"></span>
+        </div>
+
+        <div className="resonators__elements-listContainer">
+          <ul className="resonators__elements-list">
+            {weaponsType.map(({ id, link }) => (
+              <li className="resonators__elements-item" key={id}>
+                <button
+                  className="resonators__elements-btn"
+                  onClick={() => handleSelectWeaponType(id)}
+                >
+                  <img
+                    src={link}
+                    alt={`WeaponType ${id}`}
+                    className={`resonators__elements-img ${selectedWeaponType === id && "resonators__elements-img_zoom"}`.trim()}
+                  />
+                </button>
+              </li>
+            ))}
+          </ul>
+          <span className="resonators__elements-background"></span>
+        </div>
+        <img
+          src={filterBackImg}
+          alt="Фоновая картинка фильтрацаа"
+          className="filter__background"
+        />
       </div>
 
       {/* ПЕРСОНАЖИ */}

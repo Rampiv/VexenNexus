@@ -59,6 +59,7 @@
     object-position: top;
     height: 50px;
     width: 50px;
+    margin-right: 10px
   }
   &__h2 {
     @include textType2();
