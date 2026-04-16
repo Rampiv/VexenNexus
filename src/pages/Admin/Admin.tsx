@@ -816,9 +816,16 @@ export const Admin = () => {
             {activeTab === "mechanics" && (
               <>
                 <InputGroup
-                  label="Название механики"
+                  label="Название механики (RU)"
                   name="title"
                   value={mechanicForm.title || ""}
+                  onChange={handleMechanicChange}
+                  required
+                />
+                <InputGroup
+                  label="Название механики (ENG)"
+                  name="engName"
+                  value={mechanicForm.engName || ""}
                   onChange={handleMechanicChange}
                   required
                 />
