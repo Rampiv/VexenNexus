@@ -64,7 +64,6 @@
     flex-direction: column;
     position: relative;
     gap: 15px;
-    // background: url("../../assets/image/bannersBackground.webp") no-repeat;
     background-size: cover;
     background-position: top;
     padding: 10px 15px;
@@ -203,6 +202,7 @@
         rgb(78, 77, 81, 0.3) 70%,
         rgb(78, 77, 81, 0.8) 100%
       );
+      text-align: center
     }
   }
   &__link {
