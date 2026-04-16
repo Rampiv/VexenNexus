@@ -1,10 +1,9 @@
 import { Link } from "react-router"
 import "./Greeting.scss"
 import { DataLinks } from "../../data"
-import habImg from "@assets/image/habImg.webp"
 import { Loader, RealiseTimer } from "../../components"
 import { Resonators } from "../../components/Resonators"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import {
   collection,
   doc,
@@ -70,10 +69,11 @@ export const Greeting = () => {
         }
 
         // 2. Загрузка последних изменений (Changelog)
+        // Увеличим лимит, чтобы при фильтрации дублей осталось хотя бы 5 уникальных записей
         const updatesQuery = query(
           collection(db, "updates"),
           orderBy("date", "desc"),
-          limit(5),
+          limit(20), 
         )
         const updatesSnap = await getDocs(updatesQuery)
 
@@ -81,6 +81,7 @@ export const Greeting = () => {
           id: doc.id,
           ...doc.data(),
         })) as UpdateItem[]
+        
         setUpdates(updatesList)
       } catch (error) {
         console.error("Ошибка загрузки данных приветствия:", error)
@@ -91,6 +92,34 @@ export const Greeting = () => {
 
     fetchData()
   }, [])
+
+  // Мемоизируем очищенный список обновлений
+  const uniqueUpdates = useMemo(() => {
+    const map = new Map<string, UpdateItem>()
+
+    updates.forEach(item => {
+      // Ключ для группировки: "Тип: Название"
+      const key = `${item.type}: ${item.title}`
+      
+      // Если такой записи еще нет или текущая запись новее уже сохраненной
+      if (!map.has(key)) {
+        map.set(key, item)
+      } else {
+        const existingItem = map.get(key)!
+        const currentDate = new Date(item.date).getTime()
+        const existingDate = new Date(existingItem.date).getTime()
+
+        if (currentDate > existingDate) {
+          map.set(key, item)
+        }
+      }
+    })
+
+    // Преобразуем Map обратно в массив и сортируем по дате (сначала новые)
+    return Array.from(map.values()).sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime()
+    })
+  }, [updates])
 
   const formatDate = (isoString: string) => {
     if (!isoString) return ""
@@ -163,8 +192,9 @@ export const Greeting = () => {
         <div className="greeting__block changes-block">
           <h2 className="nav-block__h2">Последние изменения</h2>
           <ul className="changes-block__list">
-            {updates.length > 0 ? (
-              updates.map(item => (
+            {uniqueUpdates.length > 0 ? (
+              // Показываем только первые 5 уникальных записей
+              uniqueUpdates.slice(0, 5).map(item => (
                 <li className="changes-block__item" key={item.id}>
                   <p className="changes-block__descr">{`${item.type}: ${item.title}`}</p>
                   <p className="changes-block__data">

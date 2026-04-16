@@ -82,12 +82,11 @@
   }
   &__name-item {
     @include textType1();
+    @include flexible();
     & {
       padding: 5px;
       background-color: $color1;
       border-radius: 5px;
-
-      text-align: center;
     }
   }
   // КОМАНДЫ
@@ -96,7 +95,7 @@
     @include flexible();
     & {
       flex-direction: column;
-      width: 60%;
+      width: 50%;
     }
   }
 }
@@ -181,14 +180,15 @@
   }
   &__character {
     @include flexible();
+    @include standartTransition();
+    @include standartAnimZoom();
     & {
       flex-direction: column;
     }
   }
   &__char-img {
     object-fit: cover;
-    width: 100%;
-    height: 100%;
+    width: 60%;
     margin-bottom: 5px;
   }
   &__char-name {
