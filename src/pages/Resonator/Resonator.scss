@@ -4,7 +4,7 @@
   color: white;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto auto auto;
+  grid-template-rows: auto auto auto auto auto;
   gap: 15px;
   &__name-block {
     @include flexible();
@@ -43,7 +43,7 @@
   }
   &__result {
     grid-column: span 2;
-    grid-row: 4;
+    grid-row: 5;
   }
   &__h2 {
     @include flexible();
@@ -96,6 +96,14 @@
     & {
       flex-direction: column;
       width: 50%;
+    }
+  }
+  &__details-block{
+    width: 100%;
+    grid-column: span 2;
+    grid-row: 4;
+    h2{
+      margin-bottom: 15px;
     }
   }
 }

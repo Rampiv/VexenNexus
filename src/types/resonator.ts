@@ -18,4 +18,5 @@ export interface Resonator {
   teams?: Team[]
   descr?: string[]
   result?: string[]
+  resonatorImgDetails?: string
 }

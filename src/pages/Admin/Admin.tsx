@@ -79,6 +79,7 @@ export const Admin = () => {
     teams: [],
     descr: [],
     result: [],
+    resonatorImgDetails: "",
   })
 
   const [weaponForm, setWeaponForm] = useState<WeaponForm>({
@@ -262,9 +263,7 @@ export const Admin = () => {
   }
 
   // Обработчик для настроек (текстовые поля и дата)
-  const handleSettingsChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setSettingsForm(prev => ({ ...prev, [name]: value }))
   }
@@ -400,6 +399,7 @@ export const Admin = () => {
         teams: item.teams && item.teams.length > 0 ? item.teams : [],
         descr: item.descr && item.descr.length > 0 ? item.descr : [],
         result: item.result && item.result.length > 0 ? item.result : [],
+        resonatorImgDetails: item.resonatorImgDetails || "",
       })
     } else if (activeTab === "weapons") {
       setWeaponForm({
@@ -464,7 +464,9 @@ export const Admin = () => {
   const handleRemoveResonatorFromBanner = (resonatorId: string) => {
     setSettingsForm(prev => ({
       ...prev,
-      futureResonatorIds: prev.futureResonatorIds.filter(id => id !== resonatorId),
+      futureResonatorIds: prev.futureResonatorIds.filter(
+        id => id !== resonatorId,
+      ),
     }))
   }
 
@@ -484,6 +486,7 @@ export const Admin = () => {
       teams: [],
       descr: [],
       result: [],
+      resonatorImgDetails: "",
     })
 
     setWeaponForm({
@@ -515,9 +518,9 @@ export const Admin = () => {
     // Сброс формы настроек (опционально, можно не сбрасывать, а оставлять текущие)
     // Но для консистентности "Отмены" редактирования:
     if (activeTab === "settings") {
-       // Здесь лучше перезагрузить данные из fetchData, чтобы отменить несохраненные изменения
-       // Или просто оставить как есть, так как настройки глобальные.
-       // Для простоты оставим текущие значения, так как "Reset" для настроек обычно не нужен.
+      // Здесь лучше перезагрузить данные из fetchData, чтобы отменить несохраненные изменения
+      // Или просто оставить как есть, так как настройки глобальные.
+      // Для простоты оставим текущие значения, так как "Reset" для настроек обычно не нужен.
     }
 
     setEditingId(null)
@@ -589,7 +592,11 @@ export const Admin = () => {
         {/* Форма */}
         <div className="admin-form-container">
           <h2>
-            {editingId ? "Редактировать" : activeTab === "settings" ? "Сохранить" : "Добавить"}{" "}
+            {editingId
+              ? "Редактировать"
+              : activeTab === "settings"
+                ? "Сохранить"
+                : "Добавить"}{" "}
             {activeTab === "settings"
               ? "настройки"
               : activeTab === "mechanics"
@@ -602,7 +609,6 @@ export const Admin = () => {
           </h2>
 
           <form onSubmit={handleSubmit} className="admin-form">
-            
             {/* --- ФОРМА ПЕРСОНАЖЕЙ --- */}
             {activeTab === "resonators" && (
               <>
@@ -698,6 +704,13 @@ export const Admin = () => {
                   label="URL гайда"
                   name="resonatorImgGuide"
                   value={resonatorForm.resonatorImgGuide || ""}
+                  onChange={handleResonatorChange}
+                  placeholder="https://..."
+                />
+                <InputGroup
+                  label="URL Детального подсчета"
+                  name="resonatorImgDetails"
+                  value={resonatorForm.resonatorImgDetails || ""}
                   onChange={handleResonatorChange}
                   placeholder="https://..."
                 />
@@ -946,7 +959,9 @@ export const Admin = () => {
                     name="nextBannerDate"
                     value={
                       settingsForm.nextBannerDate
-                        ? new Date(settingsForm.nextBannerDate).toISOString().slice(0, 16)
+                        ? new Date(settingsForm.nextBannerDate)
+                            .toISOString()
+                            .slice(0, 16)
                         : ""
                     }
                     onChange={e =>
@@ -986,7 +1001,9 @@ export const Admin = () => {
                         <option
                           key={r.id}
                           value={r.id}
-                          disabled={settingsForm.futureResonatorIds.includes(r.id || "")}
+                          disabled={settingsForm.futureResonatorIds.includes(
+                            r.id || "",
+                          )}
                         >
                           {r.name} ({r.engName})
                         </option>
@@ -1053,7 +1070,7 @@ export const Admin = () => {
                   onChange={handleSettingsChange}
                   placeholder="https://..."
                 />
-                
+
                 <InputGroup
                   label="Ссылка на Filter Image (Фильтр)"
                   name="filter_img"
@@ -1102,7 +1119,10 @@ export const Admin = () => {
 
           {activeTab === "settings" ? (
             <div className="settings-info">
-              <p>Глобальные настройки сайта. Изменения применяются ко всем пользователям.</p>
+              <p>
+                Глобальные настройки сайта. Изменения применяются ко всем
+                пользователям.
+              </p>
             </div>
           ) : (
             <ul className="admin-list">
@@ -1113,39 +1133,38 @@ export const Admin = () => {
                   : activeTab === "mechanics"
                     ? mechanics
                     : echoSets
-              )
-                .map((item: any) => (
-                  <li key={item.id} className="admin-list-item">
-                    <img
-                      src={item.resonatorImg || item.img}
-                      alt={item.name || item.title}
-                      className="admin-thumb"
-                    />
-                    <div className="admin-info">
-                      <strong>{item.name || item.title}</strong>
-                      {item.engName && `(${item.engName})`}
-                      <span className="admin-meta">
-                        {item.element ||
-                          item.type ||
-                          (activeTab === "echoSets" ? "Сет" : "Механика")}
-                      </span>
-                    </div>
-                    <div className="admin-actions">
-                      <button
-                        onClick={() => handleEdit(item)}
-                        className="btn-edit"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="btn-delete"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </li>
-                ))}
+              ).map((item: any) => (
+                <li key={item.id} className="admin-list-item">
+                  <img
+                    src={item.resonatorImg || item.img}
+                    alt={item.name || item.title}
+                    className="admin-thumb"
+                  />
+                  <div className="admin-info">
+                    <strong>{item.name || item.title}</strong>
+                    {item.engName && `(${item.engName})`}
+                    <span className="admin-meta">
+                      {item.element ||
+                        item.type ||
+                        (activeTab === "echoSets" ? "Сет" : "Механика")}
+                    </span>
+                  </div>
+                  <div className="admin-actions">
+                    <button
+                      onClick={() => handleEdit(item)}
+                      className="btn-edit"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="btn-delete"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </li>
+              ))}
             </ul>
           )}
         </div>

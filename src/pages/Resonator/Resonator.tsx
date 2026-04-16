@@ -47,6 +47,7 @@ export const ResonatorPage = () => {
   const { echoSets: allEchoSets, loading: loadingEchoSets } = useEchoSets()
   // Состояние для лайтбокса
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+  const [isLightboxSrc, setIsLightboxSrc] = useState<string | undefined>()
 
   useEffect(() => {
     if (!engName) {
@@ -116,13 +117,20 @@ export const ResonatorPage = () => {
       </div>
       <div className="resonator__guide-block">
         <h2 className="resonator__h2">Мини-гайд</h2>
-        <img
-          src={resonator.resonatorImgGuide}
-          alt="Гайд"
-          className="resonator__guide-img"
-          onClick={() => setIsLightboxOpen(true)}
-          style={{ cursor: "zoom-in" }}
-        />
+        {resonator.resonatorImgGuide ? (
+          <img
+            src={resonator.resonatorImgGuide}
+            alt="Гайд"
+            className="resonator__guide-img"
+            onClick={() => {
+              setIsLightboxSrc(resonator.resonatorImgGuide)
+              setIsLightboxOpen(true)
+            }}
+            style={{ cursor: "zoom-in" }}
+          />
+        ) : (
+          "Гайд в процессе написания"
+        )}
       </div>
       <div className="resonator__teams-block">
         <h2 className="resonator__h2">Отряды</h2>
@@ -197,7 +205,10 @@ export const ResonatorPage = () => {
                                       }
 
                                       return (
-                                        <Link to={`/echoSets/${echoLink}`} key={`ссылки на сеты ${iconIdx + echoSetId}`}>
+                                        <Link
+                                          to={`/echoSets/${echoLink}`}
+                                          key={`ссылки на сеты ${iconIdx + echoSetId}`}
+                                        >
                                           <img
                                             key={iconIdx}
                                             src={echoSetObj?.img || ""}
@@ -223,6 +234,22 @@ export const ResonatorPage = () => {
           </ul>
         </div>
       </div>
+      {resonator.resonatorImgDetails && (
+        <div className="resonator__details-block">
+          <h2 className="resonator__h2">Детальный подсчет</h2>
+          <img
+            src={resonator.resonatorImgDetails}
+            alt="картинка деталей"
+            className="resonator__details-img"
+            onClick={() => {
+              setIsLightboxSrc(resonator.resonatorImgDetails)
+              setIsLightboxOpen(true)
+            }}
+            style={{ cursor: "zoom-in" }}
+          />
+        </div>
+      )}
+
       <div className="resonator__result">
         <h2 className="resonator__h2">Заключение</h2>
         <ul className="result">
@@ -240,7 +267,7 @@ export const ResonatorPage = () => {
       <Lightbox
         open={isLightboxOpen}
         close={() => setIsLightboxOpen(false)}
-        slides={[{ src: resonator.resonatorImgGuide || "" }]}
+        slides={[{ src: isLightboxSrc || "" }]}
       />
     </section>
   )
