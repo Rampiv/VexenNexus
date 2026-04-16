@@ -69,11 +69,10 @@ export const Greeting = () => {
         }
 
         // 2. Загрузка последних изменений (Changelog)
-        // Увеличим лимит, чтобы при фильтрации дублей осталось хотя бы 5 уникальных записей
         const updatesQuery = query(
           collection(db, "updates"),
           orderBy("date", "desc"),
-          limit(20), 
+          limit(30), 
         )
         const updatesSnap = await getDocs(updatesQuery)
 
@@ -196,7 +195,7 @@ export const Greeting = () => {
               // Показываем только первые 5 уникальных записей
               uniqueUpdates.slice(0, 5).map(item => (
                 <li className="changes-block__item" key={item.id}>
-                  <p className="changes-block__descr">{`${item.type}: ${item.title}`}</p>
+                  <Link to={item.link} className="changes-block__descr">{`${item.type}:`} <span className="changes-block__descr_underline">{item.title}</span></Link>
                   <p className="changes-block__data">
                     {item.date ? `- ${formatDate(item.date)} -` : ""}
                   </p>

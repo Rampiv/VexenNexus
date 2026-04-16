@@ -185,6 +185,9 @@
       text-align: start;
     }
   }
+  &__descr_underline {
+    text-decoration: underline;
+  }
   &__data {
     color: $color2;
     text-wrap: nowrap;
