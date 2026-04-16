@@ -72,7 +72,7 @@ export const Greeting = () => {
         const updatesQuery = query(
           collection(db, "updates"),
           orderBy("date", "desc"),
-          limit(30), 
+          limit(30),
         )
         const updatesSnap = await getDocs(updatesQuery)
 
@@ -80,7 +80,7 @@ export const Greeting = () => {
           id: doc.id,
           ...doc.data(),
         })) as UpdateItem[]
-        
+
         setUpdates(updatesList)
       } catch (error) {
         console.error("Ошибка загрузки данных приветствия:", error)
@@ -99,7 +99,7 @@ export const Greeting = () => {
     updates.forEach(item => {
       // Ключ для группировки: "Тип: Название"
       const key = `${item.type}: ${item.title}`
-      
+
       // Если такой записи еще нет или текущая запись новее уже сохраненной
       if (!map.has(key)) {
         map.set(key, item)
@@ -165,9 +165,8 @@ export const Greeting = () => {
             </ul>
           </div>
           <p className="preview-block__descr">
-            VEXEN HUB - В этом месте ты найдешь все что нужно игроку Wuthering
-            Waves. Гайды на персонажей, руководства по ротациям и подсчеты цифр
-            урона!
+            WW HUB - В этом месте ты найдешь все что нужно игроку Wuthering
+            Waves. Актуальные билды и подсчеты цифр урона!
           </p>
         </div>
         <div className="greeting__block nav-block">
@@ -195,7 +194,12 @@ export const Greeting = () => {
               // Показываем только первые 5 уникальных записей
               uniqueUpdates.slice(0, 5).map(item => (
                 <li className="changes-block__item" key={item.id}>
-                  <Link to={item.link} className="changes-block__descr">{`${item.type}:`} <span className="changes-block__descr_underline">{item.title}</span></Link>
+                  <Link to={item.link} className="changes-block__descr">
+                    {`${item.type}:`}{" "}
+                    <span className="changes-block__descr_underline">
+                      {item.title}
+                    </span>
+                  </Link>
                   <p className="changes-block__data">
                     {item.date ? `- ${formatDate(item.date)} -` : ""}
                   </p>

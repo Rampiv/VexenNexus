@@ -55,7 +55,7 @@
 
 @mixin textSettings() {
   & {
-    font-family: sans-serif;
+    font-family: "Roboto", sans-serif;
     letter-spacing: 0.5px;
     color: $white;
   }
@@ -63,7 +63,7 @@
 
 @mixin textBold() {
   & {
-    font-family: sans-serif;
+    font-family: "Roboto", sans-serif;
     font-weight: bold;
   }
 }
