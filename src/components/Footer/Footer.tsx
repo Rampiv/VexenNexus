@@ -36,7 +36,7 @@ export const Footer = () => {
       </nav>
       <div className="footer__privacy">
         <span className="footer__copyright">
-          Copyright © 2026 vexen-nexus.vercel.app
+          Copyright © 2026 ww-hub.vercel.app
         </span>
       </div>
     </footer>

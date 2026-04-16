@@ -121,6 +121,10 @@
   }
   &__typedescr-text {
     @include textType13();
+    @include flexible();
+    & {
+      min-height: 30px;
+    }
   }
 }
 
@@ -200,6 +204,9 @@
   .weapons__content-img {
     width: 100px;
     height: 100px;
+  }
+  .weapons__typedescr {
+    width: 100%;
   }
 }
 
