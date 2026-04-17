@@ -1,9 +1,10 @@
 import type React from "react"
-import { useState } from "react"
 import type { Team, TeamSlot, TeamRow } from "../../types/team"
 import type { Resonator } from "../../types/resonator"
 import type { EchoSet } from "../../types/echoSet"
 import "./TeamEditor.scss"
+import type { SelectOption } from "../CustomSelect/CustomSelect"
+import { CustomSelect } from "../CustomSelect/CustomSelect"
 
 interface TeamEditorProps {
   teams: Team[]
@@ -32,10 +33,6 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
   allResonators,
   allEchoSets,
 }) => {
-  // Состояние для отслеживания того, какой именно dropdown открыт.
-  // Формат ключа: "tIdx-rIdx-sIdx" или null, если ничего не открыто.
-  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
-
   const addTeam = () => {
     setTeams(prev => [...prev, createEmptyTeam()])
   }
@@ -144,9 +141,6 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
         }
       }),
     )
-
-    // Закрываем dropdown после выбора
-    setOpenDropdownId(null)
   }
 
   const removeEchoIcon = (
@@ -183,24 +177,36 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
     )
   }
 
-  // Уникальный ID для каждого слота
-  const getDropdownId = (t: number, r: number, s: number) => `${t}-${r}-${s}`
+  // Подготовка опций для селекта персонажей
+  const resonatorOptions: SelectOption[] = [
+    { value: "", label: "Выберите персонажа" },
+    ...allResonators
+      .filter(res => res.id)
+      .map(res => ({
+        value: res.id!,
+        label: res.name || "Без имени",
+        imgSrc: res.resonatorImgMini,
+      })),
+  ]
 
-  // Обработчик клика вне dropdown для закрытия
-  const handleGlobalClick = () => {
-    if (openDropdownId) setOpenDropdownId(null)
-  }
+  // Подготовка опций для селекта эхо-сетов
+  const echoSetOptions: SelectOption[] = [
+    { value: "", label: "+ Добавить сет" },
+    ...allEchoSets
+      .filter(set => set.id)
+      .map(set => ({
+        value: set.id!,
+        label: set.name || "Без названия",
+        imgSrc: set.img,
+      })),
+  ]
 
   return (
-    <div className="team-editor" onClick={handleGlobalClick}>
+    <div className="team-editor">
       <h3>Отряды (Команды)</h3>
 
       {teams.map((team, tIdx) => (
-        <div
-          key={tIdx}
-          className="team-block"
-          onClick={e => e.stopPropagation()}
-        >
+        <div key={tIdx} className="team-block">
           <div className="team-header">
             <input
               type="text"
@@ -222,31 +228,18 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
             <div key={rIdx} className="team-row-wrapper">
               <div className="team-row">
                 {row.slots.map((slot, sIdx) => {
-                  const dropdownId = getDropdownId(tIdx, rIdx, sIdx)
-                  const isOpen = openDropdownId === dropdownId
-
                   return (
                     <div key={sIdx} className="team-slot">
-                      {/* Выбор персонажа (нативный select, так как там нет картинок) */}
-                      <select
+                      {/* --- ВЫБОР ПЕРСОНАЖА (CustomSelect) --- */}
+                      <CustomSelect
+                        options={resonatorOptions}
                         value={slot?.resonatorId || ""}
-                        onChange={e =>
-                          handleResonatorSelect(
-                            tIdx,
-                            rIdx,
-                            sIdx,
-                            e.target.value,
-                          )
+                        onChange={val =>
+                          handleResonatorSelect(tIdx, rIdx, sIdx, val)
                         }
+                        placeholder="Выберите персонажа"
                         className="slot-resonator-select"
-                      >
-                        <option value="">Выберите персонажа</option>
-                        {allResonators.map(res => (
-                          <option key={res.id} value={res.id}>
-                            {res.name}
-                          </option>
-                        ))}
-                      </select>
+                      />
 
                       {slot?.resonatorId && (
                         <div className="selected-resonator-preview">
@@ -294,45 +287,14 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
                         })}
                       </div>
 
-                      {/* КАСТОМНЫЙ DROPDOWN ДЛЯ ЭХО СЕТОВ */}
-                      <div className="custom-echo-select">
-                        <div
-                          className={`custom-select-trigger ${isOpen ? "active" : ""}`}
-                          onClick={e => {
-                            e.stopPropagation() // Предотвращаем закрытие при клике на триггер
-                            setOpenDropdownId(isOpen ? null : dropdownId)
-                          }}
-                        >
-                          <span>+ Добавить сет</span>
-                          <span className="arrow">{isOpen ? "▲" : "▼"}</span>
-                        </div>
-
-                        {isOpen && (
-                          <ul className="custom-select-options">
-                            {allEchoSets.map(set => {
-                              return (
-                                <li
-                                  key={set.id}
-                                  className="custom-option"
-                                  onClick={e => {
-                                    e.stopPropagation()
-                                    addEchoSetId(tIdx, rIdx, sIdx, set.id!)
-                                  }}
-                                >
-                                  <img
-                                    src={set.img}
-                                    alt={set.name}
-                                    className="option-img"
-                                  />
-                                  <span className="option-text">
-                                    {set.name}
-                                  </span>
-                                </li>
-                              )
-                            })}
-                          </ul>
-                        )}
-                      </div>
+                      {/* --- ВЫБОР ЭХО СЕТА (CustomSelect) --- */}
+                      <CustomSelect
+                        options={echoSetOptions}
+                        value=""
+                        onChange={val => addEchoSetId(tIdx, rIdx, sIdx, val)}
+                        placeholder="+ Добавить сет"
+                        className="echo-set-select"
+                      />
                     </div>
                   )
                 })}

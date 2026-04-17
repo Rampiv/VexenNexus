@@ -1,0 +1,132 @@
+.custom-select {
+  position: relative;
+  width: 100%;
+  font-family: inherit;
+
+  .custom-select-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #2a2a2a;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: border-color 0.2s, background-color 0.2s;
+    min-height: 40px; // Фиксируем высоту для стабильности
+
+    &:hover {
+      border-color: #666;
+      background-color: #333;
+    }
+
+    &.active {
+      border-color: #888;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      background-color: #333;
+    }
+
+    .trigger-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    .trigger-img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      border-radius: 4px;
+    }
+
+    .trigger-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .placeholder {
+      color: #888;
+    }
+
+    .arrow {
+      font-size: 10px;
+      margin-left: 5px;
+      color: #aaa;
+    }
+  }
+
+  .custom-select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-top: none;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 250px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    
+    // Скроллбар для темной темы
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    &::-webkit-scrollbar-track {
+      background: #1e1e1e;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 4px;
+    }
+
+    .custom-option {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-bottom: 1px solid #333;
+      color: #fff;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background: #3a3a3a;
+      }
+
+      &.selected {
+        background: #444;
+        font-weight: bold;
+      }
+
+      .option-img {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+        margin-right: 10px;
+        border-radius: 4px;
+        flex-shrink: 0;
+      }
+
+      .option-text {
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+}
