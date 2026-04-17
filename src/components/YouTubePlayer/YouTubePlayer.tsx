@@ -1,43 +1,61 @@
 import { useState } from "react"
+import { YT } from "../../assets/icons/YT"
 import "./YouTubePlayer.scss"
 
 interface YouTubePlayerProps {
   videoUrl: string
   title: string
-  YT: string
+  YTPreview: string
 }
 
-export const YouTubePlayer = ({ videoUrl, title, YT }: YouTubePlayerProps) => {
-  const [isLoaded, setIsLoaded] = useState(false)
+export const YouTubePlayer = ({
+  videoUrl,
+  title,
+  YTPreview,
+}: YouTubePlayerProps) => {
+  const [isPlayed, setIsPlayed] = useState(false)
   const [videoId] = useState(videoUrl.split("youtu.be/")[1]?.split("?")[0])
 
+  if (!videoId) {
+    return <div>Ошибка: неверная ссылка на видео</div>
+  }
+
+  const handlePlayClick = () => {
+    setIsPlayed(true)
+  }
 
   return (
     <div className="youtube-player-wrapper">
-      {/* Fallback-изображение — всегда видимо, пока не загрузился iframe */}
-      {!isLoaded && (
-        <img
-          src={YT}
-          alt="Видео недоступно"
-          onError={() => console.warn("Fallback image failed to load")}
-        />
+      {/* Кастомный превью-оверлей */}
+      {!isPlayed && videoUrl ? (
+        <div className="youtube-preview-overlay" onClick={handlePlayClick}>
+          <img
+            src={YTPreview}
+            alt="Превью видео"
+            className="youtube-preview-img"
+          />
+          <div className="play-button">
+            <YT />
+          </div>
+        </div>
+      ) : (
+        "сос"
       )}
 
-      {/* iframe — появляется при загрузке */}
+      {/* iframe — всегда загружен, но скрыт за оверлеем до клика */}
       <iframe
-        src={`https://www.youtube.com/embed/${videoId}?si=kdixMruqvqRGPp0a`}
-
+        src={`https://www.youtube.com/embed/${videoId}?si=kdixMruqvqRGPp0a${isPlayed ? "&autoplay=1" : ""}`}
         title={title}
         frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         referrerPolicy="strict-origin-when-cross-origin"
         allowFullScreen
-        onLoad={() => setIsLoaded(true)}
+        className="youtube-player-frame"
         style={{
-          display: isLoaded ? "block" : "none",
+          width: "100%",
+          aspectRatio: "16 / 9",
           borderRadius: "10px",
         }}
-        className="youtube-player-frame"
       />
     </div>
   )

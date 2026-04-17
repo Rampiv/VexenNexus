@@ -8,6 +8,7 @@ import { Loader, YouTubePlayer } from "../../components"
 import { useResonators } from "../../hook/useResonators"
 import { useEchoSets } from "../../hook/useEchoSets"
 import Lightbox from "yet-another-react-lightbox"
+import Chibi from "../../assets/image/Chibi/chibi2.webp"
 import "yet-another-react-lightbox/styles.css"
 
 const getResonatorByEngName = async (
@@ -105,14 +106,27 @@ export const ResonatorPage = () => {
       </div>
       <div className="resonator__YT-block">
         <h2 className="resonator__h2">Ролик по базе</h2>
-        {resonator.resonatorYTLink ? (
+        {resonator.resonatorYTLink && resonator.resonatorPreview ? (
           <YouTubePlayer
             videoUrl={resonator.resonatorYTLink}
             title={""}
-            YT={resonator.resonatorPreview}
+            YTPreview={resonator.resonatorPreview}
           />
+        ) : resonator.resonatorPreview ? (
+          <img src={resonator.resonatorPreview} alt="Превью видео" />
         ) : (
-          <img src={resonator.resonatorImgGuide} alt="Превью видео" />
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <img src={Chibi} alt="chibi" style={{maxHeight:"350px"}}/>
+            <span className="resonator__guide-block">
+              Видео еще не создано (или не загружено)
+            </span>
+          </div>
         )}
       </div>
       <div className="resonator__guide-block">

@@ -4,6 +4,7 @@ import "./Resonators.scss"
 import { Link } from "react-router"
 import { db } from "../../firebase/config" // Убедитесь, что путь верный
 import type { Resonator } from "../../types/resonator"
+import { Loader } from "../Loader"
 
 // Типы данных
 interface ElementData {
@@ -142,6 +143,19 @@ export const Resonators = ({ customClassname, filterBackImg }: Prop) => {
 
   const handleFilter = (e: React.MouseEvent<HTMLButtonElement>) => {
     setSelectedGuide(e.currentTarget.id)
+  }
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          gridRow: "3",
+          gridColumn: "span 3"
+        }}
+      >
+        <Loader width="50px" height="50px" />
+      </div>
+    )
   }
 
   return (
