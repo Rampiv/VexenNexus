@@ -5,7 +5,7 @@ import "./YouTubePlayer.scss"
 interface YouTubePlayerProps {
   videoUrl: string
   title: string
-  YTPreview: string
+  YTPreview?: string
 }
 
 export const YouTubePlayer = ({
@@ -27,7 +27,7 @@ export const YouTubePlayer = ({
   return (
     <div className="youtube-player-wrapper">
       {/* Кастомный превью-оверлей */}
-      {!isPlayed && videoUrl ? (
+      {!isPlayed && videoUrl && YTPreview ? (
         <div className="youtube-preview-overlay" onClick={handlePlayClick}>
           <img
             src={YTPreview}

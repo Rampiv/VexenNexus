@@ -106,7 +106,7 @@ export const ResonatorPage = () => {
       </div>
       <div className="resonator__YT-block">
         <h2 className="resonator__h2">Ролик по базе</h2>
-        {resonator.resonatorYTLink && resonator.resonatorPreview ? (
+        {resonator.resonatorYTLink ? (
           <YouTubePlayer
             videoUrl={resonator.resonatorYTLink}
             title={""}
@@ -122,7 +122,7 @@ export const ResonatorPage = () => {
               alignItems: "center",
             }}
           >
-            <img src={Chibi} alt="chibi" style={{maxHeight:"350px"}}/>
+            <img src={Chibi} alt="chibi" style={{ maxHeight: "350px" }} />
             <span className="resonator__guide-block">
               Видео еще не создано (или не загружено)
             </span>
