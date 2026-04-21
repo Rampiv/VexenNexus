@@ -50,6 +50,18 @@ export const Admin = () => {
   const [authLoading, setAuthLoading] = useState(true)
   const [inputKey, setInputKey] = useState("")
   const [authError, setAuthError] = useState("")
+  const [userRole, setUserRole] = useState<"admin" | "moderator">("admin")
+  const isAdmin = userRole === "admin" && isAuthenticated
+  const isModerator = userRole === "moderator" && isAuthenticated
+
+  useEffect(() => {
+    const path = window.location.pathname
+    if (path.includes("/moderator")) {
+      setUserRole("moderator")
+    } else {
+      setUserRole("admin")
+    }
+  }, [])
 
   // --- UI State ---
   const [activeTab, setActiveTab] = useState<Tab>("resonators")
@@ -121,7 +133,9 @@ export const Admin = () => {
   // Проверка сессии
   useEffect(() => {
     const checkSession = async () => {
-      const storedAuth = localStorage.getItem("vexen_admin_auth")
+      const storageKey =
+        userRole === "admin" ? "vexen_admin_auth" : "vexen_moderator_auth"
+      const storedAuth = localStorage.getItem(storageKey)
       if (storedAuth === "true") {
         setIsAuthenticated(true)
         fetchData()
@@ -129,7 +143,7 @@ export const Admin = () => {
       setAuthLoading(false)
     }
     checkSession()
-  }, [])
+  }, [userRole])
 
   // Функция загрузки всех данных
   const fetchData = async () => {
@@ -200,18 +214,24 @@ export const Admin = () => {
     setAuthError("")
     setAuthLoading(true)
     try {
+      const keyField = userRole === "admin" ? "key" : "moderator"
       const q = query(
         collection(db, ADMIN_KEYS_COLLECTION),
-        where("key", "==", inputKey.trim()),
+        where(keyField, "==", inputKey.trim()),
       )
       const querySnapshot = await getDocs(q)
+
       if (!querySnapshot.empty) {
         setIsAuthenticated(true)
-        localStorage.setItem("vexen_admin_auth", "true")
+        const storageKey =
+          userRole === "admin" ? "vexen_admin_auth" : "vexen_moderator_auth"
+        localStorage.setItem(storageKey, "true")
         setInputKey("")
         fetchData()
       } else {
-        setAuthError("Неверный ключ доступа.")
+        setAuthError(
+          `Неверный ключ доступа для роли: ${userRole === "admin" ? "Админ" : "Модератор"}.`,
+        )
       }
     } catch (error) {
       setAuthError("Ошибка сети.")
@@ -222,7 +242,9 @@ export const Admin = () => {
 
   const handleLogout = () => {
     setIsAuthenticated(false)
-    localStorage.removeItem("vexen_admin_auth")
+    const storageKey = ["vexen_admin_auth", "vexen_moderator_auth"]
+    storageKey.forEach(item => localStorage.removeItem(item))
+
     setResonators([])
     setWeapons([])
     setMechanics([])
@@ -428,8 +450,6 @@ export const Admin = () => {
         important: item.important || [],
       })
     }
-    // Для настроек редактирование через список не предусмотрено, так как документ один
-
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
@@ -514,15 +534,6 @@ export const Admin = () => {
       threePartsDescr: [],
       important: [],
     })
-
-    // Сброс формы настроек (опционально, можно не сбрасывать, а оставлять текущие)
-    // Но для консистентности "Отмены" редактирования:
-    if (activeTab === "settings") {
-      // Здесь лучше перезагрузить данные из fetchData, чтобы отменить несохраненные изменения
-      // Или просто оставить как есть, так как настройки глобальные.
-      // Для простоты оставим текущие значения, так как "Reset" для настроек обычно не нужен.
-    }
-
     setEditingId(null)
   }
 
@@ -600,113 +611,119 @@ export const Admin = () => {
             {activeTab === "settings"
               ? "настройки"
               : activeTab === "mechanics"
-                ? "механику"
+                ? `механику: ${mechanicForm.title}`
                 : activeTab === "weapons"
-                  ? "оружие"
+                  ? `оружие: ${weaponForm.name}`
                   : activeTab === "echoSets"
                     ? "эхо сет"
-                    : "персонажа"}
+                    : `персонажа: ${resonatorForm.name}`}
           </h2>
 
           <form onSubmit={handleSubmit} className="admin-form">
             {/* --- ФОРМА ПЕРСОНАЖЕЙ --- */}
             {activeTab === "resonators" && (
               <>
-                <div className="form-row">
-                  <InputGroup
-                    label="Имя (RU)"
-                    name="name"
-                    value={resonatorForm.name || ""}
-                    onChange={handleResonatorChange}
-                    required
-                  />
-                  <InputGroup
-                    label="Имя (ENG)"
-                    name="engName"
-                    value={resonatorForm.engName || ""}
-                    onChange={handleResonatorChange}
-                    required
-                  />
-                </div>
-                <div className="form-row">
-                  <SelectGroup
-                    label="Элемент"
-                    name="element"
-                    value={resonatorForm.element || "Havoc"}
-                    onChange={handleResonatorChange}
-                    options={[
-                      "Havoc",
-                      "Aero",
-                      "Fusion",
-                      "Spectro",
-                      "Glacio",
-                      "Electro",
-                    ]}
-                  />
-                  <SelectGroup
-                    label="Редкость"
-                    name="rarity"
-                    value={resonatorForm.rarity || 5}
-                    onChange={handleResonatorChange}
-                    options={[5, 4]}
-                    type="number"
-                  />
-                  <SelectGroup
-                    label="Оружие"
-                    name="weaponType"
-                    value={resonatorForm.weaponType || "Sword"}
-                    onChange={handleResonatorChange}
-                    options={[
-                      "Sword",
-                      "Broadblade",
-                      "Gauntlets",
-                      "Pistols",
-                      "Rectifier",
-                    ]}
-                  />
-                </div>
-                <InputGroup
-                  label="URL большой картинки (в гайде)"
-                  name="resonatorImg"
-                  value={resonatorForm.resonatorImg || ""}
-                  onChange={handleResonatorChange}
-                  placeholder="https://..."
-                />
-                <InputGroup
-                  label="URL мини картинки (на карточках)"
-                  name="resonatorImgMini"
-                  value={resonatorForm.resonatorImgMini || ""}
-                  onChange={handleResonatorChange}
-                  placeholder="https://..."
-                />
-                <InputGroup
-                  label="URL фото карточки персонажа для баннера"
-                  name="resonatorImgBanner"
-                  value={resonatorForm.resonatorImgBanner || ""}
-                  onChange={handleResonatorChange}
-                  placeholder="https://..."
-                />
-                <InputGroup
-                  label="URL Превью ютуб ролика"
-                  name="resonatorPreview"
-                  value={resonatorForm.resonatorPreview || ""}
-                  onChange={handleResonatorChange}
-                  placeholder="https://..."
-                />
-                <InputGroup
-                  label="URL ютуб ролика"
-                  name="resonatorYTLink"
-                  value={resonatorForm.resonatorYTLink || ""}
-                  onChange={handleResonatorChange}
-                  placeholder="https://..."
-                />
-                <InputGroup
-                  label="URL гайда"
-                  name="resonatorImgGuide"
-                  value={resonatorForm.resonatorImgGuide || ""}
-                  onChange={handleResonatorChange}
-                  placeholder="https://..."
-                />
+                {isAdmin && (
+                  <>
+                    {" "}
+                    <div className="form-row">
+                      <InputGroup
+                        label="Имя (RU)"
+                        name="name"
+                        value={resonatorForm.name || ""}
+                        onChange={handleResonatorChange}
+                        required
+                      />
+                      <InputGroup
+                        label="Имя (ENG)"
+                        name="engName"
+                        value={resonatorForm.engName || ""}
+                        onChange={handleResonatorChange}
+                        required
+                      />
+                    </div>
+                    <div className="form-row">
+                      <SelectGroup
+                        label="Элемент"
+                        name="element"
+                        value={resonatorForm.element || "Havoc"}
+                        onChange={handleResonatorChange}
+                        options={[
+                          "Havoc",
+                          "Aero",
+                          "Fusion",
+                          "Spectro",
+                          "Glacio",
+                          "Electro",
+                        ]}
+                      />
+                      <SelectGroup
+                        label="Редкость"
+                        name="rarity"
+                        value={resonatorForm.rarity || 5}
+                        onChange={handleResonatorChange}
+                        options={[5, 4]}
+                        type="number"
+                      />
+                      <SelectGroup
+                        label="Оружие"
+                        name="weaponType"
+                        value={resonatorForm.weaponType || "Sword"}
+                        onChange={handleResonatorChange}
+                        options={[
+                          "Sword",
+                          "Broadblade",
+                          "Gauntlets",
+                          "Pistols",
+                          "Rectifier",
+                        ]}
+                      />
+                    </div>
+                    <InputGroup
+                      label="URL большой картинки (в гайде)"
+                      name="resonatorImg"
+                      value={resonatorForm.resonatorImg || ""}
+                      onChange={handleResonatorChange}
+                      placeholder="https://..."
+                    />
+                    <InputGroup
+                      label="URL мини картинки (на карточках)"
+                      name="resonatorImgMini"
+                      value={resonatorForm.resonatorImgMini || ""}
+                      onChange={handleResonatorChange}
+                      placeholder="https://..."
+                    />
+                    <InputGroup
+                      label="URL фото карточки персонажа для баннера"
+                      name="resonatorImgBanner"
+                      value={resonatorForm.resonatorImgBanner || ""}
+                      onChange={handleResonatorChange}
+                      placeholder="https://..."
+                    />
+                    <InputGroup
+                      label="URL Превью ютуб ролика"
+                      name="resonatorPreview"
+                      value={resonatorForm.resonatorPreview || ""}
+                      onChange={handleResonatorChange}
+                      placeholder="https://..."
+                    />
+                    <InputGroup
+                      label="URL ютуб ролика"
+                      name="resonatorYTLink"
+                      value={resonatorForm.resonatorYTLink || ""}
+                      onChange={handleResonatorChange}
+                      placeholder="https://..."
+                    />
+                    <InputGroup
+                      label="URL гайда"
+                      name="resonatorImgGuide"
+                      value={resonatorForm.resonatorImgGuide || ""}
+                      onChange={handleResonatorChange}
+                      placeholder="https://..."
+                    />
+                  </>
+                )}
+
                 <InputGroup
                   label="URL Детального подсчета"
                   name="resonatorImgDetails"
@@ -1082,21 +1099,55 @@ export const Admin = () => {
             )}
 
             <div className="form-actions">
-              <button type="submit" disabled={isSubmitting}>
-                {isSubmitting
-                  ? "Сохранение..."
-                  : editingId && activeTab !== "settings"
-                    ? "Обновить"
-                    : "Сохранить"}
-              </button>
-              {editingId && activeTab !== "settings" && (
-                <button
-                  type="button"
-                  onClick={resetForms}
-                  className="btn-cancel"
-                >
-                  Отмена
-                </button>
+              {/* Логика для Администратора */}
+              {isAdmin && (
+                <>
+                  <button type="submit" disabled={isSubmitting}>
+                    {isSubmitting
+                      ? "Сохранение..."
+                      : editingId && activeTab !== "settings"
+                        ? "Обновить"
+                        : "Сохранить"}
+                  </button>
+
+                  {/* Кнопка отмены доступна админу только при редактировании */}
+                  {editingId && activeTab !== "settings" && (
+                    <button
+                      type="button"
+                      onClick={resetForms}
+                      className="btn-cancel"
+                    >
+                      Отмена
+                    </button>
+                  )}
+                </>
+              )}
+
+              {/* Логика для Модератора */}
+              {isModerator && (
+                <>
+                  {editingId && activeTab !== "settings" && (
+                    <>
+                      <button type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? "Сохранение..." : "Обновить"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetForms}
+                        className="btn-cancel"
+                      >
+                        Отмена
+                      </button>
+                    </>
+                  )}
+
+                  {/* Если модератор ничего не выбрал для редактирования, можно показать подсказку или ничего не показывать */}
+                  {!editingId && activeTab !== "settings" && (
+                    <p style={{ color: "#888", fontSize: "0.9em" }}>
+                      Выберите персонажа из списка для редактирования.
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </form>
@@ -1156,12 +1207,14 @@ export const Admin = () => {
                     >
                       ✏️
                     </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="btn-delete"
-                    >
-                      🗑️
-                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="btn-delete"
+                      >
+                        🗑️
+                      </button>
+                    )}
                   </div>
                 </li>
               ))}

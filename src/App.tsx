@@ -36,6 +36,7 @@ export default function App() {
             <Route path="/privacy" element={<PrivacyMemo />} />
             <Route path="/feedback" element={<FeedbackMemo />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/moderator" element={<Admin />} />
             <Route path="/echoSets/:engName?" element={<EchoSetsMemo />} />
             <Route path="/weapons/:engName?" element={<WeaponsMemo />} />
           </Routes>
