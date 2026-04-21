@@ -9,7 +9,6 @@ import {
   getDocs,
   query,
   orderBy,
-  where,
   serverTimestamp,
   setDoc,
   getDoc,
@@ -21,9 +20,9 @@ import type { SiteSettings } from "../../types/siteSettings"
 import type { Mechanic } from "../../types/mechanic"
 import type { EchoSet } from "../../types/echoSet"
 import { db } from "../../firebase/config"
-import { ArrayEditor, TeamEditor } from "../../components"
+import { ArrayEditor, Loader, TeamEditor } from "../../components"
+import { useAuth } from "@contexts/AuthContext"
 
-const ADMIN_KEYS_COLLECTION = "admin_keys"
 const RESONATORS_COLLECTION = "resonators"
 const WEAPONS_COLLECTION = "weapons"
 const MECHANICS_COLLECTION = "mechanics"
@@ -32,7 +31,6 @@ const SETTINGS_DOC_ID = "site_settings"
 
 type Tab = "resonators" | "weapons" | "mechanics" | "echoSets" | "settings"
 
-// --- Типы для форм ---
 interface ResonatorForm extends Partial<Resonator> {}
 interface WeaponForm extends Partial<Weapon> {}
 interface MechanicForm extends Partial<Mechanic> {}
@@ -41,27 +39,17 @@ interface SettingsForm {
   nextBannerDate: string
   futureResonatorIds: string[]
   preview_img: string
-  filter_img: string // Новое поле
+  filter_img: string
 }
 
 export const Admin = () => {
-  // --- Auth State ---
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [authLoading, setAuthLoading] = useState(true)
+  // --- Auth Context ---
+  const { userRole, isAuthenticated, isLoading, login, logout } = useAuth()
   const [inputKey, setInputKey] = useState("")
   const [authError, setAuthError] = useState("")
-  const [userRole, setUserRole] = useState<"admin" | "moderator">("admin")
+
   const isAdmin = userRole === "admin" && isAuthenticated
   const isModerator = userRole === "moderator" && isAuthenticated
-
-  useEffect(() => {
-    const path = window.location.pathname
-    if (path.includes("/moderator")) {
-      setUserRole("moderator")
-    } else {
-      setUserRole("admin")
-    }
-  }, [])
 
   // --- UI State ---
   const [activeTab, setActiveTab] = useState<Tab>("resonators")
@@ -75,7 +63,7 @@ export const Admin = () => {
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // --- Forms State (разделены по сущностям) ---
+  // --- Forms State ---
   const [resonatorForm, setResonatorForm] = useState<ResonatorForm>({
     name: "",
     engName: "",
@@ -120,7 +108,6 @@ export const Admin = () => {
     important: [],
   })
 
-  // Состояние для настроек
   const [settingsForm, setSettingsForm] = useState<SettingsForm>({
     nextBannerDate: "",
     futureResonatorIds: [],
@@ -130,26 +117,10 @@ export const Admin = () => {
 
   const [editingId, setEditingId] = useState<string | null>(null)
 
-  // Проверка сессии
-  useEffect(() => {
-    const checkSession = async () => {
-      const storageKey =
-        userRole === "admin" ? "vexen_admin_auth" : "vexen_moderator_auth"
-      const storedAuth = localStorage.getItem(storageKey)
-      if (storedAuth === "true") {
-        setIsAuthenticated(true)
-        fetchData()
-      }
-      setAuthLoading(false)
-    }
-    checkSession()
-  }, [userRole])
-
-  // Функция загрузки всех данных
+  // --- Data Fetching ---
   const fetchData = async () => {
     setLoading(true)
     try {
-      // 1. Резонаторы
       const resSnap = await getDocs(
         query(collection(db, RESONATORS_COLLECTION), orderBy("name")),
       )
@@ -157,7 +128,6 @@ export const Admin = () => {
         resSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Resonator[],
       )
 
-      // 2. Оружие
       const weapSnap = await getDocs(
         query(collection(db, WEAPONS_COLLECTION), orderBy("name")),
       )
@@ -165,7 +135,6 @@ export const Admin = () => {
         weapSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Weapon[],
       )
 
-      // 3. Механики
       const mechSnap = await getDocs(
         query(collection(db, MECHANICS_COLLECTION), orderBy("title")),
       )
@@ -173,7 +142,6 @@ export const Admin = () => {
         mechSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Mechanic[],
       )
 
-      // 4. Эхо Сеты
       const echoSnap = await getDocs(
         query(collection(db, ECHO_SETS_COLLECTION), orderBy("name")),
       )
@@ -181,7 +149,6 @@ export const Admin = () => {
         echoSnap.docs.map(d => ({ id: d.id, ...d.data() })) as EchoSet[],
       )
 
-      // 5. Настройки
       const settingsRef = doc(db, "settings", SETTINGS_DOC_ID)
       const docSnap = await getDoc(settingsRef)
       if (docSnap.exists()) {
@@ -190,10 +157,9 @@ export const Admin = () => {
           nextBannerDate: data.nextBannerDate || "",
           futureResonatorIds: data.futureResonatorIds || [],
           preview_img: data.preview_img || "",
-          filter_img: data.filter_img || "", // Загрузка нового поля
+          filter_img: data.filter_img || "",
         })
       } else {
-        // Если документа нет, инициализируем пустым
         setSettingsForm({
           nextBannerDate: "",
           futureResonatorIds: [],
@@ -207,44 +173,34 @@ export const Admin = () => {
       setLoading(false)
     }
   }
+  // --- Fetch Data on Mount if Authenticated ---
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchData()
+    }
+  }, [isAuthenticated])
 
-  // Логика входа
+  // --- Login Logic ---
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setAuthError("")
-    setAuthLoading(true)
-    try {
-      const keyField = userRole === "admin" ? "key" : "moderator"
-      const q = query(
-        collection(db, ADMIN_KEYS_COLLECTION),
-        where(keyField, "==", inputKey.trim()),
-      )
-      const querySnapshot = await getDocs(q)
 
-      if (!querySnapshot.empty) {
-        setIsAuthenticated(true)
-        const storageKey =
-          userRole === "admin" ? "vexen_admin_auth" : "vexen_moderator_auth"
-        localStorage.setItem(storageKey, "true")
-        setInputKey("")
-        fetchData()
-      } else {
-        setAuthError(
-          `Неверный ключ доступа для роли: ${userRole === "admin" ? "Админ" : "Модератор"}.`,
-        )
-      }
-    } catch (error) {
-      setAuthError("Ошибка сети.")
-    } finally {
-      setAuthLoading(false)
+    if (!userRole) return
+
+    const success = await login(inputKey, userRole)
+
+    if (success) {
+      setInputKey("")
+      fetchData()
+    } else {
+      setAuthError(
+        `Неверный ключ доступа для роли: ${userRole === "admin" ? "Админ" : "Модератор"}.`,
+      )
     }
   }
 
   const handleLogout = () => {
-    setIsAuthenticated(false)
-    const storageKey = ["vexen_admin_auth", "vexen_moderator_auth"]
-    storageKey.forEach(item => localStorage.removeItem(item))
-
+    logout()
     setResonators([])
     setWeapons([])
     setMechanics([])
@@ -257,7 +213,7 @@ export const Admin = () => {
     })
   }
 
-  // Обработчики ввода
+  // --- Handlers ---
   const handleResonatorChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -284,7 +240,6 @@ export const Admin = () => {
     setEchoSetForm(prev => ({ ...prev, [name]: value }))
   }
 
-  // Обработчик для настроек (текстовые поля и дата)
   const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setSettingsForm(prev => ({ ...prev, [name]: value }))
@@ -314,7 +269,6 @@ export const Admin = () => {
         await setDoc(settingsRef, dataToSave, { merge: true })
         alert("Настройки сохранены!")
       } else {
-        // Логика для остальных коллекций
         if (activeTab === "resonators") {
           collectionName = RESONATORS_COLLECTION
           objTitle = resonatorForm.name || ""
@@ -388,11 +342,7 @@ export const Admin = () => {
       }
 
       resetForms()
-      if (!isSettings) {
-        fetchData() // Обновляем списки, если это не настройки
-      } else {
-        fetchData() // Обновляем настройки, чтобы синхронизировать состояние
-      }
+      fetchData()
     } catch (error) {
       console.error("Ошибка сохранения:", error)
       alert("Ошибка при сохранении")
@@ -401,7 +351,6 @@ export const Admin = () => {
     }
   }
 
-  // Редактирование
   const handleEdit = (item: any) => {
     setEditingId(item.id || null)
 
@@ -453,7 +402,6 @@ export const Admin = () => {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
-  // Удаление
   const handleDelete = async (id: string) => {
     if (!window.confirm("Вы уверены?")) return
 
@@ -471,7 +419,6 @@ export const Admin = () => {
     }
   }
 
-  // Управление списком ID в настройках
   const handleAddResonatorToBanner = (resonatorId: string) => {
     if (!settingsForm.futureResonatorIds.includes(resonatorId)) {
       setSettingsForm(prev => ({
@@ -537,14 +484,14 @@ export const Admin = () => {
     setEditingId(null)
   }
 
-  // Обработчик смены вкладки
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab)
     resetForms()
   }
 
-  // --- Рендеринг экранов ---
-  if (authLoading) return <div className="admin-loading">Проверка...</div>
+  // --- Rendering ---
+  if (isLoading) return <Loader width="100px" height="100px" />
+
   if (!isAuthenticated)
     return (
       <AuthScreen
@@ -552,20 +499,19 @@ export const Admin = () => {
         setInputKey={setInputKey}
         handleLogin={handleLogin}
         authError={authError}
-        authLoading={authLoading}
+        authLoading={false}
       />
     )
 
   return (
     <section className="admin">
       <div className="admin-header">
-        <h1>Админ Панель Vexen Hub</h1>
+        <h1>{isAdmin ? "Админ" : "Модератор"} панель</h1>
         <button onClick={handleLogout} className="btn-logout">
           Выйти
         </button>
       </div>
 
-      {/* Табы навигации */}
       <div className="admin-tabs">
         <button
           className={`tab-btn ${activeTab === "resonators" ? "active" : ""}`}
@@ -573,34 +519,37 @@ export const Admin = () => {
         >
           Персонажи
         </button>
-        <button
-          className={`tab-btn ${activeTab === "weapons" ? "active" : ""}`}
-          onClick={() => handleTabChange("weapons")}
-        >
-          Оружие
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "mechanics" ? "active" : ""}`}
-          onClick={() => handleTabChange("mechanics")}
-        >
-          Механики
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "echoSets" ? "active" : ""}`}
-          onClick={() => handleTabChange("echoSets")}
-        >
-          Эхо Сеты
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "settings" ? "active" : ""}`}
-          onClick={() => handleTabChange("settings")}
-        >
-          Настройки
-        </button>
+        {isAdmin && (
+          <>
+            <button
+              className={`tab-btn ${activeTab === "weapons" ? "active" : ""}`}
+              onClick={() => handleTabChange("weapons")}
+            >
+              Оружие
+            </button>
+            <button
+              className={`tab-btn ${activeTab === "mechanics" ? "active" : ""}`}
+              onClick={() => handleTabChange("mechanics")}
+            >
+              Механики
+            </button>
+            <button
+              className={`tab-btn ${activeTab === "echoSets" ? "active" : ""}`}
+              onClick={() => handleTabChange("echoSets")}
+            >
+              Эхо Сеты
+            </button>
+            <button
+              className={`tab-btn ${activeTab === "settings" ? "active" : ""}`}
+              onClick={() => handleTabChange("settings")}
+            >
+              Настройки
+            </button>
+          </>
+        )}
       </div>
 
       <div className="admin-content">
-        {/* Форма */}
         <div className="admin-form-container">
           <h2>
             {editingId
@@ -620,12 +569,10 @@ export const Admin = () => {
           </h2>
 
           <form onSubmit={handleSubmit} className="admin-form">
-            {/* --- ФОРМА ПЕРСОНАЖЕЙ --- */}
             {activeTab === "resonators" && (
               <>
                 {isAdmin && (
                   <>
-                    {" "}
                     <div className="form-row">
                       <InputGroup
                         label="Имя (RU)"
@@ -776,7 +723,6 @@ export const Admin = () => {
               </>
             )}
 
-            {/* --- ФОРМА ОРУЖИЯ --- */}
             {activeTab === "weapons" && (
               <>
                 <div className="form-row">
@@ -842,7 +788,6 @@ export const Admin = () => {
               </>
             )}
 
-            {/* --- ФОРМА МЕХАНИКИ --- */}
             {activeTab === "mechanics" && (
               <>
                 <InputGroup
@@ -883,7 +828,6 @@ export const Admin = () => {
               </>
             )}
 
-            {/* --- ФОРМА ЭХО СЕТОВ --- */}
             {activeTab === "echoSets" && (
               <>
                 <InputGroup
@@ -966,7 +910,6 @@ export const Admin = () => {
               </>
             )}
 
-            {/* --- ФОРМА НАСТРОЕК --- */}
             {activeTab === "settings" && (
               <div className="settings-container">
                 <div className="form-group">
@@ -1087,7 +1030,6 @@ export const Admin = () => {
                   onChange={handleSettingsChange}
                   placeholder="https://..."
                 />
-
                 <InputGroup
                   label="Ссылка на Filter Image (Фильтр)"
                   name="filter_img"
@@ -1099,7 +1041,6 @@ export const Admin = () => {
             )}
 
             <div className="form-actions">
-              {/* Логика для Администратора */}
               {isAdmin && (
                 <>
                   <button type="submit" disabled={isSubmitting}>
@@ -1109,8 +1050,6 @@ export const Admin = () => {
                         ? "Обновить"
                         : "Сохранить"}
                   </button>
-
-                  {/* Кнопка отмены доступна админу только при редактировании */}
                   {editingId && activeTab !== "settings" && (
                     <button
                       type="button"
@@ -1123,7 +1062,6 @@ export const Admin = () => {
                 </>
               )}
 
-              {/* Логика для Модератора */}
               {isModerator && (
                 <>
                   {editingId && activeTab !== "settings" && (
@@ -1140,8 +1078,6 @@ export const Admin = () => {
                       </button>
                     </>
                   )}
-
-                  {/* Если модератор ничего не выбрал для редактирования, можно показать подсказку или ничего не показывать */}
                   {!editingId && activeTab !== "settings" && (
                     <p style={{ color: "#888", fontSize: "0.9em" }}>
                       Выберите персонажа из списка для редактирования.
@@ -1153,7 +1089,6 @@ export const Admin = () => {
           </form>
         </div>
 
-        {/* Списки данных */}
         <div className="admin-list-container">
           <h2>
             Список:{" "}

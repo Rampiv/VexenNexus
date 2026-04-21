@@ -12,6 +12,7 @@ import {
   EchoSets,
   Weapons,
 } from "./pages"
+import { AuthProvider } from "@contexts/AuthContext"
 
 const HeaderMemo = React.memo(Header)
 const FooterMemo = React.memo(Footer)
@@ -25,24 +26,28 @@ const WeaponsMemo = React.memo(Weapons)
 
 export default function App() {
   return (
-    <div className="App">
-      <HeaderMemo />
-      <main className="main">
-        <div className="container">
-          <Routes>
-            <Route path="/" element={<GreetingMemo />} />
-            <Route path="/resonator/:engName" element={<ResonatorMemo />} />
-            <Route path="/mechanics/:engName?" element={<MechanicMemo />} />
-            <Route path="/privacy" element={<PrivacyMemo />} />
-            <Route path="/feedback" element={<FeedbackMemo />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/moderator" element={<Admin />} />
-            <Route path="/echoSets/:engName?" element={<EchoSetsMemo />} />
-            <Route path="/weapons/:engName?" element={<WeaponsMemo />} />
-          </Routes>
-        </div>
-      </main>
-      <FooterMemo />
-    </div>
+    <AuthProvider>
+      <div className="App">
+        <HeaderMemo />
+        <main className="main">
+          <div className="container">
+            <Routes>
+              <Route path="/" element={<GreetingMemo />} />
+              <Route path="/resonator/:engName" element={<ResonatorMemo />} />
+              <Route path="/mechanics/:engName?" element={<MechanicMemo />} />
+              <Route path="/privacy" element={<PrivacyMemo />} />
+              <Route path="/feedback" element={<FeedbackMemo />} />
+
+              <Route path="/admin" element={<Admin />} />
+
+              <Route path="/moderator" element={<Admin />} />
+              <Route path="/echoSets/:engName?" element={<EchoSetsMemo />} />
+              <Route path="/weapons/:engName?" element={<WeaponsMemo />} />
+            </Routes>
+          </div>
+        </main>
+        <FooterMemo />
+      </div>
+    </AuthProvider>
   )
 }
