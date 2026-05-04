@@ -8,4 +8,6 @@ export interface EchoSet {
   fivePartsDescr?: string[]
   threePartsDescr?: string[]
   important?: string[]
+  patchNumber? : string
+  index?: number
 }

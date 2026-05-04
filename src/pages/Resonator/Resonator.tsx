@@ -4,12 +4,13 @@ import { useEffect, useState } from "react"
 import { collection, getDocs, query, where } from "firebase/firestore"
 import { db } from "../../firebase/config"
 import type { Resonator } from "../../types/resonator"
-import { Loader, YouTubePlayer } from "../../components"
+import { EchoCard, Loader, YouTubePlayer } from "../../components"
 import { useResonators } from "../../hook/useResonators"
 import { useEchoSets } from "../../hook/useEchoSets"
 import Lightbox from "yet-another-react-lightbox"
 import Chibi from "../../assets/image/Chibi/chibi2.webp"
 import "yet-another-react-lightbox/styles.css"
+import { Tooltip } from "react-tooltip"
 
 const getResonatorByEngName = async (
   engName: string,
@@ -165,86 +166,137 @@ export const ResonatorPage = () => {
                     <h3 className="resonator__h3">{team.name}</h3>
 
                     {team.rows.map((row, rowIndex) => (
-                      <ul
+                      <div
                         className="teams__row-slots"
                         key={`row-${teamIndex}-${rowIndex}`}
                       >
-                        {row.slots.map((slot, slotIndex) => {
-                          // Находим персонажа по ID
-                          const character = slot?.resonatorId
-                            ? allResonators.find(r => r.id === slot.resonatorId)
-                            : null
+                        {["0", "1", "2"].map(colKey => {
+                          const columnSlots = row.slots[colKey] || []
 
                           return (
-                            <li
-                              className="teams__slot"
-                              key={`slot-${teamIndex}-${rowIndex}-${slotIndex}`}
-                            >
-                              {/* Отображение персонажа */}
-                              {character ? (
-                                <Link
-                                  to={`/resonator/${character.engName}`}
-                                  className="teams__character"
-                                >
-                                  <img
-                                    src={
-                                      character.resonatorImgMini ||
-                                      character.resonatorImg
-                                    }
-                                    alt={character.name}
-                                    className="teams__char-img"
-                                  />
-                                  <span className="teams__char-name">
-                                    {character.name}
-                                  </span>
-                                </Link>
+                            <div key={colKey} className="teams__column">
+                              {columnSlots.length > 0 ? (
+                                columnSlots.map((slot, charIndex) => {
+                                  // Находим персонажа по ID
+                                  const character = slot?.resonatorId
+                                    ? allResonators.find(
+                                        r => r.id === slot.resonatorId,
+                                      )
+                                    : null
+
+                                  return (
+                                    <div
+                                      className="teams__slot-card"
+                                      key={`slot-${teamIndex}-${rowIndex}-${colKey}-${charIndex}`}
+                                    >
+                                      {/* Отображение персонажа */}
+                                      {character ? (
+                                        <Link
+                                          to={`/resonator/${character.engName}`}
+                                          className="teams__character"
+                                          style={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "center",
+                                          }}
+                                        >
+                                          <img
+                                            src={
+                                              character.resonatorImgMini ||
+                                              character.resonatorImg
+                                            }
+                                            alt={character.name}
+                                            className="teams__char-img"
+                                          />
+                                          <span className="teams__char-name">
+                                            {character.name}
+                                          </span>
+                                        </Link>
+                                      ) : (
+                                        <div className="teams__empty-slot">
+                                          Пусто
+                                        </div>
+                                      )}
+
+                                      {/* Отображение эхо-сетов */}
+                                      {slot?.echoSetIcons &&
+                                        slot.echoSetIcons.length > 0 && (
+                                          <div className="teams__echo-sets">
+                                            {slot.echoSetIcons.map(
+                                              (echoSetId, iconIdx) => {
+                                                const echoSetObj =
+                                                  allEchoSets.find(
+                                                    es => es.id === echoSetId,
+                                                  )
+
+                                                let echoLink = ""
+                                                if (echoSetObj) {
+                                                  echoLink = echoSetObj.engName
+                                                    .toLowerCase()
+                                                    .replace(/\s+/g, "-")
+                                                }
+                                                const tooltipId = `tooltip-${echoSetId}-${iconIdx}`
+
+                                                return (
+                                                  <>
+                                                    <Link
+                                                      to={`/echoSets/${echoLink}`}
+                                                      key={`ссылки на сеты ${iconIdx + echoSetId}`}
+                                                      data-tooltip-id={
+                                                        tooltipId
+                                                      }
+                                                    >
+                                                      <img
+                                                        src={
+                                                          echoSetObj?.img || ""
+                                                        }
+                                                        alt={
+                                                          echoSetObj?.name ||
+                                                          "Echo Set"
+                                                        }
+                                                        className="teams__echo-icon"
+                                                        title={
+                                                          echoSetObj?.name ||
+                                                          "Эхо сет"
+                                                        }
+                                                      />
+                                                    </Link>
+                                                    <Tooltip
+                                                      id={tooltipId}
+                                                      place="top"
+                                                      className="custom-echo-tooltip"
+                                                      noArrow={false}
+                                                      clickable
+                                                    >
+                                                      {echoSetObj && (
+                                                        <EchoCard
+                                                          EchoSet={echoSetObj}
+                                                        />
+                                                      )}
+                                                    </Tooltip>
+                                                  </>
+                                                )
+                                              },
+                                            )}
+                                          </div>
+                                        )}
+                                    </div>
+                                  )
+                                })
                               ) : (
-                                <div className="teams__empty-slot">Пусто</div>
+                                <div
+                                  className="teams__empty-column"
+                                  style={{
+                                    minHeight: "80px",
+                                    border: "1px dashed #444",
+                                    borderRadius: "4px",
+                                  }}
+                                ></div>
                               )}
-
-                              {/* Отображение эхо-сетов */}
-                              {slot?.echoSetIcons &&
-                                slot.echoSetIcons.length > 0 && (
-                                  <div className="teams__echo-sets">
-                                    {slot.echoSetIcons.map(
-                                      (echoSetId, iconIdx) => {
-                                        const echoSetObj = allEchoSets.find(
-                                          es => es.id === echoSetId,
-                                        )
-
-                                        let echoLink = ""
-                                        if (echoSetObj) {
-                                          echoLink = echoSetObj.engName
-                                            .toLowerCase()
-                                            .replace(/\s+/g, "-")
-                                        }
-
-                                        return (
-                                          <Link
-                                            to={`/echoSets/${echoLink}`}
-                                            key={`ссылки на сеты ${iconIdx + echoSetId}`}
-                                          >
-                                            <img
-                                              key={iconIdx}
-                                              src={echoSetObj?.img || ""}
-                                              alt={
-                                                echoSetObj?.name || "Echo Set"
-                                              }
-                                              className="teams__echo-icon"
-                                              title={
-                                                echoSetObj?.name || "Эхо сет"
-                                              }
-                                            />
-                                          </Link>
-                                        )
-                                      },
-                                    )}
-                                  </div>
-                                )}
-                            </li>
+                            </div>
                           )
                         })}
-                      </ul>
+                      </div>
                     ))}
                   </li>
                 ))}

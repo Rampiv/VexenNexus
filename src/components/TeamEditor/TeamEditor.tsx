@@ -18,8 +18,13 @@ const emptySlot: TeamSlot = {
   echoSetIcons: [],
 }
 
+// Создаем пустую строку с объектом slots, где ключи "0", "1", "2" содержат пустые массивы
 const createEmptyRow = (): TeamRow => ({
-  slots: [null, null, null],
+  slots: {
+    "0": [],
+    "1": [],
+    "2": [],
+  },
 })
 
 const createEmptyTeam = (): Team => ({
@@ -71,11 +76,11 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
     )
   }
 
-  const handleResonatorSelect = (
+  // Добавление персонажа в конкретную колонку (0, 1 или 2)
+  const addCharacterToColumn = (
     teamIndex: number,
     rowIndex: number,
-    slotIndex: number,
-    resonatorId: string,
+    columnIndex: string // "0", "1", "2"
   ) => {
     setTeams(prev =>
       prev.map((team, tIdx) => {
@@ -88,15 +93,82 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
 
             return {
               ...row,
-              slots: row.slots.map((slot, sIdx) => {
-                if (sIdx !== slotIndex) return slot
+              slots: {
+                ...row.slots,
+                [columnIndex]: [...(row.slots[columnIndex] || []), { ...emptySlot }],
+              },
+            }
+          }),
+        }
+      }),
+    )
+  }
 
-                const currentSlot = slot || { ...emptySlot }
-                return {
-                  ...currentSlot,
-                  resonatorId: resonatorId,
-                }
-              }) as [TeamSlot | null, TeamSlot | null, TeamSlot | null],
+  // Удаление персонажа из конкретной колонки
+  const removeCharacterFromColumn = (
+    teamIndex: number,
+    rowIndex: number,
+    columnIndex: string,
+    charIndex: number
+  ) => {
+    setTeams(prev =>
+      prev.map((team, tIdx) => {
+        if (tIdx !== teamIndex) return team
+
+        return {
+          ...team,
+          rows: team.rows.map((row, rIdx) => {
+            if (rIdx !== rowIndex) return row
+
+            const updatedColumn = (row.slots[columnIndex] || []).filter(
+              (_, cIdx) => cIdx !== charIndex
+            )
+
+            return {
+              ...row,
+              slots: {
+                ...row.slots,
+                [columnIndex]: updatedColumn,
+              },
+            }
+          }),
+        }
+      }),
+    )
+  }
+
+  const handleResonatorSelect = (
+    teamIndex: number,
+    rowIndex: number,
+    columnIndex: string,
+    charIndex: number,
+    resonatorId: string,
+  ) => {
+    setTeams(prev =>
+      prev.map((team, tIdx) => {
+        if (tIdx !== teamIndex) return team
+
+        return {
+          ...team,
+          rows: team.rows.map((row, rIdx) => {
+            if (rIdx !== rowIndex) return row
+
+            const column = [...(row.slots[columnIndex] || [])]
+            
+            // Ensure the slot exists
+            if (!column[charIndex]) return row;
+
+            column[charIndex] = {
+              ...column[charIndex],
+              resonatorId: resonatorId,
+            }
+
+            return {
+              ...row,
+              slots: {
+                ...row.slots,
+                [columnIndex]: column,
+              },
             }
           }),
         }
@@ -107,7 +179,8 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
   const addEchoSetId = (
     teamIndex: number,
     rowIndex: number,
-    slotIndex: number,
+    columnIndex: string,
+    charIndex: number,
     echoSetId: string,
   ) => {
     if (!echoSetId) return
@@ -121,21 +194,26 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
           rows: team.rows.map((row, rIdx) => {
             if (rIdx !== rowIndex) return row
 
+            const column = [...(row.slots[columnIndex] || [])]
+            const currentSlot = column[charIndex]
+
+            if (!currentSlot) return row;
+
+            if (currentSlot.echoSetIcons.includes(echoSetId)) {
+                return row 
+            }
+
+            column[charIndex] = {
+              ...currentSlot,
+              echoSetIcons: [...currentSlot.echoSetIcons, echoSetId],
+            }
+
             return {
               ...row,
-              slots: row.slots.map((slot, sIdx) => {
-                if (sIdx !== slotIndex) return slot
-
-                const currentSlot = slot || { ...emptySlot }
-
-                if (currentSlot.echoSetIcons.includes(echoSetId))
-                  return currentSlot
-
-                return {
-                  ...currentSlot,
-                  echoSetIcons: [...currentSlot.echoSetIcons, echoSetId],
-                }
-              }) as [TeamSlot | null, TeamSlot | null, TeamSlot | null],
+              slots: {
+                ...row.slots,
+                [columnIndex]: column,
+              },
             }
           }),
         }
@@ -146,7 +224,8 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
   const removeEchoIcon = (
     teamIndex: number,
     rowIndex: number,
-    slotIndex: number,
+    columnIndex: string,
+    charIndex: number,
     iconIndex: number,
   ) => {
     setTeams(prev =>
@@ -158,18 +237,24 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
           rows: team.rows.map((row, rIdx) => {
             if (rIdx !== rowIndex) return row
 
+            const column = [...(row.slots[columnIndex] || [])]
+            const slot = column[charIndex]
+
+            if (!slot) return row
+
+            column[charIndex] = {
+              ...slot,
+              echoSetIcons: slot.echoSetIcons.filter(
+                (_, iIdx) => iIdx !== iconIndex,
+              ),
+            }
+
             return {
               ...row,
-              slots: row.slots.map((slot, sIdx) => {
-                if (sIdx !== slotIndex || !slot) return slot
-
-                return {
-                  ...slot,
-                  echoSetIcons: slot.echoSetIcons.filter(
-                    (_, iIdx) => iIdx !== iconIndex,
-                  ),
-                }
-              }) as [TeamSlot | null, TeamSlot | null, TeamSlot | null],
+              slots: {
+                ...row.slots,
+                [columnIndex]: column,
+              },
             }
           }),
         }
@@ -177,7 +262,7 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
     )
   }
 
-  // Подготовка опций для селекта персонажей
+  // Preparation of options
   const resonatorOptions: SelectOption[] = [
     { value: "", label: "Выберите персонажа" },
     ...allResonators
@@ -189,7 +274,6 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
       })),
   ]
 
-  // Подготовка опций для селекта эхо-сетов
   const echoSetOptions: SelectOption[] = [
     { value: "", label: "+ Добавить сет" },
     ...allEchoSets
@@ -200,6 +284,9 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
         imgSrc: set.img,
       })),
   ]
+
+  // Колонки для отображения
+  const columnKeys = ["0", "1", "2"]
 
   return (
     <div className="team-editor">
@@ -227,74 +314,103 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
           {team.rows.map((row, rIdx) => (
             <div key={rIdx} className="team-row-wrapper">
               <div className="team-row">
-                {row.slots.map((slot, sIdx) => {
+                {/* Map through the 3 main columns using keys "0", "1", "2" */}
+                {columnKeys.map((colKey) => {
+                  const columnSlots = row.slots[colKey] || []
+                  
                   return (
-                    <div key={sIdx} className="team-slot">
-                      {/* --- ВЫБОР ПЕРСОНАЖА (CustomSelect) --- */}
-                      <CustomSelect
-                        options={resonatorOptions}
-                        value={slot?.resonatorId || ""}
-                        onChange={val =>
-                          handleResonatorSelect(tIdx, rIdx, sIdx, val)
-                        }
-                        placeholder="Выберите персонажа"
-                        className="slot-resonator-select"
-                      />
+                    <div key={colKey} className="team-column">
+                      
+                      {/* Render each character in this column */}
+                      {columnSlots.map((slot, charIdx) => (
+                        <div key={charIdx} className="team-slot-card">
+                          
+                          {/* Remove Character Button */}
+                          <button
+                              type="button"
+                              onClick={() => removeCharacterFromColumn(tIdx, rIdx, colKey, charIdx)}
+                              className="btn-remove-character"
+                              title="Удалить персонажа из слота"
+                          >
+                              ×
+                          </button>
 
-                      {slot?.resonatorId && (
-                        <div className="selected-resonator-preview">
-                          {(() => {
-                            const res = allResonators.find(
-                              r => r.id === slot.resonatorId,
-                            )
-                            return res ? (
-                              <img
-                                src={res.resonatorImgMini || res.resonatorImg}
-                                alt={res.name}
-                                className="resonator-thumb"
-                              />
-                            ) : null
-                          })()}
-                        </div>
-                      )}
+                          {/* --- ВЫБОР ПЕРСОНАЖА --- */}
+                          <CustomSelect
+                            options={resonatorOptions}
+                            value={slot.resonatorId || ""}
+                            onChange={val =>
+                              handleResonatorSelect(tIdx, rIdx, colKey, charIdx, val)
+                            }
+                            placeholder="Персонаж"
+                            className="slot-resonator-select"
+                          />
 
-                      {/* Отображение выбранных сетов */}
-                      <div className="echo-icons-container">
-                        {slot?.echoSetIcons.map((echoSetId, iconIdx) => {
-                          const echoSetObj = allEchoSets.find(
-                            es => es.id === echoSetId,
-                          )
-
-                          return (
-                            <div key={iconIdx} className="echo-icon-wrapper">
-                              <img
-                                src={echoSetObj?.img || ""}
-                                alt={echoSetObj?.name || "Set"}
-                                className="echo-icon"
-                                title={echoSetObj?.name}
-                              />
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  removeEchoIcon(tIdx, rIdx, sIdx, iconIdx)
-                                }
-                                className="btn-remove-icon"
-                              >
-                                ×
-                              </button>
+                          {slot.resonatorId && (
+                            <div className="selected-resonator-preview">
+                              {(() => {
+                                const res = allResonators.find(
+                                  r => r.id === slot.resonatorId,
+                                )
+                                return res ? (
+                                  <img
+                                    src={res.resonatorImgMini || res.resonatorImg}
+                                    alt={res.name}
+                                    className="resonator-thumb"
+                                  />
+                                ) : null
+                              })()}
                             </div>
-                          )
-                        })}
-                      </div>
+                          )}
 
-                      {/* --- ВЫБОР ЭХО СЕТА (CustomSelect) --- */}
-                      <CustomSelect
-                        options={echoSetOptions}
-                        value=""
-                        onChange={val => addEchoSetId(tIdx, rIdx, sIdx, val)}
-                        placeholder="+ Добавить сет"
-                        className="echo-set-select"
-                      />
+                          {/* Echo Icons Display */}
+                          <div className="echo-icons-container">
+                            {slot.echoSetIcons.map((echoSetId, iconIdx) => {
+                              const echoSetObj = allEchoSets.find(
+                                es => es.id === echoSetId,
+                              )
+                              return (
+                                <div key={iconIdx} className="echo-icon-wrapper">
+                                  <img
+                                    src={echoSetObj?.img || ""}
+                                    alt={echoSetObj?.name || "Set"}
+                                    className="echo-icon"
+                                    title={echoSetObj?.name}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      removeEchoIcon(tIdx, rIdx, colKey, charIdx, iconIdx)
+                                    }
+                                    className="btn-remove-icon"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              )
+                            })}
+                          </div>
+
+                          {/* --- ВЫБОР ЭХО СЕТА --- */}
+                          <CustomSelect
+                            options={echoSetOptions}
+                            value=""
+                            onChange={val => addEchoSetId(tIdx, rIdx, colKey, charIdx, val)}
+                            placeholder="+ Сет"
+                            className="echo-set-select"
+                          />
+                        </div>
+                      ))}
+
+                      {/* Button to add another character to THIS column */}
+                      <button
+                          type="button"
+                          onClick={() => addCharacterToColumn(tIdx, rIdx, colKey)}
+                          className="btn-add-character-to-column"
+                      >
+                          + Персонаж
+                      </button>
+
                     </div>
                   )
                 })}
@@ -317,7 +433,7 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
             onClick={() => addRowToTeam(tIdx)}
             className="btn-add-row"
           >
-            + Добавить строку (3 персонажа)
+            + Добавить строку
           </button>
         </div>
       ))}

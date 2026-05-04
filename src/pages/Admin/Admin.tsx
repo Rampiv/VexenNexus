@@ -1,5 +1,5 @@
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react" // Добавлен useMemo
 import {
   collection,
   addDoc,
@@ -22,6 +22,7 @@ import type { EchoSet } from "../../types/echoSet"
 import { db } from "../../firebase/config"
 import { ArrayEditor, Loader, TeamEditor } from "../../components"
 import { useAuth } from "@contexts/AuthContext"
+import { convertOldTeamsToNew } from "../../supp/ConvertOldTeamsToNew"
 
 const RESONATORS_COLLECTION = "resonators"
 const WEAPONS_COLLECTION = "weapons"
@@ -53,6 +54,9 @@ export const Admin = () => {
 
   // --- UI State ---
   const [activeTab, setActiveTab] = useState<Tab>("resonators")
+
+  // --- Search State ---
+  const [searchTerm, setSearchTerm] = useState("")
 
   // --- Data States ---
   const [resonators, setResonators] = useState<Resonator[]>([])
@@ -106,6 +110,8 @@ export const Admin = () => {
     fivePartsDescr: [],
     threePartsDescr: [],
     important: [],
+    patchNumber: "",
+    index: 0,
   })
 
   const [settingsForm, setSettingsForm] = useState<SettingsForm>({
@@ -173,6 +179,7 @@ export const Admin = () => {
       setLoading(false)
     }
   }
+
   // --- Fetch Data on Mount if Authenticated ---
   useEffect(() => {
     if (isAuthenticated) {
@@ -211,6 +218,7 @@ export const Admin = () => {
       preview_img: "",
       filter_img: "",
     })
+    setSearchTerm("") // Сброс поиска при выходе
   }
 
   // --- Handlers ---
@@ -355,6 +363,8 @@ export const Admin = () => {
     setEditingId(item.id || null)
 
     if (activeTab === "resonators") {
+      const convertedTeams = convertOldTeamsToNew(item.teams || [])
+
       setResonatorForm({
         name: item.name || "",
         engName: item.engName || "",
@@ -367,7 +377,7 @@ export const Admin = () => {
         resonatorPreview: item.resonatorPreview || "",
         resonatorImgGuide: item.resonatorImgGuide || "",
         resonatorYTLink: item.resonatorYTLink || "",
-        teams: item.teams && item.teams.length > 0 ? item.teams : [],
+        teams: convertedTeams,
         descr: item.descr && item.descr.length > 0 ? item.descr : [],
         result: item.result && item.result.length > 0 ? item.result : [],
         resonatorImgDetails: item.resonatorImgDetails || "",
@@ -397,6 +407,8 @@ export const Admin = () => {
         fivePartsDescr: item.fivePartsDescr || [],
         threePartsDescr: item.threePartsDescr || [],
         important: item.important || [],
+        patchNumber: item.patchNumber || "",
+        index: item.index || 0,
       })
     }
     window.scrollTo({ top: 0, behavior: "smooth" })
@@ -480,6 +492,8 @@ export const Admin = () => {
       fivePartsDescr: [],
       threePartsDescr: [],
       important: [],
+      patchNumber: "",
+      index: 0,
     })
     setEditingId(null)
   }
@@ -487,7 +501,34 @@ export const Admin = () => {
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab)
     resetForms()
+    setSearchTerm("") // Сброс поиска при смене вкладки
   }
+
+  // --- Filtered Lists Logic ---
+  const filteredList = useMemo(() => {
+    let list: any[] = []
+    if (activeTab === "resonators") list = resonators
+    else if (activeTab === "weapons") list = weapons
+    else if (activeTab === "mechanics") list = mechanics
+    else if (activeTab === "echoSets") list = echoSets
+
+    if (!searchTerm) return list
+
+    const lowerTerm = searchTerm.toLowerCase()
+
+    return list.filter(item => {
+      // Поиск по name (Resonators, Weapons, EchoSets)
+      if (item.name && item.name.toLowerCase().includes(lowerTerm)) return true
+      // Поиск по engName (Resonators, Weapons, EchoSets, Mechanics)
+      if (item.engName && item.engName.toLowerCase().includes(lowerTerm))
+        return true
+      // Поиск по title (Mechanics)
+      if (item.title && item.title.toLowerCase().includes(lowerTerm))
+        return true
+
+      return false
+    })
+  }, [activeTab, resonators, weapons, mechanics, echoSets, searchTerm])
 
   // --- Rendering ---
   if (isLoading) return <Loader width="100px" height="100px" />
@@ -851,6 +892,18 @@ export const Admin = () => {
                   onChange={handleEchoSetChange}
                   placeholder="https://..."
                 />
+                <InputGroup
+                  label="Номер патча, когда добавили сет"
+                  name="patchNumber"
+                  value={echoSetForm.patchNumber || ""}
+                  onChange={handleEchoSetChange}
+                />
+                <InputGroup
+                  label="Номер по списку отображения"
+                  name="index"
+                  value={echoSetForm.index || 0}
+                  onChange={handleEchoSetChange}
+                />
                 <ArrayEditor
                   title="Описание сета 2 части"
                   items={echoSetForm.twoPartsDescr || []}
@@ -1103,6 +1156,30 @@ export const Admin = () => {
                     : "Настройки"}
           </h2>
 
+          {/* Поле поиска */}
+          {activeTab !== "settings" && (
+            <div
+              className="admin-search-wrapper"
+              style={{ marginBottom: "1rem" }}
+            >
+              <input
+                type="text"
+                placeholder="Поиск по имени..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="admin-search-input"
+                style={{
+                  width: "100%",
+                  padding: "0.5rem",
+                  background: "#1e1e1e",
+                  border: "1px solid #444",
+                  color: "#fff",
+                  borderRadius: "4px",
+                }}
+              />
+            </div>
+          )}
+
           {activeTab === "settings" ? (
             <div className="settings-info">
               <p>
@@ -1112,47 +1189,44 @@ export const Admin = () => {
             </div>
           ) : (
             <ul className="admin-list">
-              {(activeTab === "resonators"
-                ? resonators
-                : activeTab === "weapons"
-                  ? weapons
-                  : activeTab === "mechanics"
-                    ? mechanics
-                    : echoSets
-              ).map((item: any) => (
-                <li key={item.id} className="admin-list-item">
-                  <img
-                    src={item.resonatorImg || item.img}
-                    alt={item.name || item.title}
-                    className="admin-thumb"
-                  />
-                  <div className="admin-info">
-                    <strong>{item.name || item.title}</strong>
-                    {item.engName && `(${item.engName})`}
-                    <span className="admin-meta">
-                      {item.element ||
-                        item.type ||
-                        (activeTab === "echoSets" ? "Сет" : "Механика")}
-                    </span>
-                  </div>
-                  <div className="admin-actions">
-                    <button
-                      onClick={() => handleEdit(item)}
-                      className="btn-edit"
-                    >
-                      ✏️
-                    </button>
-                    {isAdmin && (
+              {filteredList.length > 0 ? (
+                filteredList.map((item: any) => (
+                  <li key={item.id} className="admin-list-item">
+                    <img
+                      src={item.resonatorImg || item.img}
+                      alt={item.name || item.title}
+                      className="admin-thumb"
+                    />
+                    <div className="admin-info">
+                      <strong>{item.name || item.title}</strong>
+                      {item.engName && `(${item.engName})`}
+                      <span className="admin-meta">
+                        {item.element ||
+                          item.type ||
+                          (activeTab === "echoSets" ? "Сет" : "Механика")}
+                      </span>
+                    </div>
+                    <div className="admin-actions">
                       <button
-                        onClick={() => handleDelete(item.id)}
-                        className="btn-delete"
+                        onClick={() => handleEdit(item)}
+                        className="btn-edit"
                       >
-                        🗑️
+                        ✏️
                       </button>
-                    )}
-                  </div>
-                </li>
-              ))}
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="btn-delete"
+                        >
+                          🗑️
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <li className="admin-list-empty">Ничего не найдено</li>
+              )}
             </ul>
           )}
         </div>

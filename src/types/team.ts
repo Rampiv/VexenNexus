@@ -4,7 +4,9 @@ export interface TeamSlot {
 }
 
 export interface TeamRow {
-  slots: [TeamSlot | null, TeamSlot | null, TeamSlot | null]
+  slots: {
+    [key: string]: TeamSlot[]
+  }
 }
 
 export interface Team {

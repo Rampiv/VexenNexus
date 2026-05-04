@@ -49,20 +49,57 @@
       display: flex;
       gap: 1rem;
       margin-bottom: 1rem;
+      align-items: flex-start; // Align columns to top
 
-      .team-slot {
+      // New Column Container
+      .team-column {
         flex: 1;
-        background: #1e1e1e;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        background: #1e1e1e; // Optional: background for the whole column
         padding: 0.5rem;
         border-radius: 4px;
+        border: 1px dashed #333;
+      }
+
+      // Individual Character Card within a Column
+      .team-slot-card {
+        position: relative;
+        background: #252525;
+        padding: 0.5rem;
+        border-radius: 4px;
+        border: 1px solid #444;
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
 
+        .btn-remove-character {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 14px;
+            line-height: 18px;
+            text-align: center;
+            cursor: pointer;
+            padding: 0;
+            z-index: 10;
+            
+            &:hover {
+                background: #cc0000;
+            }
+        }
+
         .slot-resonator-select {
           width: 100%;
           padding: 0.5rem;
-          background: #2a2a2a;
+          background: #1e1e1e;
           border: 1px solid #444;
           color: #fff;
           border-radius: 4px;
@@ -86,6 +123,7 @@
           flex-wrap: wrap;
           gap: 0.5rem;
           min-height: 30px;
+          justify-content: center;
 
           .echo-icon-wrapper {
             position: relative;
@@ -119,15 +157,32 @@
           }
         }
 
-        .echo-icon-input {
-          width: 100%;
-          padding: 0.3rem;
-          background: #2a2a2a;
-          border: 1px solid #444;
-          color: #fff;
-          border-radius: 4px;
-          font-size: 0.8rem;
+        .echo-set-select {
+            width: 100%;
+            padding: 0.3rem;
+            background: #1e1e1e;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 0.8rem;
         }
+      }
+      
+      // Button to add character to column
+      .btn-add-character-to-column {
+          background: transparent;
+          border: 1px dashed #666;
+          color: #888;
+          padding: 0.5rem;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 0.8rem;
+          
+          &:hover {
+              border-color: #aaa;
+              color: #fff;
+              background: #2a2a2a;
+          }
       }
     }
   }
