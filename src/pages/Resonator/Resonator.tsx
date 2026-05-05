@@ -235,16 +235,21 @@ export const ResonatorPage = () => {
                                                     .toLowerCase()
                                                     .replace(/\s+/g, "-")
                                                 }
-                                                const tooltipId = `tooltip-${echoSetId}-${iconIdx}`
+
+                                                const uniqueId = `tooltip-${teamIndex}-${rowIndex}-${colKey}-${iconIdx}-${echoSetId}`
 
                                                 return (
-                                                  <>
+                                                  <div
+                                                    key={`echo-wrapper-${uniqueId}`}
+                                                    style={{
+                                                      position: "relative",
+                                                      display: "inline-block",
+                                                    }}
+                                                  >
                                                     <Link
                                                       to={`/echoSets/${echoLink}`}
                                                       key={`ссылки на сеты ${iconIdx + echoSetId}`}
-                                                      data-tooltip-id={
-                                                        tooltipId
-                                                      }
+                                                      data-tooltip-id={uniqueId}
                                                     >
                                                       <img
                                                         src={
@@ -262,11 +267,10 @@ export const ResonatorPage = () => {
                                                       />
                                                     </Link>
                                                     <Tooltip
-                                                      id={tooltipId}
+                                                      id={uniqueId}
                                                       place="top"
                                                       className="custom-echo-tooltip"
-                                                      noArrow={false}
-                                                      clickable
+                                                      delayHide={200}
                                                     >
                                                       {echoSetObj && (
                                                         <EchoCard
@@ -274,7 +278,7 @@ export const ResonatorPage = () => {
                                                         />
                                                       )}
                                                     </Tooltip>
-                                                  </>
+                                                  </div>
                                                 )
                                               },
                                             )}
