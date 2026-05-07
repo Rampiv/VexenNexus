@@ -1,7 +1,7 @@
 @use "../../styles/style.scss" as *;
 
 .header {
-  background: $color1;
+  background: $header;
   width: 100%;
   &__nav {
     @include flexible();

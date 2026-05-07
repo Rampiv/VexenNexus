@@ -9,8 +9,8 @@
       width: 70%;
       gap: 10px;
       background-color: $color1;
-      border: 1px solid #8d53ff42;
-      box-shadow: 0px 0px 15px #8d53ff42;
+      border: 1px solid rgba($color2, 0.5);
+      box-shadow: 0px 0px 10px 0px $color2;
       border-radius: 15px;
       padding: 15px;
     }

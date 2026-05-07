@@ -25,6 +25,8 @@
     @include btnReset();
     & {
       display: flex;
+      width: 40px;
+      height: 40px;
     }
   }
   &__elements-item {
@@ -33,10 +35,12 @@
   &__elements-img {
     @include standartTransition();
     & {
-      width: 40px;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     &:hover {
-      transform: scale(1.5);
+      transform: scale(1.3);
     }
   }
   &__elements-img_zoom {
@@ -146,6 +150,11 @@
     width: 100%;
     filter: blur(4px);
   }
+  &__background-span {
+    background-color: $color1;
+    height: 500px;
+    filter: opacity(0.5);
+  }
 }
 
 .resonators-list {
@@ -168,10 +177,10 @@
       overflow: hidden;
     }
     &-4 {
-      border: 1px solid purple;
+      border: 1px solid $color4;
     }
     &-5 {
-      border: 1px solid gold;
+      border: 1px solid $color2;
     }
   }
 
@@ -184,6 +193,16 @@
     position: absolute;
     top: 2%;
     right: 2%;
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+  }
+  &__background-element {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-left: 50px solid transparent;
+    border-top: 50px solid $color1;
   }
 
   &__h3 {

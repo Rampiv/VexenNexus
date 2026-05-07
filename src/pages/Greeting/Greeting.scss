@@ -10,8 +10,9 @@
   margin-bottom: 20px;
   &__block {
     padding: 20px;
-    background-color: $color1;
     border-radius: 12px;
+    position: relative;
+    background-color: $color1;
   }
   &__resonators {
     grid-column: span 3;
@@ -94,7 +95,6 @@
   &__link {
     @include textType1();
     @include standartTransition();
-    @include backgroundGradient();
     & {
       display: block;
       width: 100%;
@@ -102,10 +102,13 @@
       color: $white;
       border-radius: 5px;
       text-align: start;
+      background: linear-gradient(160deg, rgba($color2, 0.6) 0%, $color1 100%);
+      text-shadow: 1px 1px black;
+      font-weight: bold;
     }
     &:hover,
     &:focus {
-      filter: contrast(1.2);
+      filter: contrast(1.5);
     }
     &:active {
       filter: contrast(0.85);
@@ -160,7 +163,7 @@
       margin-bottom: 10px;
     }
     &-date {
-      border-bottom: 1px solid $color9;
+      border-bottom: 1px solid $color2;
     }
   }
 }

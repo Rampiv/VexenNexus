@@ -150,7 +150,7 @@ export const Resonators = ({ customClassname, filterBackImg }: Prop) => {
       <div
         style={{
           gridRow: "3",
-          gridColumn: "span 3"
+          gridColumn: "span 3",
         }}
       >
         <Loader width="50px" height="50px" />
@@ -228,11 +228,15 @@ export const Resonators = ({ customClassname, filterBackImg }: Prop) => {
           </ul>
           <span className="resonators__elements-background"></span>
         </div>
-        <img
-          src={filterBackImg}
-          alt="Фоновая картинка фильтрацаа"
-          className="filter__background"
-        />
+        {filterBackImg ? (
+          <img
+            src={filterBackImg}
+            alt="Фоновая картинка фильтрацаа"
+            className="filter__background"
+          />
+        ) : (
+          <span className="filter__background filter__background-span" />
+        )}
       </div>
 
       {/* ПЕРСОНАЖИ */}
@@ -252,6 +256,9 @@ export const Resonators = ({ customClassname, filterBackImg }: Prop) => {
                   alt={item.name}
                   className="resonators-list__img"
                 />
+                <span
+                  className="resonators-list__background-element"
+                ></span>
                 <img
                   src={
                     elements.find(itemEl => itemEl.id === item.element)?.iconUrl
