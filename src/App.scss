@@ -32,7 +32,6 @@ body {
   margin: 0;
   padding: 0;
   border: 0;
-  background: $main;
 }
 
 @font-face {
@@ -106,22 +105,6 @@ section {
   padding: 0 10px;
 }
 
-.red {
-  color: $red;
-}
-.green {
-  color: $green;
-}
-.purple {
-  color: $purple;
-}
-.cian {
-  color: $cian;
-}
-.yellow {
-  color: $yellow;
-}
-
 .App {
   @include flexible();
   & {
@@ -129,7 +112,17 @@ section {
     min-height: 100vh;
     overflow: hidden;
     justify-content: flex-start;
+    position: relative;
   }
+}
+.background {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background: url("./assets/image/1.png") no-repeat;
+  background-size: cover;
+
+  z-index: -100;
 }
 
 // z-index

@@ -47,6 +47,7 @@ export default function App() {
           </div>
         </main>
         <FooterMemo />
+        <div className="background"></div>
       </div>
     </AuthProvider>
   )

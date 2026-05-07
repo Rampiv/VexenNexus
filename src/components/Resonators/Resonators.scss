@@ -70,7 +70,7 @@
     margin-bottom: 20px;
     width: 100%;
     border-radius: $standartborder;
-    overflow: hidden
+    overflow: hidden;
   }
   &__search {
     @include textType1();
@@ -137,14 +137,14 @@
   &__btn-borderbottom {
     border-bottom: 1px solid $color9;
   }
-  &__background{
+  &__background {
     z-index: -1;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 100%;
-    filter: blur(4px)
+    filter: blur(4px);
   }
 }
 
@@ -153,8 +153,8 @@
     @include listReset();
     & {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 15px;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 10px;
       width: 100%;
     }
   }
@@ -202,7 +202,7 @@
         rgb(78, 77, 81, 0.3) 70%,
         rgb(78, 77, 81, 0.8) 100%
       );
-      text-align: center
+      text-align: center;
     }
   }
   &__link {
@@ -217,6 +217,13 @@
     }
   }
 }
+@media (max-width: 850px) {
+  .resonators-list {
+    &__list {
+      grid-template-columns: repeat(6, 1fr);
+    }
+  }
+}
 
 @media (max-width: 750px) {
   .resonators {
@@ -226,12 +233,7 @@
   }
   .resonators-list {
     &__list {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  .resonators-list {
-    &__list {
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(5, 1fr);
     }
   }
 }
@@ -239,7 +241,8 @@
 @media (max-width: 500px) {
   .resonators-list {
     &__list {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
     }
   }
 }
