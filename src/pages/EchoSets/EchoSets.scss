@@ -33,19 +33,19 @@
     justify-content: center;
     margin-bottom: 15px;
     background-color: $color1;
-    border: 1px solid $color1; 
+    border: 1px solid $color1;
     box-shadow: 0px 0px 15px $color1;
     color: white;
     padding: 5px;
   }
   &__list {
     @include listReset();
-    @include flexible();
     & {
-      flex-direction: column;
       gap: 25px;
       width: 100%;
       margin-bottom: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
     }
   }
 }
@@ -53,5 +53,11 @@
 @media (max-width: 750px) {
   .echo-sets__search {
     width: 100%;
+  }
+}
+
+@media (max-width: 500px) {
+  .echo-sets__list{
+    grid-template-columns: 1fr;
   }
 }

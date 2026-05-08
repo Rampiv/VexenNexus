@@ -80,7 +80,7 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
   const addCharacterToColumn = (
     teamIndex: number,
     rowIndex: number,
-    columnIndex: string // "0", "1", "2"
+    columnIndex: string, // "0", "1", "2"
   ) => {
     setTeams(prev =>
       prev.map((team, tIdx) => {
@@ -95,7 +95,10 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
               ...row,
               slots: {
                 ...row.slots,
-                [columnIndex]: [...(row.slots[columnIndex] || []), { ...emptySlot }],
+                [columnIndex]: [
+                  ...(row.slots[columnIndex] || []),
+                  { ...emptySlot },
+                ],
               },
             }
           }),
@@ -109,7 +112,7 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
     teamIndex: number,
     rowIndex: number,
     columnIndex: string,
-    charIndex: number
+    charIndex: number,
   ) => {
     setTeams(prev =>
       prev.map((team, tIdx) => {
@@ -121,7 +124,7 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
             if (rIdx !== rowIndex) return row
 
             const updatedColumn = (row.slots[columnIndex] || []).filter(
-              (_, cIdx) => cIdx !== charIndex
+              (_, cIdx) => cIdx !== charIndex,
             )
 
             return {
@@ -154,9 +157,9 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
             if (rIdx !== rowIndex) return row
 
             const column = [...(row.slots[columnIndex] || [])]
-            
+
             // Ensure the slot exists
-            if (!column[charIndex]) return row;
+            if (!column[charIndex]) return row
 
             column[charIndex] = {
               ...column[charIndex],
@@ -197,10 +200,10 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
             const column = [...(row.slots[columnIndex] || [])]
             const currentSlot = column[charIndex]
 
-            if (!currentSlot) return row;
+            if (!currentSlot) return row
 
             if (currentSlot.echoSetIcons.includes(echoSetId)) {
-                return row 
+              return row
             }
 
             column[charIndex] = {
@@ -290,8 +293,12 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
 
   return (
     <div className="team-editor">
-      <h3>Отряды (Команды)</h3>
-
+      <div className="team-editor__header">
+        <h3>Отряды (Команды)</h3>
+        <button type="button" onClick={addTeam} className="btn-add-team">
+          + Добавить новый отряд
+        </button>
+      </div>
       {teams.map((team, tIdx) => (
         <div key={tIdx} className="team-block">
           <div className="team-header">
@@ -315,24 +322,29 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
             <div key={rIdx} className="team-row-wrapper">
               <div className="team-row">
                 {/* Map through the 3 main columns using keys "0", "1", "2" */}
-                {columnKeys.map((colKey) => {
+                {columnKeys.map(colKey => {
                   const columnSlots = row.slots[colKey] || []
-                  
+
                   return (
                     <div key={colKey} className="team-column">
-                      
                       {/* Render each character in this column */}
                       {columnSlots.map((slot, charIdx) => (
                         <div key={charIdx} className="team-slot-card">
-                          
                           {/* Remove Character Button */}
                           <button
-                              type="button"
-                              onClick={() => removeCharacterFromColumn(tIdx, rIdx, colKey, charIdx)}
-                              className="btn-remove-character"
-                              title="Удалить персонажа из слота"
+                            type="button"
+                            onClick={() =>
+                              removeCharacterFromColumn(
+                                tIdx,
+                                rIdx,
+                                colKey,
+                                charIdx,
+                              )
+                            }
+                            className="btn-remove-character"
+                            title="Удалить персонажа из слота"
                           >
-                              ×
+                            ×
                           </button>
 
                           {/* --- ВЫБОР ПЕРСОНАЖА --- */}
@@ -340,7 +352,13 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
                             options={resonatorOptions}
                             value={slot.resonatorId || ""}
                             onChange={val =>
-                              handleResonatorSelect(tIdx, rIdx, colKey, charIdx, val)
+                              handleResonatorSelect(
+                                tIdx,
+                                rIdx,
+                                colKey,
+                                charIdx,
+                                val,
+                              )
                             }
                             placeholder="Персонаж"
                             className="slot-resonator-select"
@@ -354,7 +372,9 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
                                 )
                                 return res ? (
                                   <img
-                                    src={res.resonatorImgMini || res.resonatorImg}
+                                    src={
+                                      res.resonatorImgMini || res.resonatorImg
+                                    }
                                     alt={res.name}
                                     className="resonator-thumb"
                                   />
@@ -370,7 +390,10 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
                                 es => es.id === echoSetId,
                               )
                               return (
-                                <div key={iconIdx} className="echo-icon-wrapper">
+                                <div
+                                  key={iconIdx}
+                                  className="echo-icon-wrapper"
+                                >
                                   <img
                                     src={echoSetObj?.img || ""}
                                     alt={echoSetObj?.name || "Set"}
@@ -380,7 +403,13 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
                                   <button
                                     type="button"
                                     onClick={() =>
-                                      removeEchoIcon(tIdx, rIdx, colKey, charIdx, iconIdx)
+                                      removeEchoIcon(
+                                        tIdx,
+                                        rIdx,
+                                        colKey,
+                                        charIdx,
+                                        iconIdx,
+                                      )
                                     }
                                     className="btn-remove-icon"
                                   >
@@ -395,7 +424,9 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
                           <CustomSelect
                             options={echoSetOptions}
                             value=""
-                            onChange={val => addEchoSetId(tIdx, rIdx, colKey, charIdx, val)}
+                            onChange={val =>
+                              addEchoSetId(tIdx, rIdx, colKey, charIdx, val)
+                            }
                             placeholder="+ Сет"
                             className="echo-set-select"
                           />
@@ -404,13 +435,12 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
 
                       {/* Button to add another character to THIS column */}
                       <button
-                          type="button"
-                          onClick={() => addCharacterToColumn(tIdx, rIdx, colKey)}
-                          className="btn-add-character-to-column"
+                        type="button"
+                        onClick={() => addCharacterToColumn(tIdx, rIdx, colKey)}
+                        className="btn-add-character-to-column"
                       >
-                          + Персонаж
+                        + Персонаж
                       </button>
-
                     </div>
                   )
                 })}
@@ -437,10 +467,6 @@ export const TeamEditor: React.FC<TeamEditorProps> = ({
           </button>
         </div>
       ))}
-
-      <button type="button" onClick={addTeam} className="btn-add-team">
-        + Добавить новый отряд
-      </button>
     </div>
   )
 }

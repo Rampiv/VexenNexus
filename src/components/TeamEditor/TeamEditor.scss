@@ -3,9 +3,10 @@
   border-top: 1px solid #444;
   padding-top: 1rem;
 
-  h3 {
-    margin-bottom: 1rem;
-    color: #fff;
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
   }
 
   .team-block {
@@ -75,25 +76,25 @@
         gap: 0.5rem;
 
         .btn-remove-character {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 14px;
-            line-height: 18px;
-            text-align: center;
-            cursor: pointer;
-            padding: 0;
-            z-index: 10;
-            
-            &:hover {
-                background: #cc0000;
-            }
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          background: #ff4444;
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 20px;
+          height: 20px;
+          font-size: 14px;
+          line-height: 18px;
+          text-align: center;
+          cursor: pointer;
+          padding: 0;
+          z-index: 10;
+
+          &:hover {
+            background: #cc0000;
+          }
         }
 
         .slot-resonator-select {
@@ -158,31 +159,31 @@
         }
 
         .echo-set-select {
-            width: 100%;
-            padding: 0.3rem;
-            background: #1e1e1e;
-            border: 1px solid #444;
-            color: #fff;
-            border-radius: 4px;
-            font-size: 0.8rem;
+          width: 100%;
+          padding: 0.3rem;
+          background: #1e1e1e;
+          border: 1px solid #444;
+          color: #fff;
+          border-radius: 4px;
+          font-size: 0.8rem;
         }
       }
-      
+
       // Button to add character to column
       .btn-add-character-to-column {
-          background: transparent;
-          border: 1px dashed #666;
-          color: #888;
-          padding: 0.5rem;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 0.8rem;
-          
-          &:hover {
-              border-color: #aaa;
-              color: #fff;
-              background: #2a2a2a;
-          }
+        background: transparent;
+        border: 1px dashed #666;
+        color: #888;
+        padding: 0.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+
+        &:hover {
+          border-color: #aaa;
+          color: #fff;
+          background: #2a2a2a;
+        }
       }
     }
   }

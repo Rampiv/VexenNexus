@@ -6,7 +6,6 @@ import type { SelectOption } from "../CustomSelect/CustomSelect"
 import { CustomSelect } from "../CustomSelect/CustomSelect"
 import "./EchoSetSelector.scss"
 
-// Доступные статы в Wuthering Waves
 export const AVAILABLE_STATS = [
   "HP%",
   "ATK%",
@@ -45,7 +44,6 @@ export const EchoSetSelector: React.FC<EchoSetSelectorProps> = ({
   setSelections,
   allEchoSets,
 }) => {
-  // Подготовка опций для селекта эхо-сетов
   const echoSetOptions: SelectOption[] = useMemo(
     () => [
       { value: "", label: "Выберите эхо-сет..." },
@@ -60,33 +58,30 @@ export const EchoSetSelector: React.FC<EchoSetSelectorProps> = ({
     [allEchoSets],
   )
 
-  // Подготовка опций для стат
-  const statOptions: SelectOption[] = useMemo(
-    () => [
+  const getAvailableStats = (selected: EchoSetSelection): SelectOption[] => {
+    const usedStats = new Set([...selected.lock, ...selected.discard])
+    return [
       { value: "", label: "Выберите стат..." },
-      ...AVAILABLE_STATS.map(stat => ({ value: stat, label: stat })),
-    ],
-    [],
-  )
+      ...AVAILABLE_STATS
+        .filter(stat => !usedStats.has(stat))
+        .map(stat => ({ value: stat, label: stat })),
+    ]
+  }
 
-  // Добавление нового блока эхо-сета
   const addSelection = () => {
     setSelections(prev => [...prev, { ...emptySelection }])
   }
 
-  // Удаление блока
   const removeSelection = (index: number) => {
     setSelections(prev => prev.filter((_, i) => i !== index))
   }
 
-  // Изменение выбранного эхо-сета
   const handleEchoSetChange = (index: number, echoSetId: string) => {
     setSelections(prev =>
       prev.map((sel, i) => (i === index ? { ...sel, id: echoSetId } : sel)),
     )
   }
 
-  // Переключение стата в массиве (lock/discard)
   const toggleStat = (
     index: number,
     field: "lock" | "discard",
@@ -99,8 +94,6 @@ export const EchoSetSelector: React.FC<EchoSetSelectorProps> = ({
         const current = sel[field]
         const exists = current.includes(stat)
 
-        // Если стат уже в этом массиве — убираем
-        // Если в другом массиве — сначала убираем оттуда
         let newLock = [...sel.lock]
         let newDiscard = [...sel.discard]
 
@@ -125,7 +118,6 @@ export const EchoSetSelector: React.FC<EchoSetSelectorProps> = ({
     )
   }
 
-  // Удаление конкретного стата из массива
   const removeStat = (
     index: number,
     field: "lock" | "discard",
@@ -162,9 +154,10 @@ export const EchoSetSelector: React.FC<EchoSetSelectorProps> = ({
       )}
 
       {selections.map((selection, index) => {
+        const availableStatOptions = getAvailableStats(selection)
+
         return (
           <div key={index} className="echo-set-block">
-            {/* Хедер блока: выбор сета + кнопка удаления */}
             <div className="echo-set-block__header">
               <div className="echo-set-block__select-wrapper">
                 <CustomSelect
@@ -186,10 +179,8 @@ export const EchoSetSelector: React.FC<EchoSetSelectorProps> = ({
               </button>
             </div>
 
-            {/* Контент блока: только если выбран сет */}
             {selection.id && (
               <div className="echo-set-block__content">
-                {/* Секция Lock */}
                 <div className="stat-section">
                   <div className="stat-section__header">
                     <span className="stat-section__title lock">Залочить</span>
@@ -200,7 +191,7 @@ export const EchoSetSelector: React.FC<EchoSetSelectorProps> = ({
 
                   <div className="stat-selection">
                     <CustomSelect
-                      options={statOptions}
+                      options={availableStatOptions}
                       value=""
                       onChange={val => val && toggleStat(index, "lock", val)}
                       placeholder="+ Добавить стат"
@@ -224,7 +215,6 @@ export const EchoSetSelector: React.FC<EchoSetSelectorProps> = ({
                   </div>
                 </div>
 
-                {/* Секция Discard */}
                 <div className="stat-section">
                   <div className="stat-section__header">
                     <span className="stat-section__title discard">Дискард</span>
@@ -235,7 +225,7 @@ export const EchoSetSelector: React.FC<EchoSetSelectorProps> = ({
 
                   <div className="stat-selection">
                     <CustomSelect
-                      options={statOptions}
+                      options={availableStatOptions}
                       value=""
                       onChange={val => val && toggleStat(index, "discard", val)}
                       placeholder="+ Добавить стат"

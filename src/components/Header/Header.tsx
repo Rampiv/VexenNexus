@@ -27,6 +27,11 @@ export const Header = () => {
                 Сеты
               </Link>
             </li>
+            <li className="header__item">
+              <Link to="/echoapp" className="header__link">
+                EchoApp
+              </Link>
+            </li>
             {/* <li className="header__item">
               <Link to="/" className="header__link">
                 Тирлисты
