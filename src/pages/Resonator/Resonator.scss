@@ -34,17 +34,34 @@
     gap: 15px;
     align-items: center;
   }
+  &__echo-block {
+    grid-column: span 2;
+    grid-row: 3;
+    margin-bottom: 15px;
+    h2 {
+      margin-bottom: 15px;
+    }
+  }
   &__teams-block {
     @include flexible();
     & {
       flex-direction: column;
       grid-column: span 2;
-      grid-row: 3;
+      grid-row: 4;
+    }
+  }
+  &__details-block {
+    width: 100%;
+    grid-column: span 2;
+    grid-row: 5;
+    margin-bottom: 15px;
+    h2 {
+      margin-bottom: 15px;
     }
   }
   &__result {
     grid-column: span 2;
-    grid-row: 5;
+    grid-row: 6;
   }
   &__h2 {
     @include flexible();
@@ -98,14 +115,6 @@
     & {
       flex-direction: column;
       width: 50%;
-    }
-  }
-  &__details-block {
-    width: 100%;
-    grid-column: span 2;
-    grid-row: 4;
-    h2 {
-      margin-bottom: 15px;
     }
   }
 }
@@ -265,8 +274,77 @@
       height: 40px;
     }
   }
-  .echo-sets__item{
+  .echo-sets__item {
     width: 100%;
+  }
+}
+
+.echo {
+  @include listReset();
+  & {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 15px;
+  }
+  &__link {
+    @include flexible();
+    & {
+      margin-bottom: 10px;
+      gap: 10px;
+      grid-column: span 2;
+    }
+  }
+  &__h3 {
+    @include textType1();
+    & {
+      text-decoration: underline;
+    }
+  }
+  &__item {
+    @include textType1();
+    & {
+      background-color: $color1;
+      border: 1px solid rgba($color2, 0.5);
+      box-shadow: 0px 0px 10px 0px $color2;
+      border-radius: 15px;
+      padding: 15px;
+
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+  }
+  &__img {
+    width: 24px;
+  }
+  &__stat-list {
+    @include listReset();
+    @include flexible();
+    & {
+      flex-direction: column;
+    }
+  }
+  &__stat-header {
+    @include textType1();
+    & {
+      color: inherit;
+      filter: contrast(100%);
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+  }
+  &__lock {
+    li {
+      color: $color6;
+      filter: contrast(300%);
+      text-align: center;
+    }
+  }
+  &__discard {
+    li {
+      color: $color11;
+      filter: contrast(300%);
+    }
   }
 }
 
@@ -291,6 +369,9 @@
     &__result {
       width: 100%;
     }
+  }
+  .echo {
+    grid-auto-flow: dense;
   }
 }
 

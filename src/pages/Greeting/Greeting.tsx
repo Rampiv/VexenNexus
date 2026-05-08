@@ -27,6 +27,8 @@ interface UpdateItem {
 const links = [
   { link: "/weapons/", title: "Оружия" },
   { link: "/echoSets/", title: "Сеты" },
+  { link: "/echoapp", title: "EchoApp" },
+
   // { link: "/", title: "Тир-листы" },
   // { link: "/", title: "Механики" },
 ]

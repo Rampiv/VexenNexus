@@ -147,6 +147,72 @@ export const ResonatorPage = () => {
           "Гайд в процессе написания"
         )}
       </div>
+
+      {resonator.echoSets && resonator.echoSets.length > 0 && (
+        <div className="resonator__echo-block">
+          <h2 className="resonator__h2">Рекомендуемые эхо</h2>
+          <ul className="echo">
+            {allEchoSets.map(item => {
+              return (
+                resonator.echoSets &&
+                resonator.echoSets.map((echo, index) => {
+                  if (item.id !== echo.id) return <></>
+                  let echoLink = ""
+                  if (item) {
+                    echoLink = item.engName.toLowerCase().replace(/\s+/g, "-")
+                  }
+                  return (
+                    <li
+                      key={`Эхо кард ${index} ${item.id}`}
+                      className="echo__item"
+                    >
+                      <Link to={`/echoSets/${echoLink}`} className="echo__link">
+                        <img
+                          src={item.img}
+                          alt="Картинка эхо сета"
+                          className="echo__img"
+                        />
+                        <h3 className="echo__h3">
+                          {item.name} - {item.engName}
+                        </h3>
+                      </Link>
+                      <ul className="echo__stat-list echo__lock">
+                        <li className="echo__stat-header">Нужные статы</li>
+                        {echo.lock &&
+                          echo.lock.map((itemLock, indexLock) => {
+                            return (
+                              <li
+                                key={`Залоченные статы ${indexLock}`}
+                                className="echo__stat-item"
+                              >
+                                {itemLock}
+                              </li>
+                            )
+                          })}
+                      </ul>
+                      <ul className="echo__stat-list echo__discard">
+                        <li className="echo__stat-header">Игнорировать</li>
+                        {echo.discard &&
+                          echo.discard.map((itemDiscard, indexDiscard) => {
+                            return (
+                              <li
+                                key={`Залоченные статы ${indexDiscard}`}
+                                className="echo__stat-item"
+                              >
+                                {itemDiscard}
+                              </li>
+                            )
+                          })}
+                      </ul>
+                    </li>
+                  )
+                })
+              )
+            })}
+          </ul>
+        </div>
+      )}
+
       {resonator.teams ? (
         resonator.teams.length ? (
           <div className="resonator__teams-block">

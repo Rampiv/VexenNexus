@@ -11,6 +11,7 @@ import {
   Admin,
   EchoSets,
   Weapons,
+  EchoApp,
 } from "./pages"
 import { AuthProvider } from "@contexts/AuthContext"
 
@@ -23,6 +24,7 @@ const FeedbackMemo = React.memo(Feedback)
 const MechanicMemo = React.memo(Mechanic)
 const EchoSetsMemo = React.memo(EchoSets)
 const WeaponsMemo = React.memo(Weapons)
+const EchoAppMemo = React.memo(EchoApp)
 
 export default function App() {
   return (
@@ -43,6 +45,7 @@ export default function App() {
               <Route path="/moderator" element={<Admin />} />
               <Route path="/echoSets/:engName?" element={<EchoSetsMemo />} />
               <Route path="/weapons/:engName?" element={<WeaponsMemo />} />
+              <Route path="/echoapp" element={<EchoAppMemo />} />
             </Routes>
           </div>
         </main>

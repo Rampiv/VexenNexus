@@ -1,0 +1,174 @@
+.echo-set-aggregator {
+  background: #1e1e1e;
+  border-radius: 8px;
+  padding: 1.2rem;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid #333;
+
+    h3 {
+      margin: 0;
+      color: #fff;
+    }
+  }
+
+  &__count {
+    background: #7d40ff;
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__empty {
+    text-align: center;
+    padding: 2rem;
+    color: #888;
+  }
+}
+
+.echo-set-card {
+  background: #252525;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #333;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid #333;
+  }
+
+  &__img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 4px;
+  }
+
+  &__info {
+    flex: 1;
+  }
+
+  &__name {
+    margin: 0;
+    color: #fff;
+    font-size: 1.1rem;
+  }
+
+  &__usage {
+    font-size: 0.85rem;
+    color: #888;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+.stat-group {
+  &__title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    &.lock {
+      color: #4ade80;
+    }
+
+    &.discard {
+      color: #f87171;
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+.stat-chip {
+  background: #1a1a1a;
+  border-radius: 6px;
+  padding: 0.5rem 0.7rem;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  &.lock {
+    border-left: 3px solid #4ade80;
+  }
+
+  &.discard {
+    border-left: 3px solid #f87171;
+  }
+
+  &__name {
+    font-size: 0.9rem;
+    color: #fff;
+    font-weight: 500;
+  }
+
+  &__count {
+    font-size: 0.8rem;
+    color: #888;
+  }
+
+  &__progress {
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  &__progress-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+
+    .lock & {
+      background: #4ade80;
+    }
+
+    .discard & {
+      background: #f87171;
+    }
+  }
+}
+
+// Адаптив
+@media (max-width: 600px) {
+  .echo-set-card__header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .stat-chip {
+    min-width: 100px;
+    padding: 0.4rem 0.6rem;
+  }
+}

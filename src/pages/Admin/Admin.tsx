@@ -20,7 +20,12 @@ import type { SiteSettings } from "../../types/siteSettings"
 import type { Mechanic } from "../../types/mechanic"
 import type { EchoSet } from "../../types/echoSet"
 import { db } from "../../firebase/config"
-import { ArrayEditor, Loader, TeamEditor } from "../../components"
+import {
+  ArrayEditor,
+  EchoSetSelector,
+  Loader,
+  TeamEditor,
+} from "../../components"
 import { useAuth } from "@contexts/AuthContext"
 import { convertOldTeamsToNew } from "../../supp/ConvertOldTeamsToNew"
 
@@ -84,6 +89,7 @@ export const Admin = () => {
     descr: [],
     result: [],
     resonatorImgDetails: "",
+    echoSets: [],
   })
 
   const [weaponForm, setWeaponForm] = useState<WeaponForm>({
@@ -381,6 +387,7 @@ export const Admin = () => {
         descr: item.descr && item.descr.length > 0 ? item.descr : [],
         result: item.result && item.result.length > 0 ? item.result : [],
         resonatorImgDetails: item.resonatorImgDetails || "",
+        echoSets: item.echoSets || [],
       })
     } else if (activeTab === "weapons") {
       setWeaponForm({
@@ -466,6 +473,7 @@ export const Admin = () => {
       descr: [],
       result: [],
       resonatorImgDetails: "",
+      echoSets: [],
     })
 
     setWeaponForm({
@@ -759,6 +767,19 @@ export const Admin = () => {
                     }))
                   }
                   allResonators={resonators}
+                  allEchoSets={echoSets}
+                />
+                <EchoSetSelector
+                  selections={resonatorForm.echoSets || []}
+                  setSelections={newSelections =>
+                    setResonatorForm(prev => ({
+                      ...prev,
+                      echoSets:
+                        typeof newSelections === "function"
+                          ? newSelections(prev.echoSets || [])
+                          : newSelections,
+                    }))
+                  }
                   allEchoSets={echoSets}
                 />
               </>
