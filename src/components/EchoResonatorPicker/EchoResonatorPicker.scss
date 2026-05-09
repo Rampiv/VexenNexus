@@ -75,7 +75,7 @@
   }
 
   &.selected {
-    border-color: #7d40ff;
+    border-color: $color2;
     background: rgba($color10, 0.8);
   }
 
@@ -98,7 +98,7 @@
     position: absolute;
     bottom: -4px;
     right: -4px;
-    background: #7d40ff;
+    background: $color2;
     color: white;
     width: 20px;
     height: 20px;

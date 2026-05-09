@@ -12,6 +12,7 @@ import {
   EchoSets,
   Weapons,
   EchoApp,
+  TierLists,
 } from "./pages"
 import { AuthProvider } from "@contexts/AuthContext"
 
@@ -25,6 +26,7 @@ const MechanicMemo = React.memo(Mechanic)
 const EchoSetsMemo = React.memo(EchoSets)
 const WeaponsMemo = React.memo(Weapons)
 const EchoAppMemo = React.memo(EchoApp)
+const TierListsMemo = React.memo(TierLists)
 
 export default function App() {
   return (
@@ -46,6 +48,7 @@ export default function App() {
               <Route path="/echoSets/:engName?" element={<EchoSetsMemo />} />
               <Route path="/weapons/:engName?" element={<WeaponsMemo />} />
               <Route path="/echoapp" element={<EchoAppMemo />} />
+              <Route path="/tierlists/:engName?" element={<TierListsMemo />} />
             </Routes>
           </div>
         </main>

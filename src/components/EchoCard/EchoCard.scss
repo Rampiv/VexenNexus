@@ -6,6 +6,8 @@
     & {
       position: relative;
       flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
       width: 100%;
       gap: 10px;
       background-color: $color1;
@@ -17,6 +19,14 @@
   }
   &__title-block {
     @include flexible();
+    & {
+      width: 100%;
+      justify-content: flex-start;
+      background-color: $color10;
+      border-radius: 15px;
+      padding: 5px;
+      background: rgba($color2, 0.5);
+    }
   }
   &__img {
     object-fit: cover;
@@ -26,10 +36,12 @@
     margin-right: 10px;
   }
   &__h2 {
-    @include textType2();
+    @include flexible();
+    @include textType15();
     & {
-      text-align: start;
+      text-align: center;
       font-weight: bold;
+      text-shadow: 0 0 10px black;
     }
   }
   &__h3 {
@@ -44,6 +56,7 @@
     & {
       flex-direction: column;
       gap: 10px;
+      align-items: flex-start;
     }
   }
   &__text {
@@ -59,6 +72,11 @@
   }
   &__text-2 {
     @include textType08();
+  }
+  &__line {
+    height: 2px;
+    width: 70%;
+    border-bottom: 1px solid rgba($color2, 0.3);
   }
 }
 

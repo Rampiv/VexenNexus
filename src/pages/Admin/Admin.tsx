@@ -1,5 +1,5 @@
 import type React from "react"
-import { useState, useEffect, useMemo } from "react" // Добавлен useMemo
+import { useState, useEffect, useMemo } from "react"
 import {
   collection,
   addDoc,
@@ -19,12 +19,14 @@ import type { Weapon } from "../../types/weapon"
 import type { SiteSettings } from "../../types/siteSettings"
 import type { Mechanic } from "../../types/mechanic"
 import type { EchoSet } from "../../types/echoSet"
+import type { TierList, TierListRow } from "../../types/TierList"
 import { db } from "../../firebase/config"
 import {
   ArrayEditor,
   EchoSetSelector,
   Loader,
   TeamEditor,
+  TierListEditor,
 } from "../../components"
 import { useAuth } from "@contexts/AuthContext"
 import { convertOldTeamsToNew } from "../../supp/ConvertOldTeamsToNew"
@@ -34,8 +36,15 @@ const WEAPONS_COLLECTION = "weapons"
 const MECHANICS_COLLECTION = "mechanics"
 const ECHO_SETS_COLLECTION = "echo_sets"
 const SETTINGS_DOC_ID = "site_settings"
+const TIER_LISTS_COLLECTION = "tier_lists"
 
-type Tab = "resonators" | "weapons" | "mechanics" | "echoSets" | "settings"
+type Tab =
+  | "resonators"
+  | "weapons"
+  | "mechanics"
+  | "echoSets"
+  | "settings"
+  | "tierlist"
 
 interface ResonatorForm extends Partial<Resonator> {}
 interface WeaponForm extends Partial<Weapon> {}
@@ -68,6 +77,7 @@ export const Admin = () => {
   const [weapons, setWeapons] = useState<Weapon[]>([])
   const [mechanics, setMechanics] = useState<Mechanic[]>([])
   const [echoSets, setEchoSets] = useState<EchoSet[]>([])
+  const [tierLists, setTierLists] = useState<TierList[]>([])
 
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -127,6 +137,18 @@ export const Admin = () => {
     filter_img: "",
   })
 
+  const [tierListForm, setTierListForm] = useState<{
+    name: string
+    engName: string
+    rows: TierListRow[]
+  }>({
+    name: "",
+    engName: "",
+    rows: [
+      { id: crypto.randomUUID(), rating: "S", ratingImg: "", resonatorIds: [] },
+    ],
+  })
+
   const [editingId, setEditingId] = useState<string | null>(null)
 
   // --- Data Fetching ---
@@ -179,6 +201,13 @@ export const Admin = () => {
           filter_img: "",
         })
       }
+
+      const tierSnap = await getDocs(
+        query(collection(db, TIER_LISTS_COLLECTION), orderBy("name")),
+      )
+      setTierLists(
+        tierSnap.docs.map(d => ({ id: d.id, ...d.data() })) as TierList[],
+      )
     } catch (error) {
       console.error("Ошибка загрузки данных:", error)
     } finally {
@@ -224,7 +253,7 @@ export const Admin = () => {
       preview_img: "",
       filter_img: "",
     })
-    setSearchTerm("") // Сброс поиска при выходе
+    setSearchTerm("")
   }
 
   // --- Handlers ---
@@ -323,6 +352,15 @@ export const Admin = () => {
             updatedAt: serverTimestamp(),
             ...(editingId ? {} : { createdAt: serverTimestamp() }),
           }
+        } else if (activeTab === "tierlist") {
+          collectionName = TIER_LISTS_COLLECTION
+          objTitle = tierListForm.name || ""
+          objLink = `/tierlists/${tierListForm.engName}`
+          dataToSave = {
+            ...tierListForm,
+            updatedAt: serverTimestamp(),
+            ...(editingId ? {} : { createdAt: serverTimestamp() }),
+          }
         }
 
         if (editingId) {
@@ -337,6 +375,8 @@ export const Admin = () => {
             await addUpdateLog("Изменено", `оружие: ${objTitle}`, objLink)
           if (activeTab === "echoSets")
             await addUpdateLog("Изменено", `эхо сет: ${objTitle}`, objLink)
+          if (activeTab === "tierlist")
+            await addUpdateLog("Изменено", `тир-лист: ${objTitle}`, objLink)
 
           alert("Объект обновлен!")
         } else {
@@ -350,6 +390,8 @@ export const Admin = () => {
             await addUpdateLog("Добавлено", `оружие: ${objTitle}`, objLink)
           if (activeTab === "echoSets")
             await addUpdateLog("Добавлено", `эхо сет: ${objTitle}`, objLink)
+          if (activeTab === "tierlist")
+            await addUpdateLog("Добавлено", `тир-лист: ${objTitle}`, objLink)
 
           alert("Объект добавлен!")
         }
@@ -417,6 +459,12 @@ export const Admin = () => {
         patchNumber: item.patchNumber || "",
         index: item.index || 0,
       })
+    } else if (activeTab === "tierlist") {
+      setTierListForm({
+        name: item.name || "",
+        engName: item.engName || "",
+        rows: item.rows || [],
+      })
     }
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
@@ -429,6 +477,7 @@ export const Admin = () => {
     else if (activeTab === "weapons") collectionName = WEAPONS_COLLECTION
     else if (activeTab === "mechanics") collectionName = MECHANICS_COLLECTION
     else if (activeTab === "echoSets") collectionName = ECHO_SETS_COLLECTION
+    else if (activeTab === "tierlist") collectionName = TIER_LISTS_COLLECTION
 
     try {
       await deleteDoc(doc(db, collectionName, id))
@@ -503,13 +552,26 @@ export const Admin = () => {
       patchNumber: "",
       index: 0,
     })
+
+    setTierListForm({
+      name: "",
+      engName: "",
+      rows: [
+        {
+          id: crypto.randomUUID(),
+          rating: "S",
+          ratingImg: "",
+          resonatorIds: [],
+        },
+      ],
+    })
     setEditingId(null)
   }
 
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab)
     resetForms()
-    setSearchTerm("") // Сброс поиска при смене вкладки
+    setSearchTerm("")
   }
 
   // --- Filtered Lists Logic ---
@@ -519,24 +581,30 @@ export const Admin = () => {
     else if (activeTab === "weapons") list = weapons
     else if (activeTab === "mechanics") list = mechanics
     else if (activeTab === "echoSets") list = echoSets
+    else if (activeTab === "tierlist") list = tierLists
 
     if (!searchTerm) return list
 
     const lowerTerm = searchTerm.toLowerCase()
 
     return list.filter(item => {
-      // Поиск по name (Resonators, Weapons, EchoSets)
       if (item.name && item.name.toLowerCase().includes(lowerTerm)) return true
-      // Поиск по engName (Resonators, Weapons, EchoSets, Mechanics)
       if (item.engName && item.engName.toLowerCase().includes(lowerTerm))
         return true
-      // Поиск по title (Mechanics)
       if (item.title && item.title.toLowerCase().includes(lowerTerm))
         return true
 
       return false
     })
-  }, [activeTab, resonators, weapons, mechanics, echoSets, searchTerm])
+  }, [
+    activeTab,
+    resonators,
+    weapons,
+    mechanics,
+    echoSets,
+    tierLists,
+    searchTerm,
+  ])
 
   // --- Rendering ---
   if (isLoading) return <Loader width="100px" height="100px" />
@@ -589,6 +657,12 @@ export const Admin = () => {
               Эхо Сеты
             </button>
             <button
+              className={`tab-btn ${activeTab === "tierlist" ? "active" : ""}`}
+              onClick={() => handleTabChange("tierlist")}
+            >
+              Тир-лист
+            </button>
+            <button
               className={`tab-btn ${activeTab === "settings" ? "active" : ""}`}
               onClick={() => handleTabChange("settings")}
             >
@@ -614,7 +688,9 @@ export const Admin = () => {
                   ? `оружие: ${weaponForm.name}`
                   : activeTab === "echoSets"
                     ? "эхо сет"
-                    : `персонажа: ${resonatorForm.name}`}
+                    : activeTab === "tierlist"
+                      ? `тир-лист: ${tierListForm.name}`
+                      : `персонажа: ${resonatorForm.name}`}
           </h2>
 
           <form onSubmit={handleSubmit} className="admin-form">
@@ -984,6 +1060,51 @@ export const Admin = () => {
               </>
             )}
 
+            {activeTab === "tierlist" && (
+              <>
+                <div className="form-row">
+                  <InputGroup
+                    label="Название тир-листа (RU)"
+                    name="name"
+                    value={tierListForm.name}
+                    onChange={(e: { target: { value: any } }) =>
+                      setTierListForm(prev => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                  <InputGroup
+                    label="Название тир-листа (ENG)"
+                    name="engName"
+                    value={tierListForm.engName}
+                    onChange={(e: { target: { value: any } }) =>
+                      setTierListForm(prev => ({
+                        ...prev,
+                        engName: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+
+                <TierListEditor
+                  rows={tierListForm.rows}
+                  setRows={newRows =>
+                    setTierListForm(prev => ({
+                      ...prev,
+                      rows:
+                        typeof newRows === "function"
+                          ? newRows(prev.rows)
+                          : newRows,
+                    }))
+                  }
+                  allResonators={resonators}
+                />
+              </>
+            )}
+
             {activeTab === "settings" && (
               <div className="settings-container">
                 <div className="form-group">
@@ -1009,26 +1130,14 @@ export const Admin = () => {
 
                 <div className="form-group">
                   <label>Персонажи на будущем баннере</label>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "10px",
-                      marginBottom: "10px",
-                    }}
-                  >
+                  <div className="resonator-selector">
                     <select
                       onChange={e => {
                         if (e.target.value)
                           handleAddResonatorToBanner(e.target.value)
                         e.target.value = ""
                       }}
-                      style={{
-                        flex: 1,
-                        padding: "8px",
-                        background: "#2a2a2a",
-                        color: "#fff",
-                        border: "1px solid #444",
-                      }}
+                      className="resonator-select"
                     >
                       <option value="">Выберите персонажа...</option>
                       {resonators.map(r => (
@@ -1044,50 +1153,21 @@ export const Admin = () => {
                       ))}
                     </select>
                   </div>
-                  <ul
-                    style={{
-                      listStyle: "none",
-                      padding: 0,
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: "10px",
-                    }}
-                  >
+                  <ul className="selected-resonators">
                     {settingsForm.futureResonatorIds.map(id => {
                       const res = resonators.find(r => r.id === id)
                       return res ? (
-                        <li
-                          key={id}
-                          style={{
-                            background: "#333",
-                            padding: "5px 10px",
-                            borderRadius: "4px",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "8px",
-                          }}
-                        >
+                        <li key={id} className="selected-resonator-item">
                           <img
                             src={res.resonatorImg}
                             alt={res.name}
-                            style={{
-                              width: "30px",
-                              height: "30px",
-                              objectFit: "cover",
-                              borderRadius: "50%",
-                            }}
+                            className="resonator-thumb"
                           />
                           <span>{res.name}</span>
                           <button
                             type="button"
                             onClick={() => handleRemoveResonatorFromBanner(id)}
-                            style={{
-                              background: "transparent",
-                              border: "none",
-                              color: "#ff4444",
-                              cursor: "pointer",
-                              fontWeight: "bold",
-                            }}
+                            className="btn-remove-resonator"
                           >
                             ×
                           </button>
@@ -1153,7 +1233,7 @@ export const Admin = () => {
                     </>
                   )}
                   {!editingId && activeTab !== "settings" && (
-                    <p style={{ color: "#888", fontSize: "0.9em" }}>
+                    <p className="moderator-hint">
                       Выберите персонажа из списка для редактирования.
                     </p>
                   )}
@@ -1174,29 +1254,19 @@ export const Admin = () => {
                   ? "Механики"
                   : activeTab === "echoSets"
                     ? "Эхо Сеты"
-                    : "Настройки"}
+                    : activeTab === "tierlist"
+                      ? "Тир-листы"
+                      : "Настройки"}
           </h2>
 
-          {/* Поле поиска */}
-          {activeTab !== "settings" && (
-            <div
-              className="admin-search-wrapper"
-              style={{ marginBottom: "1rem" }}
-            >
+          {activeTab !== "settings" && activeTab !== "tierlist" && (
+            <div className="admin-search-wrapper">
               <input
                 type="text"
                 placeholder="Поиск по имени..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 className="admin-search-input"
-                style={{
-                  width: "100%",
-                  padding: "0.5rem",
-                  background: "#1e1e1e",
-                  border: "1px solid #444",
-                  color: "#fff",
-                  borderRadius: "4px",
-                }}
               />
             </div>
           )}
@@ -1208,6 +1278,42 @@ export const Admin = () => {
                 пользователям.
               </p>
             </div>
+          ) : activeTab === "tierlist" ? (
+            <ul className="admin-list">
+              {filteredList.length > 0 ? (
+                filteredList.map((item: TierList) => (
+                  <li key={item.id} className="admin-list-item">
+                    <div className="admin-info">
+                      <strong>{item.name}</strong>
+                      {item.engName && (
+                        <span className="eng-name">({item.engName})</span>
+                      )}
+                      <span className="admin-meta">
+                        {item.rows.length} ряд(ов)
+                      </span>
+                    </div>
+                    <div className="admin-actions">
+                      <button
+                        onClick={() => handleEdit(item)}
+                        className="btn-edit"
+                      >
+                        ✏️
+                      </button>
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleDelete(item.id!)}
+                          className="btn-delete"
+                        >
+                          🗑️
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <li className="admin-list-empty">Ничего не найдено</li>
+              )}
+            </ul>
           ) : (
             <ul className="admin-list">
               {filteredList.length > 0 ? (
@@ -1220,7 +1326,9 @@ export const Admin = () => {
                     />
                     <div className="admin-info">
                       <strong>{item.name || item.title}</strong>
-                      {item.engName && `(${item.engName})`}
+                      {item.engName && (
+                        <span className="eng-name">({item.engName})</span>
+                      )}
                       <span className="admin-meta">
                         {item.element ||
                           item.type ||
@@ -1255,6 +1363,8 @@ export const Admin = () => {
     </section>
   )
 }
+
+// --- Subcomponents ---
 
 const InputGroup = ({
   label,

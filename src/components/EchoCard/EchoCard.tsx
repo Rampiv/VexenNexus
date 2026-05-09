@@ -32,6 +32,7 @@ export const EchoCard = ({ EchoSet: item, index }: Props) => {
         )}
         {item.fivePartsDescr && item.fivePartsDescr.length > 0 && (
           <>
+            <span className="echo-sets__line"></span>
             <h3 className="echo-sets__h3">5 - частей</h3>
             {item.fivePartsDescr.map((text, indexText) => {
               return (
