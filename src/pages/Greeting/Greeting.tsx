@@ -246,7 +246,7 @@ export const Greeting = () => {
           <ul className="changes-block__list">
             {uniqueUpdates.length > 0 ? (
               // Показываем только первые 5 уникальных записей
-              uniqueUpdates.slice(0, 10).map(item => (
+              uniqueUpdates.slice(0,5).map(item => (
                 <li className="changes-block__item" key={item.id}>
                   <Link to={item.link} className="changes-block__descr">
                     {`${item.type}:`}{" "}
