@@ -32,11 +32,11 @@ export const Header = () => {
                 EchoApp
               </Link>
             </li>
-            {/* <li className="header__item">
-              <Link to="/" className="header__link">
+            <li className="header__item">
+              <Link to="/tierlists/" className="header__link">
                 Тирлисты
               </Link>
-            </li> */}
+            </li>
           </ul>
         </nav>
       </div>

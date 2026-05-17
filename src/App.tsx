@@ -48,7 +48,7 @@ export default function App() {
               <Route path="/echoSets/:engName?" element={<EchoSetsMemo />} />
               <Route path="/weapons/:engName?" element={<WeaponsMemo />} />
               <Route path="/echoapp" element={<EchoAppMemo />} />
-              <Route path="/tierlists/:engName?" element={<TierListsMemo />} />
+              <Route path="/tierlists/:name?" element={<TierListsMemo />} />
             </Routes>
           </div>
         </main>

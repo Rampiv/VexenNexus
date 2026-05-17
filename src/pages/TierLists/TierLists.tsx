@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router"
+import { useParams, Link, useNavigate } from "react-router"
 import "./TierLists.scss"
 import { useEffect, useMemo, useState } from "react"
 import { Loader } from "../../components"
@@ -14,13 +14,14 @@ interface ElementData {
 }
 
 export const TierLists = () => {
-  const { engName: urlEngName } = useParams<{ engName: string }>()
+  const { name: urlName } = useParams<{ name: string }>() // теперь здесь будет ID тир-листа
   const [loading, setLoading] = useState(true)
   const [tierListsAll, setTierListsAll] = useState<TierList[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const { resonators: allResonators, loading: loadingResonators } =
     useResonators()
   const [elements, setElements] = useState<ElementData[]>([])
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,37 +53,41 @@ export const TierLists = () => {
   }, [])
 
   useEffect(() => {
-    if (!urlEngName) {
+    if (!urlName) {
       setSearchTerm("")
       return
     }
 
-    const foundTierList = tierListsAll.find(
-      s => s.engName?.toLowerCase() === urlEngName.toLowerCase(),
-    )
+    const foundTierList = tierListsAll.find(s => s.name === urlName)
 
     if (foundTierList) {
       setSearchTerm(foundTierList.name)
     }
-  }, [urlEngName, tierListsAll])
+  }, [urlName, tierListsAll])
 
   const filteredAndSorted = useMemo(() => {
     let result = tierListsAll
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
-      result = result.filter(
-        item =>
-          item.name?.toLowerCase().includes(term) ||
-          item.engName?.toLowerCase().includes(term),
-      )
+      result = result.filter(item => item.name?.toLowerCase().includes(term))
     }
     return result
   }, [searchTerm, tierListsAll])
 
-  // Хелпер для получения данных резонатора по ID
   const getResonatorById = (id: string) => {
     return allResonators.find(r => r.id === id)
+  }
+
+  // Навигация к конкретному тир-листу по ID
+  const handleFilterClick = (id: string) => {
+    navigate(`/tierlists/${id}`)
+  }
+
+  // Сброс фильтра
+  const handleClearFilter = () => {
+    setSearchTerm("")
+    navigate("/tierlists")
   }
 
   if (loading || loadingResonators) {
@@ -102,6 +107,38 @@ export const TierLists = () => {
         aria-label="Поиск тир-листа по названию"
       />
 
+      <div className="tier-lists__filters">
+        <button
+          className={`tier-lists__filter-btn ${!urlName ? "tier-lists__filter-btn--active" : ""} tier-lists__filter-name`}
+          onClick={handleClearFilter}
+          aria-label="Показать все тир-листы"
+        >
+          Все
+        </button>
+        {tierListsAll.map(tierList => (
+          <button
+            key={tierList.id}
+            className={`tier-lists__filter-btn ${urlName === tierList.name ? "tier-lists__filter-btn--active" : ""}`}
+            onClick={() => handleFilterClick(tierList.name)}
+            title={tierList.name}
+          >
+            {tierList.nameImg ? (
+              <img
+                src={tierList.nameImg}
+                alt={tierList.name}
+                className="tier-lists__filter-img"
+                onError={e => {
+                  const target = e.target as HTMLImageElement
+                  target.style.display = "none"
+                }}
+              />
+            ) : (
+              <span className="tier-lists__filter-name">{tierList.name}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
       {filteredAndSorted.length === 0 ? (
         <p className="tier-lists__empty">Ничего не найдено</p>
       ) : (
@@ -109,12 +146,7 @@ export const TierLists = () => {
           {filteredAndSorted.map(tierList => (
             <li className="tier-lists__item" key={tierList.id}>
               <h2 className="tier-lists__title">
-                {tierList.name}
-                {tierList.engName && (
-                  <span className="tier-lists__eng-name">
-                    ({tierList.engName})
-                  </span>
-                )}
+                <span>{tierList.name}</span>
               </h2>
 
               <ul className="tier-lists__rows">
@@ -125,8 +157,14 @@ export const TierLists = () => {
 
                   return (
                     <li className="tier-lists__row" key={row.id || rowIndex}>
-                      {/* Рейтинг / Изображение тира */}
-                      <div className="tier-lists__tier-badge">
+                      <div
+                        className="tier-lists__tier-badge"
+                        style={
+                          {
+                            "--rarity-color-badge": row.ratingColor,
+                          } as React.CSSProperties
+                        }
+                      >
                         {row.ratingImg ? (
                           <img
                             src={row.ratingImg}
@@ -148,7 +186,6 @@ export const TierLists = () => {
                         </span>
                       </div>
 
-                      {/* Список персонажей в тире */}
                       <div className="tier-lists__resonators-grid">
                         {resonatorsInRow.length > 0 ? (
                           resonatorsInRow.map(resonator => (
@@ -157,7 +194,9 @@ export const TierLists = () => {
                               to={`/resonator/${resonator.engName}`}
                               className="tier-lists__resonator-card"
                             >
-                              <div className={`resonator-card__image-wrapper ${resonator.rarity == 4 && "resonator-card__image-wrapper_4"}`.trim()}>
+                              <div
+                                className={`resonator-card__image-wrapper ${resonator.rarity == 4 && "resonator-card__image-wrapper_4"}`.trim()}
+                              >
                                 <img
                                   src={
                                     resonator.resonatorImgMini ||

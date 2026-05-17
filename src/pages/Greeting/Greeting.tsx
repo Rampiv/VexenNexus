@@ -15,6 +15,9 @@ import {
 } from "firebase/firestore"
 import { db } from "../../firebase/config"
 import type { SiteSettings } from "../../types/siteSettings"
+import useEmblaCarousel from "embla-carousel-react"
+import banner from "../../assets/image/banner.gif"
+import Autoplay from "embla-carousel-autoplay"
 
 interface UpdateItem {
   id: string
@@ -28,8 +31,7 @@ const links = [
   { link: "/weapons/", title: "Оружия" },
   { link: "/echoSets/", title: "Сеты" },
   { link: "/echoapp", title: "EchoApp" },
-
-  // { link: "/", title: "Тир-листы" },
+  { link: "/tierlists/", title: "Тир-листы" },
   // { link: "/", title: "Механики" },
 ]
 
@@ -40,6 +42,32 @@ export const Greeting = () => {
   const [loading, setLoading] = useState(true)
   const [previewImg, setPreviewImg] = useState<string>("")
   const [filterImg, setFilterImg] = useState<string>("")
+
+  // Управление слайдером
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    {
+      loop: true,
+      containScroll: "trimSnaps",
+      dragFree: false,
+      align: "start",
+    },
+    [
+      Autoplay({
+        delay: 4000,
+        stopOnInteraction: false,
+        stopOnMouseEnter: true,
+      }),
+    ],
+  )
+  const handleSlideClick = (url?: string) => {
+    if (url) {
+      if (url.startsWith("http")) {
+        window.open(url, "_blank", "noopener,noreferrer")
+      } else {
+        window.location.href = url
+      }
+    }
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -141,11 +169,35 @@ export const Greeting = () => {
       <section className="greeting">
         <div className="greeting__block preview-block">
           <div className="preview-block__img-block">
-            <img
-              src={previewImg}
-              alt="previewHub"
-              className="preview-block__img"
-            />
+            <div className="embla preview-block__slider" ref={emblaRef}>
+              <div className="embla__container">
+                <div className="embla__slide" style={{ cursor: "default" }}>
+                  <img
+                    src={previewImg}
+                    alt="previewHub"
+                    className="preview-block__img"
+                    draggable={false}
+                  />
+                </div>
+
+                {/* Слайд : ссылка */}
+                <div
+                  className="embla__slide embla__slide_donat"
+                  onClick={() =>
+                    handleSlideClick("https://new.donatepay.ru/@1347928")
+                  }
+                  style={{ cursor: "pointer" }}
+                >
+                  <img
+                    src={banner}
+                    alt="promo"
+                    className="preview-block__img"
+                    draggable={false}
+                  />
+                </div>
+              </div>
+            </div>
+
             <ul className="preview-block__list">
               {DataLinks &&
                 DataLinks.map((item, index) => {
@@ -166,10 +218,10 @@ export const Greeting = () => {
                 })}
             </ul>
           </div>
-          <p className="preview-block__descr">
+          {/* <p className="preview-block__descr">
             WW HUB - В этом месте ты найдешь все что нужно игроку Wuthering
             Waves. Актуальные билды и подсчеты цифр урона!
-          </p>
+          </p> */}
         </div>
         <div className="greeting__block nav-block">
           <h2 className="nav-block__h2">Навигация</h2>
@@ -194,7 +246,7 @@ export const Greeting = () => {
           <ul className="changes-block__list">
             {uniqueUpdates.length > 0 ? (
               // Показываем только первые 5 уникальных записей
-              uniqueUpdates.slice(0, 5).map(item => (
+              uniqueUpdates.slice(0, 10).map(item => (
                 <li className="changes-block__item" key={item.id}>
                   <Link to={item.link} className="changes-block__descr">
                     {`${item.type}:`}{" "}

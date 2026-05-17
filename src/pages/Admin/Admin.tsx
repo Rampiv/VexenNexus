@@ -139,11 +139,11 @@ export const Admin = () => {
 
   const [tierListForm, setTierListForm] = useState<{
     name: string
-    engName: string
+    nameImg: string
     rows: TierListRow[]
   }>({
     name: "",
-    engName: "",
+    nameImg: "",
     rows: [
       { id: crypto.randomUUID(), rating: "S", ratingImg: "", resonatorIds: [] },
     ],
@@ -355,7 +355,7 @@ export const Admin = () => {
         } else if (activeTab === "tierlist") {
           collectionName = TIER_LISTS_COLLECTION
           objTitle = tierListForm.name || ""
-          objLink = `/tierlists/${tierListForm.engName}`
+          objLink = `/tierlists/${tierListForm.nameImg}`
           dataToSave = {
             ...tierListForm,
             updatedAt: serverTimestamp(),
@@ -462,7 +462,7 @@ export const Admin = () => {
     } else if (activeTab === "tierlist") {
       setTierListForm({
         name: item.name || "",
-        engName: item.engName || "",
+        nameImg: item.nameImg || "",
         rows: item.rows || [],
       })
     }
@@ -555,7 +555,7 @@ export const Admin = () => {
 
     setTierListForm({
       name: "",
-      engName: "",
+      nameImg: "",
       rows: [
         {
           id: crypto.randomUUID(),
@@ -1076,13 +1076,13 @@ export const Admin = () => {
                     required
                   />
                   <InputGroup
-                    label="Название тир-листа (ENG)"
-                    name="engName"
-                    value={tierListForm.engName}
+                    label="Ссылка на картинку тир листа"
+                    name="nameImg"
+                    value={tierListForm.nameImg}
                     onChange={(e: { target: { value: any } }) =>
                       setTierListForm(prev => ({
                         ...prev,
-                        engName: e.target.value,
+                        nameImg: e.target.value,
                       }))
                     }
                     required
@@ -1285,8 +1285,8 @@ export const Admin = () => {
                   <li key={item.id} className="admin-list-item">
                     <div className="admin-info">
                       <strong>{item.name}</strong>
-                      {item.engName && (
-                        <span className="eng-name">({item.engName})</span>
+                      {item.nameImg && (
+                        <span className="eng-name">({item.nameImg})</span>
                       )}
                       <span className="admin-meta">
                         {item.rows.length} ряд(ов)
