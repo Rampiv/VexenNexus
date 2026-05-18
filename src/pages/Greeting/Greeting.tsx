@@ -16,7 +16,7 @@ import {
 import { db } from "../../firebase/config"
 import type { SiteSettings } from "../../types/siteSettings"
 import useEmblaCarousel from "embla-carousel-react"
-import banner from "../../assets/image/banner.gif"
+import banner from "../../assets/image/bannerDonat.gif"
 import Autoplay from "embla-carousel-autoplay"
 
 interface UpdateItem {
@@ -232,7 +232,12 @@ export const Greeting = () => {
                   className="nav-block__item"
                   key={`${index}список ссылок greeting`}
                 >
-                  <Link to={item.link} className="nav-block__link">
+                  {/* Ссылка поверх */}
+                  <Link
+                    to={item.link}
+                    className="nav-block__link"
+                    style={{ position: "relative", zIndex: 1 }}
+                  >
                     {item.title}
                   </Link>
                 </li>
@@ -246,7 +251,7 @@ export const Greeting = () => {
           <ul className="changes-block__list">
             {uniqueUpdates.length > 0 ? (
               // Показываем только первые 5 уникальных записей
-              uniqueUpdates.slice(0,5).map(item => (
+              uniqueUpdates.slice(0, 5).map(item => (
                 <li className="changes-block__item" key={item.id}>
                   <Link to={item.link} className="changes-block__descr">
                     {`${item.type}:`}{" "}
