@@ -13,27 +13,27 @@ export const Header = () => {
           </Link>
           <ul className="header__list">
             <li className="header__item">
-              <Link to="/" className="header__link">
+              <Link to="/" className="header__link btn-style700" data-text="Домой">
                 Домой
               </Link>
             </li>
             <li className="header__item">
-              <Link to="/weapons" className="header__link">
+              <Link to="/weapons" className="header__link btn-style700" data-text="Оружия">
                 Оружия
               </Link>
             </li>
             <li className="header__item">
-              <Link to="/echoSets/" className="header__link">
+              <Link to="/echoSets/" className="header__link btn-style700" data-text="Сеты">
                 Сеты
               </Link>
             </li>
             <li className="header__item">
-              <Link to="/echoapp" className="header__link">
+              <Link to="/echoapp" className="header__link btn-style700" data-text="EchoApp">
                 EchoApp
               </Link>
             </li>
             <li className="header__item">
-              <Link to="/tierlists/" className="header__link">
+              <Link to="/tierlists/" className="header__link btn-style700" data-text="Тирлисты">
                 Тирлисты
               </Link>
             </li>

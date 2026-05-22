@@ -148,7 +148,7 @@ export const ResonatorPage = () => {
         )}
       </div>
 
-      {resonator.echoSets && resonator.echoSets.length > 0 && (
+      {/* {resonator.echoSets && resonator.echoSets.length > 0 && (
         <div className="resonator__echo-block">
           <h2 className="resonator__h2">Рекомендуемые эхо</h2>
           <ul className="echo">
@@ -211,7 +211,7 @@ export const ResonatorPage = () => {
             })}
           </ul>
         </div>
-      )}
+      )} */}
 
       {resonator.teams ? (
         resonator.teams.length ? (

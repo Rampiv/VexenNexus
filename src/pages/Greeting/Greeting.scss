@@ -3,8 +3,8 @@
 .greeting {
   width: 100%;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: auto auto auto;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: auto auto;
   column-gap: 20px;
   row-gap: 10px;
   margin-bottom: 20px;
@@ -15,14 +15,14 @@
     background-color: $color1;
   }
   &__resonators {
-    grid-column: span 3;
+    grid-column: span 4;
   }
 }
 
 .preview-block {
   position: relative;
-  grid-column: span 2;
-  grid-row: span 2;
+  grid-column: span 3;
+  grid-row: 1;
   &__img {
     width: 100%;
   }
@@ -64,63 +64,8 @@
   }
 }
 
-.nav-block {
-  @include flexible();
-  & {
-    grid-column: 3;
-    flex-direction: column;
-    justify-content: flex-start;
-  }
-  &__h2 {
-    @include textType15();
-    & {
-      font-weight: 400;
-      border-bottom: 1px solid $color2;
-      margin-bottom: 15px;
-    }
-  }
-  &__list {
-    @include listReset();
-    @include flexible();
-    & {
-      flex-direction: column;
-      gap: 5px;
-      width: 100%;
-    }
-  }
-  &__item {
-    width: 100%;
-    border-radius: 5px;
-    position: relative;
-    z-index: 1;
-  }
-  &__link {
-    @include textType1();
-    @include standartTransition();
-    & {
-      display: block;
-      width: 100%;
-      padding: 5px;
-      color: $white;
-      border-radius: 5px;
-      text-align: start;
-      background: linear-gradient(160deg, rgba($color2, 0.6) 0%, $color1 100%);
-      text-shadow: 1px 1px black;
-      font-weight: bold;
-      z-index: 1;
-    }
-    &:hover,
-    &:focus {
-      filter: contrast(1.5);
-    }
-    &:active {
-      filter: contrast(0.85);
-    }
-  }
-}
-
 .banners-block {
-  grid-column: span 3;
+  grid-column: span 4;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -172,6 +117,17 @@
 }
 
 .changes-block {
+  grid-column: 4;
+  grid-row: 1;
+  &__h2 {
+    @include textType15();
+    & {
+      font-weight: 400;
+      border-bottom: 1px solid $color2;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+  }
   &__list {
     @include listReset();
     & {
@@ -179,6 +135,9 @@
       flex-direction: column;
       gap: 5px;
       height: fit-content;
+      max-height: 400px;
+      overflow-y: scroll;
+      scrollbar-width: none;
     }
   }
   &__link {
@@ -190,6 +149,8 @@
     @include textType07();
     & {
       text-align: start;
+      display: flex;
+      flex-direction: column;
     }
   }
   &__descr_underline {
@@ -198,6 +159,8 @@
   &__data {
     color: $color2;
     text-wrap: nowrap;
+    display: flex;
+    justify-content: center;
   }
   &__item {
     display: flex;
@@ -274,21 +237,13 @@
   }
 }
 
-@media (max-width: 750px) {
+@media (max-width: 1279px) {
   .preview-block {
-    grid-column: span 3;
-  }
-  .nav-block {
-    grid-column: span 3;
+    grid-column: span 4;
   }
   .changes-block {
-    grid-column: span 3;
-  }
-}
-
-@media (max-width: 860px) {
-  .greeting {
-    grid-template-columns: 1fr;
+    grid-column: span 4;
+    grid-row: 4;
   }
 }
 

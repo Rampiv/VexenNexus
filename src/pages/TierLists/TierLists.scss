@@ -8,25 +8,11 @@
     width: 100%;
   }
 
-  &__search {
-    @include textType1();
+  &__h1 {
+    @include textType15();
     & {
-      width: 100%;
-      background: $color1;
-      border-radius: 5px;
-      padding: 15px;
-      outline: none;
-      margin-bottom: 15px;
-    }
-    &::placeholder {
+      margin-bottom: 10px;
       text-align: center;
-      font-weight: 400;
-      font-size: 19px;
-    }
-    &:focus {
-      &::placeholder {
-        opacity: 0;
-      }
     }
   }
 
@@ -93,7 +79,6 @@
     display: grid;
     grid-template-columns: 80px 1fr;
     gap: 10px;
-    padding: 5px;
     background: rgba(255, 255, 255, 0.03);
     border-radius: 10px;
     border: 1px solid transparent;
@@ -137,8 +122,8 @@
   &__resonators-grid {
     flex: 1;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 5px;
     width: 100%;
     grid-column: 2 / -1;
   }
@@ -161,7 +146,6 @@
     align-items: center;
     gap: 5px;
     padding-bottom: 3px;
-    background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
     text-decoration: none;
     color: inherit;
@@ -182,13 +166,13 @@
   }
 
   &__filters {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, mimax(100px, 1fr));
     padding: 5px;
     background-color: $color1;
     gap: 5px;
     margin-bottom: 15px;
     width: 100%;
-
   }
   &__filter-btn {
     @include btnReset();
@@ -197,7 +181,8 @@
     & {
       border: 1px solid rgba($color2, 0.5);
       grid-row: 1;
-      height: 80px;
+      width: 100%;
+      // min-height: 80px;
       border-radius: 5px;
       color: $white;
       outline: none;
@@ -208,8 +193,13 @@
     width: 100%;
     height: 100%;
   }
-  &__filter-name{
-    padding: 10px;
+  &__filter-name {
+    @include flexible();
+    & {
+      padding: 10px;
+      width: 100%;
+      height: 100%;
+    }
   }
 }
 
@@ -217,8 +207,7 @@
 .resonator-card {
   &__image-wrapper {
     position: relative;
-    width: 70px;
-    height: 70px;
+    width: 90%;
     border-radius: 15%;
     overflow: hidden;
     background: #000;
@@ -250,6 +239,15 @@
     object-fit: cover;
   }
 
+  &__status-img {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 25px;
+    height: 25px;
+    z-index: 2;
+  }
+
   &__info {
     text-align: center;
     display: flex;
@@ -278,6 +276,21 @@
       max-width: 100%;
     }
   }
+  &__tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    padding: 0 2px;
+    gap: 2px;
+  }
+  &__tag {
+    @include textType08();
+    & {
+      width: fit-content;
+      filter: contrast(2);
+    }
+  }
 }
 
 // Утилитарный класс для скрытия элемента
@@ -291,6 +304,135 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+// === Стили для accordion описаний ===
+.tier-lists-descr {
+  @include listReset();
+  & {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 15px;
+  }
+
+  &__item {
+    background: rgba($color1, 0.8);
+    border-radius: 5px;
+    border: 1px solid transparent;
+    transition: all ease-in-out 0.3s;
+    overflow: hidden;
+
+    &--open {
+      border-color: rgba($color2, 0.3);
+    }
+  }
+
+  &__header {
+    @include btnReset();
+    @include flexible();
+    & {
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 5px 5px 5px 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: all ease-in-out 0.3s;
+      background: rgba($color10, 0.5);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+    }
+  }
+
+  &__h3 {
+    @include textType1();
+  }
+
+  &__toggle {
+    @include flexible();
+    @include textReset();
+    @include textType1();
+    & {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: rgba($main, 0.3);
+      color: $white;
+      font-weight: bold;
+      text-align: center;
+      transform: rotate(90deg);
+      transition: all ease-in-out 0.3s;
+
+      .tier-lists-descr__item--open & {
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  &__content {
+    max-height: 0;
+    overflow: hidden;
+    transition: all ease-in-out 0.3s;
+    opacity: 0;
+
+    &--open {
+      max-height: 2000px; // достаточно большое значение для контента
+      opacity: 1;
+    }
+  }
+
+  &__article {
+    @include textType08();
+    & {
+      color: $color3;
+      padding: 0 5px 5px 10px;
+
+      // Стили для контента из TipTap
+      p {
+        margin: 0.5rem 0;
+      }
+
+      ul,
+      ol {
+        padding-left: 1.5rem;
+        margin: 0.5rem 0;
+      }
+
+      li {
+        margin: 0.25rem 0;
+      }
+
+      strong {
+        color: $white;
+        font-weight: 600;
+      }
+
+      em {
+        font-style: italic;
+      }
+
+      h2 {
+        @include textType1();
+        & {
+          color: $white;
+          margin: 1rem 0 0.5rem;
+        }
+      }
+
+      a {
+        color: $color5;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
 }
 
 @media (max-width: 600px) {
@@ -322,7 +464,6 @@
     padding: 5px;
   }
   .tier-lists__row {
-    padding: 5px;
     gap: 10px;
     grid-template-columns: 50px 1fr;
   }

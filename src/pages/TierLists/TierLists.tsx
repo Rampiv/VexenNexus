@@ -2,10 +2,26 @@ import { useParams, Link, useNavigate } from "react-router"
 import "./TierLists.scss"
 import { useEffect, useMemo, useState } from "react"
 import { Loader } from "../../components"
-import { collection, getDocs, orderBy, query } from "firebase/firestore"
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+} from "firebase/firestore"
 import { db } from "../../firebase/config"
-import type { TierList } from "../../types/TierList"
+import type {
+  TierList,
+  TierListDescription,
+  TierListRow,
+} from "../../types/TierList"
 import { useResonators } from "../../hook/useResonators"
+import DOMPurify from "dompurify"
+import type {
+  SettingsDescription,
+  SiteSettings,
+} from "../../types/siteSettings"
 
 interface ElementData {
   id: string
@@ -14,14 +30,32 @@ interface ElementData {
 }
 
 export const TierLists = () => {
-  const { name: urlName } = useParams<{ name: string }>() // теперь здесь будет ID тир-листа
+  const { name: urlName } = useParams<{ name: string }>()
   const [loading, setLoading] = useState(true)
   const [tierListsAll, setTierListsAll] = useState<TierList[]>([])
-  const [searchTerm, setSearchTerm] = useState("")
   const { resonators: allResonators, loading: loadingResonators } =
     useResonators()
   const [elements, setElements] = useState<ElementData[]>([])
+  const [selectedTierList, setSelectedTierList] = useState("")
   const navigate = useNavigate()
+  const [openDescriptions, setOpenDescriptions] = useState<Set<number>>(
+    new Set(),
+  )
+  const [tierListsDescr, setTierListsDescr] = useState<SettingsDescription[]>(
+    [],
+  )
+
+  const toggleDescription = (index: number) => {
+    setOpenDescriptions(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(index)) {
+        newSet.delete(index)
+      } else {
+        newSet.add(index)
+      }
+      return newSet
+    })
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,41 +87,54 @@ export const TierLists = () => {
   }, [])
 
   useEffect(() => {
-    if (!urlName) {
-      setSearchTerm("")
-      return
+    const fetchData = async () => {
+      try {
+        const settingsRef = doc(db, "settings", "site_settings")
+        const settingsSnap = await getDoc(settingsRef)
+
+        if (settingsSnap.exists()) {
+          const data = settingsSnap.data() as SiteSettings
+
+          if (data.tierListDescriptions) {
+            setTierListsDescr(data.tierListDescriptions)
+          }
+        }
+      } catch (error) {
+        console.error("Ошибка загрузки данных приветствия:", error)
+      } finally {
+        setLoading(false)
+      }
     }
 
+    fetchData()
+  }, [])
+
+  useEffect(() => {
     const foundTierList = tierListsAll.find(s => s.name === urlName)
 
     if (foundTierList) {
-      setSearchTerm(foundTierList.name)
+      setSelectedTierList(foundTierList.name)
     }
   }, [urlName, tierListsAll])
 
   const filteredAndSorted = useMemo(() => {
-    let result = tierListsAll
+    let result: any[] = []
 
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase()
-      result = result.filter(item => item.name?.toLowerCase().includes(term))
+    if (selectedTierList) {
+      const term = selectedTierList.toLowerCase()
+      result = tierListsAll.filter(item =>
+        item.name?.toLowerCase().includes(term),
+      )
     }
     return result
-  }, [searchTerm, tierListsAll])
+  }, [selectedTierList, tierListsAll])
 
   const getResonatorById = (id: string) => {
     return allResonators.find(r => r.id === id)
   }
 
-  // Навигация к конкретному тир-листу по ID
   const handleFilterClick = (id: string) => {
     navigate(`/tierlists/${id}`)
-  }
-
-  // Сброс фильтра
-  const handleClearFilter = () => {
-    setSearchTerm("")
-    navigate("/tierlists")
   }
 
   if (loading || loadingResonators) {
@@ -96,25 +143,48 @@ export const TierLists = () => {
 
   return (
     <section className="tier-lists">
-      {/* Поиск */}
-      <input
-        type="text"
-        placeholder="Поиск тир-листа..."
-        value={searchTerm}
-        onChange={e => setSearchTerm(e.target.value)}
-        className="tier-lists__search"
-        maxLength={30}
-        aria-label="Поиск тир-листа по названию"
-      />
+      <ul className="tier-lists-descr">
+        {tierListsDescr &&
+          tierListsDescr.map(
+            (descrItem: TierListDescription, descrIndex: number) => {
+              const isOpen = openDescriptions.has(descrIndex)
 
+              return (
+                <li
+                  className={`tier-lists-descr__item ${isOpen ? "tier-lists-descr__item--open" : ""}`}
+                  key={`tier-lists-descr-${descrIndex}`}
+                >
+                  <button
+                    type="button"
+                    className="tier-lists-descr__header"
+                    onClick={() => toggleDescription(descrIndex)}
+                    aria-expanded={isOpen}
+                    aria-controls={`descr-content-${descrIndex}`}
+                  >
+                    <h3 className="tier-lists-descr__h3">{descrItem.title}</h3>
+                    <p className="tier-lists-descr__toggle">
+                      {isOpen ? "<" : ">"}
+                    </p>
+                  </button>
+
+                  <div
+                    id={`descr-content-${descrIndex}`}
+                    className={`tier-lists-descr__content ${isOpen ? "tier-lists-descr__content--open" : ""}`}
+                  >
+                    <article
+                      className="tier-lists-descr__article"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(descrItem.content),
+                      }}
+                    />
+                  </div>
+                </li>
+              )
+            },
+          )}
+      </ul>
+      <h1 className="tier-lists__h1">Выберете тирлист</h1>
       <div className="tier-lists__filters">
-        <button
-          className={`tier-lists__filter-btn ${!urlName ? "tier-lists__filter-btn--active" : ""} tier-lists__filter-name`}
-          onClick={handleClearFilter}
-          aria-label="Показать все тир-листы"
-        >
-          Все
-        </button>
         {tierListsAll.map(tierList => (
           <button
             key={tierList.id}
@@ -139,9 +209,7 @@ export const TierLists = () => {
         ))}
       </div>
 
-      {filteredAndSorted.length === 0 ? (
-        <p className="tier-lists__empty">Ничего не найдено</p>
-      ) : (
+      {filteredAndSorted && (
         <ul className="tier-lists__list">
           {filteredAndSorted.map(tierList => (
             <li className="tier-lists__item" key={tierList.id}>
@@ -150,7 +218,7 @@ export const TierLists = () => {
               </h2>
 
               <ul className="tier-lists__rows">
-                {tierList.rows?.map((row, rowIndex) => {
+                {tierList.rows?.map((row: TierListRow, rowIndex: any) => {
                   const resonatorsInRow = row.resonatorIds
                     .map(id => getResonatorById(id))
                     .filter((r): r is NonNullable<typeof r> => r !== undefined)
@@ -188,52 +256,85 @@ export const TierLists = () => {
 
                       <div className="tier-lists__resonators-grid">
                         {resonatorsInRow.length > 0 ? (
-                          resonatorsInRow.map(resonator => (
-                            <Link
-                              key={resonator.id}
-                              to={`/resonator/${resonator.engName}`}
-                              className="tier-lists__resonator-card"
-                            >
-                              <div
-                                className={`resonator-card__image-wrapper ${resonator.rarity == 4 && "resonator-card__image-wrapper_4"}`.trim()}
+                          resonatorsInRow.map(resonator => {
+                            if (!resonator.id) return null
+                            
+                            const settings =
+                              row.resonatorSettings?.[resonator.id]
+                            const status =
+                              settings?.status == "up"
+                                ? "https://i.ibb.co/LzYrsD31/strelka-zelenaya.png"
+                                : settings?.status == "down"
+                                  ? "https://i.ibb.co/M5j5ybmd/strelka-krasnaya.png"
+                                  : ""
+                            return (
+                              <Link
+                                key={resonator.id}
+                                to={`/resonator/${resonator.engName}`}
+                                className="tier-lists__resonator-card"
                               >
-                                <img
-                                  src={
-                                    resonator.resonatorImgMini ||
-                                    resonator.resonatorImg
-                                  }
-                                  alt={resonator.name}
-                                  className={`resonator-card__image`}
-                                  loading="lazy"
-                                  onError={e => {
-                                    const target = e.target as HTMLImageElement
-                                    target.src = "/placeholder-character.png"
-                                  }}
-                                />
-                                <img
-                                  className="resonator-card__element-img"
-                                  src={
-                                    elements.find(
-                                      itemEl =>
-                                        itemEl.id.toLocaleLowerCase() ===
-                                        resonator.element.toLocaleLowerCase(),
-                                    )?.iconUrl
-                                  }
-                                  alt={resonator.element}
-                                />
-                              </div>
-                              <div className="resonator-card__info">
-                                <span className="resonator-card__name">
-                                  {resonator.name}
-                                </span>
-                                {resonator.engName && (
-                                  <span className="resonator-card__eng-name">
-                                    {resonator.engName}
+                                <div
+                                  className={`resonator-card__image-wrapper ${resonator.rarity == 4 && "resonator-card__image-wrapper_4"}`.trim()}
+                                >
+                                  {status && <img src={status} alt="Картинка статуса" className="resonator-card__status-img" />}
+                                  <img
+                                    src={
+                                      resonator.resonatorImgMini ||
+                                      resonator.resonatorImg
+                                    }
+                                    alt={resonator.name}
+                                    className={`resonator-card__image`}
+                                    loading="lazy"
+                                    onError={e => {
+                                      const target =
+                                        e.target as HTMLImageElement
+                                      target.src = "/placeholder-character.png"
+                                    }}
+                                  />
+                                  <img
+                                    className="resonator-card__element-img"
+                                    src={
+                                      elements.find(
+                                        itemEl =>
+                                          itemEl.id.toLocaleLowerCase() ===
+                                          resonator.element.toLocaleLowerCase(),
+                                      )?.iconUrl
+                                    }
+                                    alt={resonator.element}
+                                  />
+                                </div>
+                                <div className="resonator-card__info">
+                                  <span className="resonator-card__name">
+                                    {resonator.name}
                                   </span>
+                                  {resonator.engName && (
+                                    <span className="resonator-card__eng-name">
+                                      {resonator.engName}
+                                    </span>
+                                  )}
+                                </div>
+                                {settings?.tags && settings.tags.filter((tag: { text: string }) => tag.text.trim()).length > 0 && (
+                                  <div className="resonator-card__tags-list">
+                                    {settings.tags
+                                      .filter((tag: { text: string }) =>
+                                        tag.text.trim(),
+                                      )
+                                      .map((tag: { id: string; text: string; color: string }) => (
+                                        <span
+                                          key={tag.id}
+                                          className="resonator-card__tag"
+                                          style={{
+                                            color: tag.color,
+                                          }}
+                                        >
+                                          {tag.text}
+                                        </span>
+                                      ))}
+                                  </div>
                                 )}
-                              </div>
-                            </Link>
-                          ))
+                              </Link>
+                            )
+                          })
                         ) : (
                           <span className="tier-lists__empty-row">
                             В этом тире пока нет персонажей

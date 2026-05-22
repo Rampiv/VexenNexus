@@ -23,6 +23,7 @@ import type { TierList, TierListRow } from "../../types/TierList"
 import { db } from "../../firebase/config"
 import {
   ArrayEditor,
+  DescriptionEditor,
   EchoSetSelector,
   Loader,
   TeamEditor,
@@ -50,15 +51,22 @@ interface ResonatorForm extends Partial<Resonator> {}
 interface WeaponForm extends Partial<Weapon> {}
 interface MechanicForm extends Partial<Mechanic> {}
 interface EchoSetForm extends Partial<EchoSet> {}
+
+interface SettingsDescription {
+  id: string
+  title: string
+  content: string
+}
+
 interface SettingsForm {
   nextBannerDate: string
   futureResonatorIds: string[]
   preview_img: string
   filter_img: string
+  tierListDescriptions: SettingsDescription[]
 }
 
 export const Admin = () => {
-  // --- Auth Context ---
   const { userRole, isAuthenticated, isLoading, login, logout } = useAuth()
   const [inputKey, setInputKey] = useState("")
   const [authError, setAuthError] = useState("")
@@ -66,13 +74,9 @@ export const Admin = () => {
   const isAdmin = userRole === "admin" && isAuthenticated
   const isModerator = userRole === "moderator" && isAuthenticated
 
-  // --- UI State ---
   const [activeTab, setActiveTab] = useState<Tab>("resonators")
-
-  // --- Search State ---
   const [searchTerm, setSearchTerm] = useState("")
 
-  // --- Data States ---
   const [resonators, setResonators] = useState<Resonator[]>([])
   const [weapons, setWeapons] = useState<Weapon[]>([])
   const [mechanics, setMechanics] = useState<Mechanic[]>([])
@@ -82,7 +86,6 @@ export const Admin = () => {
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // --- Forms State ---
   const [resonatorForm, setResonatorForm] = useState<ResonatorForm>({
     name: "",
     engName: "",
@@ -135,6 +138,7 @@ export const Admin = () => {
     futureResonatorIds: [],
     preview_img: "",
     filter_img: "",
+    tierListDescriptions: [],
   })
 
   const [tierListForm, setTierListForm] = useState<{
@@ -151,7 +155,6 @@ export const Admin = () => {
 
   const [editingId, setEditingId] = useState<string | null>(null)
 
-  // --- Data Fetching ---
   const fetchData = async () => {
     setLoading(true)
     try {
@@ -192,6 +195,13 @@ export const Admin = () => {
           futureResonatorIds: data.futureResonatorIds || [],
           preview_img: data.preview_img || "",
           filter_img: data.filter_img || "",
+          tierListDescriptions: (data.tierListDescriptions || []).map(
+            (d: any) => ({
+              id: crypto.randomUUID(),
+              title: d.title || "",
+              content: d.content || "",
+            }),
+          ),
         })
       } else {
         setSettingsForm({
@@ -199,6 +209,7 @@ export const Admin = () => {
           futureResonatorIds: [],
           preview_img: "",
           filter_img: "",
+          tierListDescriptions: [],
         })
       }
 
@@ -215,14 +226,12 @@ export const Admin = () => {
     }
   }
 
-  // --- Fetch Data on Mount if Authenticated ---
   useEffect(() => {
     if (isAuthenticated) {
       fetchData()
     }
   }, [isAuthenticated])
 
-  // --- Login Logic ---
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setAuthError("")
@@ -252,11 +261,11 @@ export const Admin = () => {
       futureResonatorIds: [],
       preview_img: "",
       filter_img: "",
+      tierListDescriptions: [],
     })
     setSearchTerm("")
   }
 
-  // --- Handlers ---
   const handleResonatorChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -307,6 +316,9 @@ export const Admin = () => {
           futureResonatorIds: settingsForm.futureResonatorIds,
           preview_img: settingsForm.preview_img,
           filter_img: settingsForm.filter_img,
+          tierListDescriptions: settingsForm.tierListDescriptions.map(
+            ({ id, ...rest }) => rest,
+          ),
           updatedAt: serverTimestamp(),
         }
         await setDoc(settingsRef, dataToSave, { merge: true })
@@ -324,7 +336,7 @@ export const Admin = () => {
         } else if (activeTab === "weapons") {
           collectionName = WEAPONS_COLLECTION
           objTitle = weaponForm.engName || ""
-          objLink = `/weapon/${weaponForm.engName}`
+          objLink = `/weapons/${encodeURIComponent(weaponForm.engName || "")}`
           dataToSave = {
             ...weaponForm,
             updatedAt: serverTimestamp(),
@@ -565,6 +577,15 @@ export const Admin = () => {
         },
       ],
     })
+
+    setSettingsForm({
+      nextBannerDate: "",
+      futureResonatorIds: [],
+      preview_img: "",
+      filter_img: "",
+      tierListDescriptions: [],
+    })
+
     setEditingId(null)
   }
 
@@ -574,7 +595,6 @@ export const Admin = () => {
     setSearchTerm("")
   }
 
-  // --- Filtered Lists Logic ---
   const filteredList = useMemo(() => {
     let list: any[] = []
     if (activeTab === "resonators") list = resonators
@@ -606,7 +626,6 @@ export const Admin = () => {
     searchTerm,
   ])
 
-  // --- Rendering ---
   if (isLoading) return <Loader width="100px" height="100px" />
 
   if (!isAuthenticated)
@@ -1085,7 +1104,6 @@ export const Admin = () => {
                         nameImg: e.target.value,
                       }))
                     }
-                    required
                   />
                 </div>
 
@@ -1191,6 +1209,68 @@ export const Admin = () => {
                   onChange={handleSettingsChange}
                   placeholder="https://..."
                 />
+
+                <div className="form-group">
+                  <label>Глобальные описания для тир-листов</label>
+
+                  {settingsForm.tierListDescriptions.map(desc => (
+                    <DescriptionEditor
+                      key={desc.id}
+                      title={desc.title}
+                      content={desc.content}
+                      onTitleChange={newTitle =>
+                        setSettingsForm(prev => ({
+                          ...prev,
+                          tierListDescriptions: prev.tierListDescriptions.map(
+                            d =>
+                              d.id === desc.id ? { ...d, title: newTitle } : d,
+                          ),
+                        }))
+                      }
+                      onContentChange={newContent =>
+                        setSettingsForm(prev => ({
+                          ...prev,
+                          tierListDescriptions: prev.tierListDescriptions.map(
+                            d =>
+                              d.id === desc.id
+                                ? { ...d, content: newContent }
+                                : d,
+                          ),
+                        }))
+                      }
+                      onRemove={() =>
+                        setSettingsForm(prev => ({
+                          ...prev,
+                          tierListDescriptions:
+                            prev.tierListDescriptions.filter(
+                              d => d.id !== desc.id,
+                            ),
+                        }))
+                      }
+                    />
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSettingsForm(prev => ({
+                        ...prev,
+                        tierListDescriptions: [
+                          ...prev.tierListDescriptions,
+                          { id: crypto.randomUUID(), title: "", content: "" },
+                        ],
+                      }))
+                    }
+                    className="btn-add-description"
+                  >
+                    + Добавить описание
+                  </button>
+
+                  <p className="hint">
+                    Эти описания будут отображаться на <strong>всех</strong>{" "}
+                    страницах тир-листов.
+                  </p>
+                </div>
               </div>
             )}
 
@@ -1285,9 +1365,7 @@ export const Admin = () => {
                   <li key={item.id} className="admin-list-item">
                     <div className="admin-info">
                       <strong>{item.name}</strong>
-                      {item.nameImg && (
-                        <span className="eng-name">({item.nameImg})</span>
-                      )}
+
                       <span className="admin-meta">
                         {item.rows.length} ряд(ов)
                       </span>
@@ -1363,8 +1441,6 @@ export const Admin = () => {
     </section>
   )
 }
-
-// --- Subcomponents ---
 
 const InputGroup = ({
   label,

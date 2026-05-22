@@ -1,7 +1,7 @@
 @use "../../styles/style.scss" as *;
 
 .header {
-  background: $header;
+  background: $color1;
   width: 100%;
   &__nav {
     @include flexible();
@@ -29,6 +29,7 @@
     &:nth-child(even) {
       justify-content: flex-start;
     }
+    position: relative;
   }
   &__link-img {
     display: flex;
@@ -43,13 +44,12 @@
     @include standartTransition();
     @include textType1();
     & {
-      padding: 9px;
       outline: none;
       text-align: center;
-    }
-    &:hover,
-    &:focus {
-      color: $color2;
+      z-index: 1;
+      text-transform: uppercase;
+      position: relative;
+      padding: 9px;
     }
     &:active {
       color: $color2;
@@ -67,17 +67,71 @@
   }
 }
 
-@media (max-width: 350px) {
+.btn-style700 {
+  position: relative;
+  border-color: $color2;
+  &::before,
+  &::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-color: $color2;
+    border-radius: 2px;
+    border-style: solid;
+    transition: all 0.35s;
+    content: "";
+    z-index: 1;
+    opacity: 0;
+  }
+  &::before {
+    width: 0;
+    height: 100%;
+    border-width: 0px 0 1px 0;
+  }
+  &::after {
+    width: 100%;
+    height: 0;
+    border-width: 0 0px 0 0px;
+  }
+  &:hover {
+    border-color: $color2;
+    // color: $color2;
+    &::before {
+      width: 100%;
+      border-width: 0px 0 1px 0;
+    }
+    &::after {
+      height: 100%;
+      border-width: 0px 0px 0px 0px;
+    }
+    &::before,
+    &::after {
+      opacity: 1;
+    }
+  }
+}
+
+
+@media (max-width: 650px) {
   .header {
+    &__logo {
+      height: 25px;
+    }
     &__nav {
       @include flexible();
       & {
         padding: 5px 15px;
-        gap: 10px;
+        gap: 5px;
+        flex-direction: column;
+        margin-bottom: 5px;
       }
     }
     &__link {
       padding: 0px;
+      padding-bottom: 2px;
+    }
+    &__list {
+      width: 100%;
     }
   }
 }

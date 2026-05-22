@@ -27,14 +27,6 @@ interface UpdateItem {
   type: "Добавлено" | "Изменено"
 }
 
-const links = [
-  { link: "/weapons/", title: "Оружия" },
-  { link: "/echoSets/", title: "Сеты" },
-  { link: "/echoapp", title: "EchoApp" },
-  { link: "/tierlists/", title: "Тир-листы" },
-  // { link: "/", title: "Механики" },
-]
-
 export const Greeting = () => {
   const [patchDate, setPatchDate] = useState<number>(0)
   const [updates, setUpdates] = useState<UpdateItem[]>([])
@@ -218,40 +210,15 @@ export const Greeting = () => {
                 })}
             </ul>
           </div>
-          {/* <p className="preview-block__descr">
-            WW HUB - В этом месте ты найдешь все что нужно игроку Wuthering
-            Waves. Актуальные билды и подсчеты цифр урона!
-          </p> */}
         </div>
-        <div className="greeting__block nav-block">
-          <h2 className="nav-block__h2">Навигация</h2>
-          <ul className="nav-block__list">
-            {links.map((item, index) => {
-              return (
-                <li
-                  className="nav-block__item"
-                  key={`${index}список ссылок greeting`}
-                >
-                  {/* Ссылка поверх */}
-                  <Link
-                    to={item.link}
-                    className="nav-block__link"
-                    style={{ position: "relative", zIndex: 1 }}
-                  >
-                    {item.title}
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
+
         {/* Последние изменения (из Firebase) */}
         <div className="greeting__block changes-block">
-          <h2 className="nav-block__h2">Последние изменения</h2>
+          <h2 className="changes-block__h2">Последние изменения</h2>
           <ul className="changes-block__list">
             {uniqueUpdates.length > 0 ? (
               // Показываем только первые 5 уникальных записей
-              uniqueUpdates.slice(0, 5).map(item => (
+              uniqueUpdates.slice(0, 20).map(item => (
                 <li className="changes-block__item" key={item.id}>
                   <Link to={item.link} className="changes-block__descr">
                     {`${item.type}:`}{" "}

@@ -144,6 +144,9 @@
   @media (max-width: 350px) {
     font-size: 1.3em;
   }
+    @media (max-width: 320px) {
+    font-size: 1em;
+  }
 }
 
 @mixin textType2() {

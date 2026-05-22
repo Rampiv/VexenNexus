@@ -162,7 +162,7 @@
     @include listReset();
     & {
       display: grid;
-      grid-template-columns: repeat(8, 1fr);
+      grid-template-columns: repeat(10, 1fr);
       gap: 10px;
       width: 100%;
     }
@@ -206,7 +206,7 @@
   }
 
   &__h3 {
-    @include textType2();
+    @include textType15();
     & {
       display: flex;
       justify-content: center;
@@ -215,11 +215,11 @@
       bottom: 0;
       width: 100%;
       height: 100%;
-      background: #646366;
+      // background: #646366;
       background: linear-gradient(
-        rgba(0, 0, 0, 0.1) 0%,
-        rgb(78, 77, 81, 0.3) 70%,
-        rgb(78, 77, 81, 0.8) 100%
+        rgba(0, 0, 0, 0) 0%,
+        rgb($color1, 0.3) 70%,
+        rgb($main, 0.9) 100%
       );
       text-align: center;
     }
@@ -260,7 +260,7 @@
 @media (max-width: 500px) {
   .resonators-list {
     &__list {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 5px;
     }
   }

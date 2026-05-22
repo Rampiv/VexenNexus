@@ -1,7 +1,7 @@
 {
   "name": "vexennexus",
   "private": false,
-  "version": "1.4.5",
+  "version": "1.5.0",
   "type": "module",
   "homepage": "https://rampiv.github.io/VexenNexus/",
   "scripts": {
@@ -17,6 +17,11 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@tiptap/extension-color": "^3.23.6",
+    "@tiptap/extension-text-style": "^3.23.6",
+    "@tiptap/react": "^3.23.6",
+    "@tiptap/starter-kit": "^3.23.6",
+    "dompurify": "^3.4.5",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "firebase": "^12.12.0",
@@ -28,6 +33,7 @@
     "yet-another-react-lightbox": "^3.31.0"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.2.0",
     "@types/js-cookie": "^3.0.6",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
