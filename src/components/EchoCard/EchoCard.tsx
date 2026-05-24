@@ -11,7 +11,7 @@ import { db } from "../../firebase/config"
 interface Props {
   EchoSet: EchoSet
   index?: number
-  allResonators: Resonator[]
+  allResonators?: Resonator[]
 }
 
 export const EchoCard = ({ EchoSet: item, index, allResonators }: Props) => {
@@ -19,6 +19,7 @@ export const EchoCard = ({ EchoSet: item, index, allResonators }: Props) => {
 
   const suitableResonators = useMemo(() => {
     if (!item.suitableResonatorIds?.length) return []
+    if (!allResonators) return
     return allResonators.filter(r =>
       item.suitableResonatorIds?.includes(r.id || ""),
     )
@@ -45,7 +46,7 @@ export const EchoCard = ({ EchoSet: item, index, allResonators }: Props) => {
   if (!item) return null
 
   return (
-    <li className="echo-sets__item" key={`эхо сеты ${index} ${item.id}`}>
+    <div className="echo-sets__item" key={`эхо сеты ${index} ${item.id}`}>
       <div className="echo-sets__title-block">
         <img src={item.img} alt="Картинка сета" className="echo-sets__img" />
         <h2 className="echo-sets__h2">{item.name}</h2>
@@ -112,14 +113,14 @@ export const EchoCard = ({ EchoSet: item, index, allResonators }: Props) => {
             })}
           </>
         )}
-        {suitableResonators.length > 0 && (
+        {suitableResonators && suitableResonators.length > 0 && (
           <div className="echo-sets__resonators">
             <h4 className="echo-sets__h4">Подходит персонажам:</h4>
             <ul className="echo-sets__resonators-list">
               {suitableResonators.map((res, index) => (
                 <li
                   className="echo-sets__resonators-item"
-                  key={`карточки резонатора в эхо карточке ${index}`}
+                  key={`карточки резонатора в эхо карточке ${index} ${res.id}`}
                 >
                   <ResonatorLink item={res} elements={elements} />
                 </li>
@@ -128,6 +129,6 @@ export const EchoCard = ({ EchoSet: item, index, allResonators }: Props) => {
           </div>
         )}
       </div>
-    </li>
+    </div>
   )
 }
