@@ -285,10 +285,11 @@
     gap: 2px;
   }
   &__tag {
-    @include textType08();
+    @include textType1();
     & {
       width: fit-content;
-      filter: contrast(2);
+      filter: contrast(5) brightness(300%);
+      font-weight: bolder;
     }
   }
 }

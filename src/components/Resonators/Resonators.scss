@@ -184,27 +184,6 @@
     }
   }
 
-  &__img {
-    object-fit: cover;
-    object-position: top;
-  }
-
-  &__element {
-    position: absolute;
-    top: 2%;
-    right: 2%;
-    width: 24px;
-    height: 24px;
-    object-fit: cover;
-  }
-  &__background-element {
-    position: absolute;
-    top: 0;
-    right: 0;
-    border-left: 50px solid transparent;
-    border-top: 50px solid $color1;
-  }
-
   &__h3 {
     @include textType15();
     & {
@@ -224,18 +203,8 @@
       text-align: center;
     }
   }
-  &__link {
-    @include textType05();
-    @include flexible();
-    @include standartTransition();
-    @include standartAnimZoom();
-    & {
-      position: relative;
-      width: 100%;
-      border-radius: 5px;
-    }
-  }
 }
+
 @media (max-width: 850px) {
   .resonators-list {
     &__list {

@@ -13,3 +13,4 @@ export { EchoResonatorPicker } from "./EchoResonatorPicker"
 export { EchoSetAggregator } from "./EchoSetAggregator"
 export { TierListEditor } from "./TierListEditor"
 export { DescriptionEditor } from "./DescriptionEditor"
+export {ResonatorLink} from './ResonatorLink'

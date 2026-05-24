@@ -28,36 +28,38 @@ export const Weapons = () => {
   const [selectedType, setSelectedType] = useState<string>("all")
   const [selectedWeapon, setSelectedWeapon] = useState<Weapon | null>(null)
 
+  // Загрузка данных
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true)
+        const [weaponTypesSnap, weaponsSnap] = await Promise.all([
+          getDocs(collection(db, "weapons_icon")),
+          getDocs(query(collection(db, "weapons"), orderBy("name"))),
+        ])
 
-        const weaponTypesSnap = await getDocs(collection(db, "weapons_icon"))
-        const weaponTypesList = weaponTypesSnap.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as WeaponTypeData[]
-        setWeaponTypes(weaponTypesList)
-
-        const weaponsSnap = await getDocs(
-          query(collection(db, "weapons"), orderBy("name")),
+        setWeaponTypes(
+          weaponTypesSnap.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          })) as WeaponTypeData[],
         )
-        const weaponsList = weaponsSnap.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Weapon[]
-        setWeaponsAll(weaponsList)
-
-        setLoading(false)
+        setWeaponsAll(
+          weaponsSnap.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          })) as Weapon[],
+        )
       } catch (err) {
         console.error("Ошибка загрузки оружия:", err)
+      } finally {
         setLoading(false)
       }
     }
     fetchData()
   }, [])
 
+  // Синхронизация с URL
   useEffect(() => {
     if (!urlEngName) {
       setSelectedWeapon(null)
@@ -78,14 +80,32 @@ export const Weapons = () => {
     }
   }, [urlEngName, weaponsAll])
 
+  useEffect(() => {
+    if (selectedWeapon) {
+      document.body.style.overflow = "hidden"
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") closeModal()
+      }
+      window.addEventListener("keydown", handleKeyDown)
+      return () => {
+        document.body.style.overflow = ""
+        window.removeEventListener("keydown", handleKeyDown)
+      }
+    }
+  }, [selectedWeapon])
+
   const handleSelectType = (type: string) => {
     setSelectedType(prev => (prev === type ? "all" : type))
   }
 
   const handleWeaponClick = (weapon: Weapon) => {
     setSelectedWeapon(weapon)
-
     window.history.pushState({}, "", `/weapons/${weapon.engName}`)
+  }
+
+  const closeModal = () => {
+    setSelectedWeapon(null)
+    // window.history.replaceState({}, "", "/weapons")
   }
 
   const filteredAndSortedWeapons = useMemo(() => {
@@ -109,24 +129,19 @@ export const Weapons = () => {
     return result.sort((a, b) => a.name.localeCompare(b.name, "ru"))
   }, [searchTerm, selectedType, weaponsAll])
 
-  if (loading) {
-    return <Loader width="100px" height="100px" />
-  }
+  if (loading) return <Loader width="100px" height="100px" />
 
   return (
     <section className="weapons">
-      {/* Поиск */}
-
       <input
         type="text"
         placeholder="Поиск оружия..."
         value={searchTerm}
         onChange={e => setSearchTerm(e.target.value)}
-        className="weapons-filter__search"
+        className={`weapons-filter__search ${searchTerm && "weapons-filter__search-active"}`}
         maxLength={30}
       />
 
-      {/* Фильтры по типам */}
       <div className="weapons-filter__listContainer">
         <ul className="weapons-filter__list">
           {weaponTypes.map(({ type, link }) => (
@@ -139,9 +154,7 @@ export const Weapons = () => {
                 <img
                   src={link}
                   alt={type}
-                  className={`weapons-filter__img ${
-                    selectedType === type ? "weapons-filter__img_zoom" : ""
-                  }`}
+                  className={`weapons-filter__img ${selectedType === type ? "weapons-filter__img_zoom" : ""}`}
                 />
               </button>
             </li>
@@ -151,16 +164,16 @@ export const Weapons = () => {
       </div>
 
       <TypeDesrElement selectedType={selectedType} weaponTypes={weaponTypes} />
-      {/* Список оружия */}
+
       <ul className="weapons__list">
         {filteredAndSortedWeapons.length > 0 ? (
           filteredAndSortedWeapons.map(item => {
-            if (item.rarity == 5) {
+            if (item.rarity === 5) {
               return (
-                <li className={`weapons__item`} key={item.id}>
+                <li className="weapons__item" key={item.id}>
                   <h3 className="weapons__h3">{item.name}</h3>
                   <button
-                    className={`weapons__btn weapons__btn-5`}
+                    className="weapons__btn weapons__btn-5"
                     onClick={() => handleWeaponClick(item)}
                   >
                     <img
@@ -172,65 +185,77 @@ export const Weapons = () => {
                 </li>
               )
             }
-          })
-        ) : (
-          <li className="weapons__empty">Оружие не найдено</li>
-        )}
-      </ul>
-      <ul className="weapons__list">
-        {filteredAndSortedWeapons.length > 0 ? (
-          filteredAndSortedWeapons.map(item => {
-            if (item.rarity == 4) {
-              return (
-                <li className={`weapons__item`} key={item.id}>
-                  <h3 className="weapons__h3">{item.name}</h3>
-                  <button
-                    className={`weapons__btn weapons__btn-4`}
-                    onClick={() => handleWeaponClick(item)}
-                  >
-                    <img
-                      src={item.img}
-                      alt={item.name}
-                      className="weapons__img"
-                    />
-                  </button>
-                </li>
-              )
-            }
+            return null
           })
         ) : (
           <li className="weapons__empty">Оружие не найдено</li>
         )}
       </ul>
 
-      {/* Блок с подробной информацией об оружии */}
-      {selectedWeapon && (
-        <div className="weapons__content">
-          <img
-            src={selectedWeapon.img}
-            alt="Картинка оружия"
-            className={`weapons__content-img ${selectedWeapon.rarity == 4 ? "weapons__btn-4" : "weapons__btn-5"}`}
-          />
-          <div className="weapons__description-container">
-            <h2 className="weapons__h2">{selectedWeapon.name}</h2>
-            <h4 className="weapons__h4">Пассивка</h4>
-            <ul className="weapons__description-list">
-              {selectedWeapon.description.length > 0 ? (
-                selectedWeapon.description.map((item, index) => {
-                  return (
-                    <li
-                      className="weapons__description-item"
-                      key={`weapons__description-item ${index}`}
-                      dangerouslySetInnerHTML={{ __html: item }}
+      <ul className="weapons__list">
+        {filteredAndSortedWeapons.length > 0 ? (
+          filteredAndSortedWeapons.map(item => {
+            if (item.rarity == 4) {
+              return (
+                <li className="weapons__item" key={item.id}>
+                  <h3 className="weapons__h3">{item.name}</h3>
+                  <button
+                    className="weapons__btn weapons__btn-4"
+                    onClick={() => handleWeaponClick(item)}
+                  >
+                    <img
+                      src={item.img}
+                      alt={item.name}
+                      className="weapons__img"
                     />
-                  )
-                })
-              ) : (
-                <li className="weapons__description">
-                  Описание оружия не найдено
+                  </button>
                 </li>
-              )}
-            </ul>
+              )
+            }
+            return null
+          })
+        ) : (
+          <li className="weapons__empty">Оружие не найдено</li>
+        )}
+      </ul>
+
+      {/* Модальное окно */}
+      {selectedWeapon && (
+        <div className="weapons__modal-overlay" onClick={closeModal}>
+          <div className="weapons__modal" onClick={e => e.stopPropagation()}>
+            <button
+              className="weapons__close-btn"
+              onClick={closeModal}
+              aria-label="Закрыть"
+            >
+              ×
+            </button>
+            <div className="weapons__modal-content">
+              <img
+                src={selectedWeapon.img}
+                alt={selectedWeapon.name}
+                className={`weapons__content-img ${selectedWeapon.rarity == 4 ? "weapons__btn-4" : "weapons__btn-5"}`}
+              />
+              <div className="weapons__description-container">
+                <h2 className="weapons__h2">{selectedWeapon.name}</h2>
+                <h4 className="weapons__h4">Пассивка</h4>
+                <ul className="weapons__description-list">
+                  {selectedWeapon.description?.length > 0 ? (
+                    selectedWeapon.description.map((item, index) => (
+                      <li
+                        className="weapons__description-item"
+                        key={index}
+                        dangerouslySetInnerHTML={{ __html: item }}
+                      />
+                    ))
+                  ) : (
+                    <li className="weapons__description">
+                      Описание оружия не найдено
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -262,7 +287,6 @@ const TypeDesrElement = ({
   const currentTypeData = weaponTypes.find(
     item => item.type.toLowerCase() === selectedType.toLowerCase(),
   )
-
   const label = getTypeLabel(selectedType)
 
   return (

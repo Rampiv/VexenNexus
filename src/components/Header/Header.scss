@@ -93,9 +93,9 @@
     height: 0;
     border-width: 0 0px 0 0px;
   }
-  &:hover {
+  &:hover, &:focus {
     border-color: $color2;
-    // color: $color2;
+    color: $white;
     &::before {
       width: 100%;
       border-width: 0px 0 1px 0;

@@ -11,11 +11,13 @@
     @include listReset();
     & {
       display: grid;
-      grid-template-columns: repeat(10, 100px);
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       gap: 15px;
       margin-bottom: 20px;
+      width: 100%;
     }
   }
+
   &__item {
     @include standartTransition();
     @include flexible();
@@ -26,10 +28,12 @@
       height: 100%;
     }
   }
+
   &__img {
     object-fit: contain;
     object-position: top;
   }
+
   &__h2 {
     @include textType2();
     & {
@@ -51,6 +55,7 @@
       text-align: start;
     }
   }
+
   &__btn {
     @include textType05();
     @include btnReset();
@@ -78,29 +83,82 @@
     color: #888;
   }
 
-  &__content {
-    @include flexible();
+  /* --- Модальное окно --- */
+  &__modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+    animation: fadeIn 0.2s ease forwards;
+  }
+
+  &__modal {
+    background: $color1;
+    border: 1px solid $color2;
+    box-shadow: 0 0 20px $color2;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 700px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    animation: slideUp 0.3s ease forwards;
+  }
+
+  &__close-btn {
+    @include btnReset();
     & {
-      justify-content: flex-start;
-      border: 1px solid $color2;
-      box-shadow: 0px 0px 15px $color2;
-      border-radius: 15px;
-      padding: 15px;
-      gap: 15px;
-      width: 70%;
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 28px;
+      line-height: 1;
+      color: $color2;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    &:hover {
+      transform: scale(1.2);
     }
   }
+
+  &__modal-content {
+    @include flexible();
+    & {
+      gap: 20px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+  }
+
   &__content-img {
     width: 206px;
     height: 206px;
     object-fit: cover;
     border-radius: 10px;
+    flex-shrink: 0;
   }
+
   &__description-container {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    flex: 1;
+    min-width: 250px;
   }
+
   &__description-list {
     @include listReset();
     @include textType1();
@@ -108,7 +166,11 @@
       text-align: start;
     }
   }
+  &__description-item {
+    @include textType1();
+  }
 
+  /* --- Описание типа --- */
   &__typedescr {
     @include flexible();
     & {
@@ -181,21 +243,53 @@
       font-weight: 400;
       font-size: 19px;
     }
-    &:focus {
-      &::placeholder {
-        opacity: 0;
-      }
+    &:focus::placeholder {
+      opacity: 0;
+    }
+    &-active {
+      box-shadow: 0px 0px 10px 10px rgba($color2, 0.3);
+      animation: pulseShadow 1s linear infinite alternate;
     }
   }
 }
 
+/* Анимации */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes pulseShadow {
+  0% {
+    box-shadow: 0px 0px 1px 1px rgba($color2, 0);
+  }
+  100% {
+    box-shadow: 0px 0px 8px 8px rgba($color2, 0.3);
+  }
+}
+
+/* Адаптив */
 @media (max-width: 750px) {
   .weapons__content-img {
     width: 150px;
     height: 150px;
   }
-  .weapons__content {
-    width: 100%;
+  .weapons__modal-content {
+    flex-direction: column;
+    align-items: center;
   }
 }
 @media (max-width: 450px) {
@@ -212,21 +306,32 @@
   .weapons__typedescr {
     width: 100%;
   }
+  .weapons__list {
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    gap: 5px;
+  }
+  .weapons__modal {
+    padding: 15px;
+    max-width: 95%;
+  }
 }
-
 @media (max-width: 350px) {
-  .weapons__h2 {
-    font-weight: bold;
-    text-align: start;
-  }
+  .weapons__h2,
   .weapons__h4 {
-    text-align: start;
-  }
-  .weapons__description {
     text-align: start;
   }
   .weapons-filter__list {
     gap: 5px;
     flex-wrap: wrap;
+  }
+  .weapons__modal {
+    @include flexible();
+    & {
+      gap: 10px;
+      padding: 10px;
+    }
+  }
+  .weapons__description-container{
+    min-width: fit-content;
   }
 }
