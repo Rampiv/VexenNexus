@@ -1,0 +1,54 @@
+@use "../../styles/style.scss" as *;
+
+.resonator-link {
+  @include textType05();
+  @include flexible();
+  @include standartTransition();
+  @include standartAnimZoom();
+  & {
+    position: relative;
+    width: 100%;
+    border-radius: 5px;
+  }
+
+  &__img {
+    object-fit: cover;
+    object-position: top;
+  }
+
+  &__element {
+    position: absolute;
+    top: 2%;
+    right: 2%;
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+  }
+  &__background-element {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-left: 50px solid transparent;
+    border-top: 50px solid $color1;
+  }
+
+  &__h3 {
+    @include textType15();
+    & {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      // background: #646366;
+      background: linear-gradient(
+        rgba(0, 0, 0, 0) 0%,
+        rgb($color1, 0.3) 70%,
+        rgb($main, 0.9) 100%
+      );
+      text-align: center;
+    }
+  }
+}

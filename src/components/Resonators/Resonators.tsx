@@ -5,9 +5,10 @@ import { Link } from "react-router"
 import { db } from "../../firebase/config" // Убедитесь, что путь верный
 import type { Resonator } from "../../types/resonator"
 import { Loader } from "../Loader"
+import { ResonatorLink } from "../ResonatorLink"
 
 // Типы данных
-interface ElementData {
+export interface ElementData {
   id: string
   name: string
   iconUrl: string
@@ -247,28 +248,7 @@ export const Resonators = ({ customClassname, filterBackImg }: Prop) => {
               className={`resonators-list__item ${item.rarity == 4 ? "resonators-list__item-4" : "resonators-list__item-5"}`.trim()}
               key={item.id}
             >
-              <Link
-                to={`/resonator/${item.engName}`}
-                className="resonators-list__link"
-              >
-                <img
-                  src={item.resonatorImgMini}
-                  alt={item.name}
-                  className="resonators-list__img"
-                />
-                <span
-                  className="resonators-list__background-element"
-                ></span>
-                <img
-                  src={
-                    elements.find(itemEl => itemEl.id === item.element)?.iconUrl
-                  }
-                  alt={item.element}
-                  className="resonators-list__element"
-                />
-
-                <h3 className="resonators-list__h3">{item.name}</h3>
-              </Link>
+              <ResonatorLink item={item} elements={elements} />
             </li>
           ))}
         </ul>

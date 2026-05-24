@@ -1,13 +1,49 @@
+import { useEffect, useMemo, useState } from "react"
 import type { EchoSet } from "../../types/echoSet"
+import type { Resonator } from "../../types/resonator"
 import "./EchoCard.scss"
+import { Link } from "react-router"
+import { ResonatorLink } from "../ResonatorLink"
+import type { ElementData } from "../Resonators/Resonators"
+import { collection, getDocs } from "firebase/firestore"
+import { db } from "../../firebase/config"
 
 interface Props {
   EchoSet: EchoSet
   index?: number
+  allResonators: Resonator[]
 }
 
-export const EchoCard = ({ EchoSet: item, index }: Props) => {
+export const EchoCard = ({ EchoSet: item, index, allResonators }: Props) => {
+  const [elements, setElements] = useState<ElementData[]>([])
+
+  const suitableResonators = useMemo(() => {
+    if (!item.suitableResonatorIds?.length) return []
+    return allResonators.filter(r =>
+      item.suitableResonatorIds?.includes(r.id || ""),
+    )
+  }, [item.suitableResonatorIds, allResonators])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // 1. Загрузка стихий
+        const elementsSnap = await getDocs(collection(db, "elements"))
+        const elementsList = elementsSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as ElementData[]
+        setElements(elementsList)
+      } catch (error) {
+        console.error("Ошибка загрузки данных Resonators:", error)
+      }
+    }
+
+    fetchData()
+  }, [])
+
   if (!item) return null
+
   return (
     <li className="echo-sets__item" key={`эхо сеты ${index} ${item.id}`}>
       <div className="echo-sets__title-block">
@@ -75,6 +111,21 @@ export const EchoCard = ({ EchoSet: item, index }: Props) => {
               )
             })}
           </>
+        )}
+        {suitableResonators.length > 0 && (
+          <div className="echo-sets__resonators">
+            <h4 className="echo-sets__h4">Подходит персонажам:</h4>
+            <ul className="echo-sets__resonators-list">
+              {suitableResonators.map((res, index) => (
+                <li
+                  className="echo-sets__resonators-item"
+                  key={`карточки резонатора в эхо карточке ${index}`}
+                >
+                  <ResonatorLink item={res} elements={elements} />
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </li>

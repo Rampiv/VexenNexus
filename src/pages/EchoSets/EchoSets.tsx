@@ -5,6 +5,7 @@ import { db } from "../../firebase/config"
 import type { EchoSet } from "../../types/echoSet"
 import "./EchoSets.scss"
 import { useParams } from "react-router"
+import type { Resonator } from "../../types/resonator"
 
 export const EchoSets = () => {
   const { engName: urlEngName } = useParams<{ engName: string }>()
@@ -14,6 +15,8 @@ export const EchoSets = () => {
 
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedPatch, setSelectedPatch] = useState<string>("all")
+
+  const [resonators, setResonators] = useState<Resonator[]>([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,6 +30,16 @@ export const EchoSets = () => {
           ...doc.data(),
         })) as EchoSet[]
         setEchoSetsAll(echoList)
+
+        const resSnap = await getDocs(
+        query(collection(db, "resonators"), orderBy("name")),
+      )
+      const resList = resSnap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Resonator[]
+      setResonators(resList)
+
         setLoading(false)
       } catch (err) {
         console.error("Ошибка загрузки эхо-сетов:", err)
@@ -137,7 +150,7 @@ export const EchoSets = () => {
       <ul className="echo-sets__list">
         {filteredAndSortedSets.length > 0 ? (
           filteredAndSortedSets.map(item => {
-            return <EchoCard key={item.id} EchoSet={item} />
+            return <EchoCard key={item.id} EchoSet={item} allResonators={resonators}/>
           })
         ) : (
           <li className="echo-sets__empty">Ничего не найдено</li>

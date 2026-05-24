@@ -1,3 +1,4 @@
+@use "../../styles/style.scss" as *;
 .admin {
   padding: 2rem;
   max-width: 1200px;
@@ -438,6 +439,77 @@
 
   &:hover {
     background: #45a049;
+  }
+}
+
+.resonator-selector {
+  .custom-select {
+    width: 100%;
+
+    .custom-select-trigger {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 0.8rem;
+      color: #fff;
+
+      &:hover {
+        border-color: #7d40ff;
+      }
+    }
+
+    .custom-select-options {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 4px;
+      margin-top: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+
+      .custom-option {
+        padding: 0.5rem 1rem;
+        color: #fff;
+
+        &:hover {
+          background: #3a3a3a;
+        }
+
+        &.selected {
+          background: #7d40ff;
+        }
+
+        .option-img {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          object-fit: cover;
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+}
+.selected-resonators {
+  @include listReset();
+  @include flexible();
+  & {
+    justify-content: flex-start;
+    gap: 5px;
+  }
+}
+.selected-resonator-item {
+  @include flexible();
+  & {
+    flex-direction: column;
+    position: relative;
+  }
+  img {
+    width: 50px;
+  }
+  button {
+    position: absolute;
+    top: 0;
+    right: 0;
   }
 }
 

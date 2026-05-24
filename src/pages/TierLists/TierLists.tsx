@@ -263,9 +263,9 @@ export const TierLists = () => {
                               row.resonatorSettings?.[resonator.id]
                             const status =
                               settings?.status == "up"
-                                ? "https://i.ibb.co/LzYrsD31/strelka-zelenaya.png"
+                                ? "https://i.ibb.co/Hf2Qp7vL/image.png"
                                 : settings?.status == "down"
-                                  ? "https://i.ibb.co/M5j5ybmd/strelka-krasnaya.png"
+                                  ? "https://i.ibb.co/LDsRXWrz/image.png"
                                   : ""
                             return (
                               <Link
@@ -307,11 +307,6 @@ export const TierLists = () => {
                                   <span className="resonator-card__name">
                                     {resonator.name}
                                   </span>
-                                  {resonator.engName && (
-                                    <span className="resonator-card__eng-name">
-                                      {resonator.engName}
-                                    </span>
-                                  )}
                                 </div>
                                 {settings?.tags && settings.tags.filter((tag: { text: string }) => tag.text.trim()).length > 0 && (
                                   <div className="resonator-card__tags-list">
