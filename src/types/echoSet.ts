@@ -10,5 +10,4 @@ export interface EchoSet {
   important?: string[]
   patchNumber? : string
   index?: number
-  suitableResonatorIds?: string[];
 }

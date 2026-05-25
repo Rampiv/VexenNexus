@@ -657,7 +657,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                       }
                     />
                     <span className="status-label status-up">
-                      <img src='https://i.ibb.co/LzYrsD31/strelka-zelenaya.png' alt="картинка up" />
+                      UP
                     </span>
                   </label>
                   <label
@@ -676,7 +676,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                       }
                     />
                     <span className="status-label status-neutral">
-                      → neutral
+                      N
                     </span>
                   </label>
                   <label
@@ -692,7 +692,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                       }
                     />
                     <span className="status-label status-down">
-                      <img src='https://i.ibb.co/M5j5ybmd/strelka-krasnaya.png' alt="картинка down" />
+                      DOWN
                     </span>
                   </label>
                 </div>

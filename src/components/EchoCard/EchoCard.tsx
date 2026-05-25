@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react"
 import type { EchoSet } from "../../types/echoSet"
 import type { Resonator } from "../../types/resonator"
 import "./EchoCard.scss"
-import { Link } from "react-router"
 import { ResonatorLink } from "../ResonatorLink"
 import type { ElementData } from "../Resonators/Resonators"
 import { collection, getDocs } from "firebase/firestore"
@@ -18,12 +17,11 @@ export const EchoCard = ({ EchoSet: item, index, allResonators }: Props) => {
   const [elements, setElements] = useState<ElementData[]>([])
 
   const suitableResonators = useMemo(() => {
-    if (!item.suitableResonatorIds?.length) return []
-    if (!allResonators) return
-    return allResonators.filter(r =>
-      item.suitableResonatorIds?.includes(r.id || ""),
+    if (!item.id || !allResonators) return []
+    return allResonators.filter(resonator =>
+      resonator.echoSets?.some(echoSet => echoSet.id === item.id),
     )
-  }, [item.suitableResonatorIds, allResonators])
+  }, [item.id, allResonators])
 
   useEffect(() => {
     const fetchData = async () => {

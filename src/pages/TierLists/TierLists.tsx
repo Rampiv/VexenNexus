@@ -258,15 +258,11 @@ export const TierLists = () => {
                         {resonatorsInRow.length > 0 ? (
                           resonatorsInRow.map(resonator => {
                             if (!resonator.id) return null
-                            
+
                             const settings =
                               row.resonatorSettings?.[resonator.id]
-                            const status =
-                              settings?.status == "up"
-                                ? "https://i.ibb.co/Hf2Qp7vL/image.png"
-                                : settings?.status == "down"
-                                  ? "https://i.ibb.co/LDsRXWrz/image.png"
-                                  : ""
+                            const status = settings?.status
+
                             return (
                               <Link
                                 key={resonator.id}
@@ -276,7 +272,35 @@ export const TierLists = () => {
                                 <div
                                   className={`resonator-card__image-wrapper ${resonator.rarity == 4 && "resonator-card__image-wrapper_4"}`.trim()}
                                 >
-                                  {status && <img src={status} alt="Картинка статуса" className="resonator-card__status-img" />}
+                                  {status && (
+                                    <svg
+                                      width="25"
+                                      height="25"
+                                      viewBox="0 0 25 25"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className={`resonator-card__status-img ${
+                                        status === "up"
+                                          ? "resonator-card__status-img_green"
+                                          : "resonator-card__status-img_red"
+                                      }`}
+                                    >
+                                      <g
+                                        stroke="white"
+                                        strokeWidth="1.5"
+                                        fill="none"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      >
+                                        {/* Верхняя стрелка */}
+                                        <path d="M 7 9 L 12.5 4 L 18 9" />
+                                        {/* Средняя стрелка */}
+                                        <path d="M 7 14 L 12.5 9 L 18 14" />
+                                        {/* Нижняя стрелка */}
+                                        <path d="M 7 19 L 12.5 14 L 18 19" />
+                                      </g>
+                                    </svg>
+                                  )}
+
                                   <img
                                     src={
                                       resonator.resonatorImgMini ||
@@ -308,25 +332,34 @@ export const TierLists = () => {
                                     {resonator.name}
                                   </span>
                                 </div>
-                                {settings?.tags && settings.tags.filter((tag: { text: string }) => tag.text.trim()).length > 0 && (
-                                  <div className="resonator-card__tags-list">
-                                    {settings.tags
-                                      .filter((tag: { text: string }) =>
-                                        tag.text.trim(),
-                                      )
-                                      .map((tag: { id: string; text: string; color: string }) => (
-                                        <span
-                                          key={tag.id}
-                                          className="resonator-card__tag"
-                                          style={{
-                                            color: tag.color,
-                                          }}
-                                        >
-                                          {tag.text}
-                                        </span>
-                                      ))}
-                                  </div>
-                                )}
+                                {settings?.tags &&
+                                  settings.tags.filter(
+                                    (tag: { text: string }) => tag.text.trim(),
+                                  ).length > 0 && (
+                                    <div className="resonator-card__tags-list">
+                                      {settings.tags
+                                        .filter((tag: { text: string }) =>
+                                          tag.text.trim(),
+                                        )
+                                        .map(
+                                          (tag: {
+                                            id: string
+                                            text: string
+                                            color: string
+                                          }) => (
+                                            <span
+                                              key={tag.id}
+                                              className="resonator-card__tag"
+                                              style={{
+                                                color: tag.color,
+                                              }}
+                                            >
+                                              {tag.text}
+                                            </span>
+                                          ),
+                                        )}
+                                    </div>
+                                  )}
                               </Link>
                             )
                           })
