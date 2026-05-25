@@ -243,9 +243,30 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 25px;
-    height: 25px;
+
     z-index: 2;
+    background-color: rgba(0, 0, 0, 0.579);
+    border-radius: 5px;
+    &_green {
+      g {
+        filter: drop-shadow(0 0 3px rgb(1, 219, 1)) drop-shadow(0 0 2px green)
+          drop-shadow(0 0 16px rgb(green, 0.8));
+        path {
+          stroke: rgb(0, 255, 0);
+        }
+      }
+    }
+    &_red {
+      transform: rotateX(180deg);
+      g {
+        filter: drop-shadow(0 0 3px rgba(255, 0, 0, 0.487))
+          drop-shadow(0 0 2px #ff0000c2)
+          drop-shadow(0 0 16px rgb(255, 0, 0, 0.8));
+        path {
+          stroke: red;
+        }
+      }
+    }
   }
 
   &__info {
@@ -451,6 +472,13 @@
   .resonator-card__element-img {
     width: 10px;
     height: 10px;
+  }
+  .resonator-card__status-img {
+    width: 10px;
+    height: 10px;
+  }
+  .resonator-card__tag {
+    @include textType03();
   }
   .resonator-card__name {
     @include textType05();

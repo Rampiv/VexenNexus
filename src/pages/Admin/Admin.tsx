@@ -31,12 +31,6 @@ import {
 } from "../../components"
 import { useAuth } from "@contexts/AuthContext"
 import { convertOldTeamsToNew } from "../../supp/ConvertOldTeamsToNew"
-import type {
-  SelectOption} from "../../components/CustomSelect/CustomSelect";
-import {
-  CustomSelect
-} from "../../components/CustomSelect/CustomSelect"
-
 const RESONATORS_COLLECTION = "resonators"
 const WEAPONS_COLLECTION = "weapons"
 const MECHANICS_COLLECTION = "mechanics"
@@ -136,7 +130,6 @@ export const Admin = () => {
     important: [],
     patchNumber: "",
     index: 0,
-    suitableResonatorIds: [],
   })
 
   const [settingsForm, setSettingsForm] = useState<SettingsForm>({
@@ -476,7 +469,6 @@ export const Admin = () => {
         important: item.important || [],
         patchNumber: item.patchNumber || "",
         index: item.index || 0,
-        suitableResonatorIds: item.suitableResonatorIds || [],
       })
     } else if (activeTab === "tierlist") {
       setTierListForm({
@@ -521,26 +513,6 @@ export const Admin = () => {
       futureResonatorIds: prev.futureResonatorIds.filter(
         id => id !== resonatorId,
       ),
-    }))
-  }
-
-  const handleAddResonatorToEchoSet = (resonatorId: string) => {
-    if (!echoSetForm.suitableResonatorIds?.includes(resonatorId)) {
-      setEchoSetForm(prev => ({
-        ...prev,
-        suitableResonatorIds: [
-          ...(prev.suitableResonatorIds || []),
-          resonatorId,
-        ],
-      }))
-    }
-  }
-
-  const handleRemoveResonatorFromEchoSet = (resonatorId: string) => {
-    setEchoSetForm(prev => ({
-      ...prev,
-      suitableResonatorIds:
-        prev.suitableResonatorIds?.filter(id => id !== resonatorId) || [],
     }))
   }
 
@@ -590,7 +562,6 @@ export const Admin = () => {
       important: [],
       patchNumber: "",
       index: 0,
-      suitableResonatorIds: [],
     })
 
     setTierListForm({
@@ -622,17 +593,6 @@ export const Admin = () => {
     resetForms()
     setSearchTerm("")
   }
-
-  const echoSetResonatorOptions: SelectOption[] = [
-    { value: "", label: "Выберите персонажа..." },
-    ...resonators
-      .filter(r => r.id && !echoSetForm.suitableResonatorIds?.includes(r.id))
-      .map(r => ({
-        value: r.id!,
-        label: `${r.name} (${r.engName})`,
-        imgSrc: r.resonatorImgMini || r.resonatorImg,
-      })),
-  ]
 
   const filteredList = useMemo(() => {
     let list: any[] = []
@@ -1115,44 +1075,6 @@ export const Admin = () => {
                   }
                   placeholder="Важно"
                 />
-                <div className="form-group">
-                  <label>Рекомендуемые персонажи для этого сета</label>
-                  <div className="resonator-selector">
-                    <CustomSelect
-                      options={echoSetResonatorOptions}
-                      value=""
-                      onChange={(resonatorId: string) => {
-                        if (resonatorId) {
-                          handleAddResonatorToEchoSet(resonatorId)
-                        }
-                      }}
-                      placeholder="Выберите персонажа..."
-                      className="resonator-select"
-                    />
-                  </div>
-                  <ul className="selected-resonators">
-                    {echoSetForm.suitableResonatorIds?.map(id => {
-                      const res = resonators.find(r => r.id === id)
-                      return res ? (
-                        <li key={id} className="selected-resonator-item">
-                          <img
-                            src={res.resonatorImgMini || res.resonatorImg}
-                            alt={res.name}
-                            className="resonator-thumb"
-                          />
-                          <span>{res.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveResonatorFromEchoSet(id)}
-                            className="btn-remove-resonator"
-                          >
-                            ×
-                          </button>
-                        </li>
-                      ) : null
-                    })}
-                  </ul>
-                </div>
               </>
             )}
 

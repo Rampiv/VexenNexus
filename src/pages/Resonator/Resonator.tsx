@@ -7,9 +7,11 @@ import type { Resonator } from "../../types/resonator"
 import { EchoCard, Loader, YouTubePlayer } from "../../components"
 import { useResonators } from "../../hook/useResonators"
 import { useEchoSets } from "../../hook/useEchoSets"
-import Lightbox from "yet-another-react-lightbox"
 import Chibi from "../../assets/image/Chibi/chibi2.webp"
+import Lightbox from "yet-another-react-lightbox"
 import "yet-another-react-lightbox/styles.css"
+import Zoom from "yet-another-react-lightbox/plugins/zoom"
+// import "yet-another-react-lightbox/plugins/zoom.css"
 import { Tooltip } from "react-tooltip"
 
 const getResonatorByEngName = async (
@@ -421,6 +423,21 @@ export const ResonatorPage = () => {
         open={isLightboxOpen}
         close={() => setIsLightboxOpen(false)}
         slides={[{ src: isLightboxSrc || "" }]}
+        carousel={{
+          finite: true,
+        }}
+        render={{
+          buttonPrev: () => null,
+          buttonNext: () => null,
+        }}
+        plugins={[Zoom]}
+        zoom={{
+          maxZoom: 20,
+          maxZoomPixelRatio: 4,
+          zoomInMultiplier: 2,
+          scrollToZoom: true,
+        }}
+        animation={{ zoom: 300 }}
       />
     </section>
   )
