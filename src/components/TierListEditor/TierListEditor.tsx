@@ -700,7 +700,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                                             key={tag.id}
                                             className="tag-chip"
                                             style={{
-                                              backgroundColor: tag.color,
+                                              color: tag.color,
                                             }}
                                             title={tag.text}
                                           >
