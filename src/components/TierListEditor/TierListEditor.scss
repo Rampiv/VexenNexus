@@ -147,98 +147,223 @@
     }
   }
 
-  .tierlist-row-dropper {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 0;
+  .tierlist-row-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 5px;
+  }
+
+  .tierlist-column {
+    background: #1e1e1e;
     border-radius: 8px;
-    min-height: fit-content;
-    transition: background 0.2s ease;
-    position: relative;
+    padding: 8px;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &.column-dps {
+      border-top: 3px solid #ff4444;
+    }
+
+    &.column-hybrid {
+      border-top: 3px solid #9b40ff;
+    }
+
+    &.column-support {
+      border-top: 3px solid #ffcc00;
+    }
+
+    .column-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #333;
+
+      .column-title {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #aaa;
+        text-transform: uppercase;
+      }
+
+      .role-add-select {
+        padding: 4px 8px;
+        background: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 4px;
+        color: #fff;
+        font-size: 0.8rem;
+        cursor: pointer;
+        max-width: 120px;
+
+        &:hover {
+          border-color: #7d40ff;
+        }
+
+        option {
+          background: #1e1e1e;
+        }
+      }
+    }
 
     .dropped-resonators {
       display: flex;
       flex-wrap: wrap;
-      gap: 0;
-      width: 100%;
-      align-items: center;
-      position: relative;
+      gap: 4px;
+      row-gap: 10px;
+      min-height: 60px;
+      align-items: flex-start;
+      height: fit-content;
+
+      .drop-hint {
+        color: #555;
+        font-size: 0.8rem;
+        font-style: italic;
+        width: 100%;
+        text-align: center;
+        padding: 10px 0;
+      }
+    }
+  }
+
+  .dropped-resonator {
+    position: relative;
+    width: 64px;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-drag: element;
+
+    &.is-dragging {
+      opacity: 0.4;
+      transform: scale(0.95);
     }
 
-    .drop-hint {
-      color: #666;
-      font-size: 0.9rem;
-      font-style: italic;
-      opacity: 0.7;
-      padding: 0.5rem;
-      width: 100%;
-      text-align: center;
+    .resonator-thumb {
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid var(--rarity-color, #4a4a4a);
+      background: #000;
+      pointer-events: none;
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      }
     }
 
-    .dropped-resonator {
-      position: relative;
-      width: 72px;
-      height: 72px;
+    .status-indicator {
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin: 0 2px;
-      cursor: grab;
-      user-select: none;
-      -webkit-user-drag: element;
+      font-size: 0.75rem;
+      font-weight: bold;
+      z-index: 3;
+      border: 2px solid #1e1e1e;
 
-      &.is-dragging {
-        opacity: 0.4;
-        transform: scale(0.95);
-      }
-
-      .resonator-thumb {
-        width: 64px;
-        height: 64px;
-        object-fit: cover;
-        border-radius: 10px;
-        border: 2px solid var(--rarity-color, #4a4a4a);
-        background: #000;
-        pointer-events: none;
-        transition:
-          transform 0.15s ease,
-          box-shadow 0.15s ease;
-
-        &:hover {
-          transform: scale(1.05);
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-        }
-      }
-
-      .btn-remove {
-        position: absolute;
-        top: -6px;
-        right: -6px;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #ff4444;
+      &.status-up {
+        background: #4caf50;
         color: #fff;
-        border: none;
-        font-size: 1rem;
-        font-weight: bold;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        line-height: 1;
-        transition:
-          transform 0.15s ease,
-          background 0.2s ease;
-        z-index: 2;
-        pointer-events: auto;
+      }
 
-        &:hover {
-          background: #ff6666;
-          transform: scale(1.1);
+      &.status-down {
+        background: #f44336;
+        color: #fff;
+      }
+    }
+
+    .btn-remove {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ff4444;
+      color: #fff;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition:
+        transform 0.15s ease,
+        background 0.2s ease;
+      z-index: 2;
+      pointer-events: auto;
+
+      &:hover {
+        background: #ff6666;
+        transform: scale(1.1);
+      }
+    }
+
+    .btn-settings-resonator {
+      position: absolute;
+      top: -6px;
+      right: 15px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(30, 30, 30, 0.95);
+      color: #aaa;
+      border: 1px solid #444;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      z-index: 3;
+      pointer-events: auto;
+
+      &:hover {
+        background: #7d40ff;
+        color: #fff;
+        border-color: #7d40ff;
+        transform: scale(1.1);
+      }
+    }
+
+    .resonator-tags {
+      display: flex;
+      gap: 2px;
+      z-index: 2;
+      flex-wrap: wrap;
+      justify-content: center;
+
+      .tag-chip {
+        font-size: 0.65rem;
+        padding: 2px 4px;
+        border-radius: 3px;
+        color: #fff;
+        white-space: nowrap;
+        max-width: 50px;
+        overflow: hidden;
+
+        &.tag-more {
+          background: #555 !important;
         }
       }
     }
@@ -298,9 +423,15 @@
   padding: 1.25rem;
   border: 1px solid #333;
 
+  h4 {
+    margin: 0 0 10px 0;
+    color: #aaa;
+    font-size: 1rem;
+  }
+
   .resonator-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
     gap: 5px;
   }
 
@@ -333,30 +464,24 @@
     }
 
     .resonator-thumb {
-      width: 64px;
-      height: 64px;
+      width: 56px;
+      height: 56px;
       object-fit: cover;
       border-radius: 10px;
-      border: 2px solid transparent;
+      border: 2px solid var(--rarity-color, #4a4a4a);
       background: #000;
       pointer-events: none;
-      transition: border-color 0.2s ease;
-      border: 2px solid var(--rarity-color, #4a4a4a);
-
-      .resonator-card:hover & {
-        border-color: #7d40ff;
-      }
     }
 
     .resonator-name {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: #ccc;
       text-align: center;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       width: 100%;
-      max-width: 80px;
+      max-width: 75px;
       pointer-events: none;
     }
   }
@@ -370,80 +495,9 @@
   }
 }
 
-.drop-slot {
-  width: 8px;
-  height: 72px;
-  flex-shrink: 0;
-  transition: all 0.15s ease;
-  border-radius: 4px;
-  background: rgba(125, 64, 255, 0.1);
-  margin: 0 2px;
-  position: relative;
-  cursor: pointer;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 2px;
-    height: 40px;
-    background: rgba(125, 64, 255, 0.3);
-    border-radius: 1px;
-    transition: all 0.15s ease;
-  }
-
-  &:hover {
-    background: rgba(125, 64, 255, 0.3);
-    box-shadow: 0 0 8px rgba(125, 64, 255, 0.5);
-
-    &::before {
-      height: 56px;
-      background: rgba(125, 64, 255, 0.8);
-    }
-  }
-}
-
-.ghost-preview {
-  width: 72px;
-  height: 72px;
-  margin: 0 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  animation: ghost-pulse 1.2s ease-in-out infinite;
-  pointer-events: none;
-
-  .resonator-thumb.ghost {
-    width: 64px;
-    height: 64px;
-    object-fit: cover;
-    border-radius: 10px;
-    border: 2px dashed rgba(125, 64, 255, 0.9);
-    background: rgba(125, 64, 255, 0.15);
-    opacity: 0.75;
-    filter: blur(0.3px);
-    box-shadow: 0 0 15px rgba(125, 64, 255, 0.5);
-  }
-}
-
-@keyframes ghost-pulse {
-  0%,
-  100% {
-    opacity: 0.7;
-    transform: scale(0.98);
-  }
-  50% {
-    opacity: 0.9;
-    transform: scale(1.02);
-  }
-}
-
 .drop-indicator {
-  width: 10px;
-  height: 72px;
+  width: 8px;
+  height: 56px;
   background: linear-gradient(90deg, transparent, #7d40ff, transparent);
   border-radius: 2px;
   flex-shrink: 0;
@@ -461,79 +515,6 @@
   50% {
     opacity: 1;
     transform: scaleY(1.1);
-  }
-}
-
-.dropped-resonators {
-  position: relative;
-}
-
-.dropped-resonator {
-  // ... ваши существующие стили
-  transition: transform 0.15s ease;
-
-  &:hover {
-    transform: scale(1.05);
-  }
-}
-
-// === Кнопка настроек персонажа ===
-.btn-settings-resonator {
-  position: absolute;
-  bottom: -6%;
-  right: -6px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(30, 30, 30, 0.9);
-  color: #aaa;
-  border: 1px solid #444;
-  font-size: 0.8rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  z-index: 3;
-  pointer-events: auto;
-
-  &:hover {
-    background: #7d40ff;
-    color: #fff;
-    border-color: #7d40ff;
-    transform: scale(1.1);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-}
-
-// === Индикатор статуса ===
-.status-indicator {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-weight: bold;
-  z-index: 3;
-
-  &.status-up {
-    background: #4caf50;
-    color: #fff;
-    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-  }
-
-  &.status-down {
-    background: #f44336;
-    color: #fff;
-    box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
   }
 }
 
@@ -651,12 +632,10 @@
 }
 
 .status-label {
-  width: 40px;
-  img {
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
-  }
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
 
   &.status-up {
     color: #4caf50;
