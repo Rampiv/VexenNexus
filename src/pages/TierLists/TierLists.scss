@@ -305,14 +305,23 @@
   flex-direction: column;
   gap: 8px;
 
-  &.column-dps {
-    border-top: 3px solid $red;
+  &.column-dps-bottom {
+    border-top: 3px solid #5f0007;
   }
-  &.column-hybrid {
-    border-top: 3px solid $purple;
+  &.column-hybrid-bottom {
+    border-top: 3px solid #38005b;
   }
-  &.column-support {
-    border-top: 3px solid $yellow;
+  &.column-support-bottom {
+    border-top: 3px solid #957700;
+  }
+  &.column-dps-up {
+    border-top: 3px solid #ff6363;
+  }
+  &.column-hybrid-up {
+    border-top: 3px solid #6400a3;
+  }
+  &.column-support-up {
+    border-top: 3px solid #ddb100;
   }
 }
 
@@ -327,25 +336,25 @@
     margin-bottom: 5px;
     background: rgba(255, 255, 255, 0.02);
     border-radius: 8px;
-    &.column-dps {
-      border-bottom: 1px solid $red;
-    }
-    &.column-hybrid {
-      border-bottom: 1px solid $purple;
-    }
-    &.column-support {
-      border-bottom: 1px solid $yellow;
-    }
+    // &.column-dps {
+    //   border-bottom: 1px solid #ff6363;
+    // }
+    // &.column-hybrid {
+    //   border-bottom: 1px solid #6400a3;
+    // }
+    // &.column-support {
+    //   border-bottom: 1px solid $yellow;
+    // }
   }
 
-  .column-dps & {
-    color: $red;
+  &.column-dps {
+    color: #ff6363;
   }
-  .column-hybrid & {
+  &.column-hybrid {
     color: $purple;
   }
-  .column-support & {
-    color: $yellow;
+  &.column-support {
+    color: #ffde00;
   }
 }
 

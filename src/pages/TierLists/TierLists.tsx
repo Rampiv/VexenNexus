@@ -282,7 +282,9 @@ export const TierLists = () => {
                       {/* Колонки с ролями */}
                       <div className="tier-lists__role-columns">
                         {/* DPS Column */}
-                        <div className="tier-lists__role-column column-dps">
+                        <div
+                          className={`tier-lists__role-column column-dps-bottom ${rowIndex === 0 && "column-dps-up"}`}
+                        >
                           {rowIndex === 0 && (
                             <div className="tier-lists__role-column-title column-dps">
                               МДД
@@ -394,7 +396,9 @@ export const TierLists = () => {
                         </div>
 
                         {/* HYBRID Column */}
-                        <div className="tier-lists__role-column column-hybrid">
+                        <div
+                          className={`tier-lists__role-column column-hybrid-bottom ${rowIndex === 0 && "column-hybrid-up"}`}
+                        >
                           {rowIndex === 0 && (
                             <div className="tier-lists__role-column-title column-hybrid">
                               САП-ДД
@@ -506,7 +510,9 @@ export const TierLists = () => {
                         </div>
 
                         {/* SUPPORT Column */}
-                        <div className="tier-lists__role-column column-support">
+                        <div
+                          className={`tier-lists__role-column column-support-bottom ${rowIndex === 0 && "column-support-up"}`}
+                        >
                           {rowIndex === 0 && (
                             <div className="tier-lists__role-column-title column-support">
                               САППОРТ

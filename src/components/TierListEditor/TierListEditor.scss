@@ -164,8 +164,8 @@
     gap: 8px;
 
     &.column-dps {
-      border-top: 3px solid $red;
-      color: $red;
+      border-top: 3px solid #ff6363 ;
+      color: #ff6363 ;
     }
 
     &.column-hybrid {
@@ -174,8 +174,8 @@
     }
 
     &.column-support {
-      border-top: 3px solid $yellow;
-      color: $yellow;
+      border-top: 3px solid #fdcb00;
+      color: #fdcb00;
     }
 
     .column-header {

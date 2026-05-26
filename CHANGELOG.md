@@ -1,23 +1,29 @@
+## 1.5.8
+#### TierListEditor
+в тирлистах добавлена возможность одинаковых персонажей добавлять
+#### TierLists
+коррекция цветов
+
 ## 1.5.7
-### TierLists
+#### TierLists
 визуальные правки
 
 ## 1.5.6
-### TierListEditor
+#### TierListEditor
 визуальные правки
-### TierLists
+#### TierLists
 визуальные правки
 
 ## 1.5.5
-### TierListEditor
+#### TierListEditor
 визуальные правки
-### TierLists
+#### TierLists
 визуальные правки
 
 ## 1.5.4
-### TierListEditor
+#### TierListEditor
 добавление разделения на роли
-### TierLists
+#### TierLists
 коррекция визуала по отображению
 
 ## 1.5.3
