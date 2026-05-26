@@ -6,6 +6,7 @@ export interface TierListRow {
   dpsResonatorIds: string[]
   hybridResonatorIds: string[]
   supportResonatorIds: string[]
+  resonatorIds?: string[]
   resonatorSettings?: Record<string, ResonatorSettings>
 }
 

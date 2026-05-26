@@ -148,7 +148,14 @@ export const Admin = () => {
     name: "",
     nameImg: "",
     rows: [
-      { id: crypto.randomUUID(), rating: "S", ratingImg: "", resonatorIds: [] },
+      {
+        id: crypto.randomUUID(),
+        rating: "S",
+        ratingImg: "",
+        dpsResonatorIds: [],
+        hybridResonatorIds: [],
+        supportResonatorIds: [],
+      },
     ],
   })
 
@@ -568,13 +575,15 @@ export const Admin = () => {
       name: "",
       nameImg: "",
       rows: [
-        {
-          id: crypto.randomUUID(),
-          rating: "S",
-          ratingImg: "",
-          resonatorIds: [],
-        },
-      ],
+      {
+        id: crypto.randomUUID(),
+        rating: "S",
+        ratingImg: "",
+        dpsResonatorIds: [],      // ✅
+        hybridResonatorIds: [],   // ✅
+        supportResonatorIds: [],  // ✅
+      },
+    ],
     })
 
     setSettingsForm({

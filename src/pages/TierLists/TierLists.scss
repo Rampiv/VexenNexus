@@ -475,15 +475,18 @@
   gap: 8px;
 
   &.column-dps {
-    border-top: 3px solid #ff4444;
+    border-top: 3px solid $red;
+    color: $red;
   }
 
   &.column-hybrid {
-    border-top: 3px solid #9b40ff;
+    border-top: 3px solid $purple;
+    color: $purple;
   }
 
   &.column-support {
-    border-top: 3px solid #ffcc00;
+    border-top: 3px solid $yellow;
+    color: $yellow;
   }
 }
 
@@ -499,9 +502,9 @@
   @include textType13();
   & {
     font-weight: 700;
-    color: #aaa;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    color: inherit;
   }
 }
 
@@ -529,7 +532,7 @@
   .tier-lists__role-columns {
     grid-template-columns: 1fr 1fr;
   }
-  
+
   .tier-lists__role-column.column-support {
     grid-column: 1 / -1;
   }
@@ -539,25 +542,25 @@
   .tier-lists__role-columns {
     grid-template-columns: 1fr;
   }
-  
+
   .tier-lists__role-column {
     grid-column: 1 / -1;
   }
-  
+
   .tier-lists__resonators-grid {
     grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
     gap: 5px;
   }
-  
+
   .tier-lists__row {
     gap: 10px;
     grid-template-columns: 50px 1fr;
   }
-  
+
   .tier-lists__role-title {
     @include textType08();
   }
-  
+
   .tier-lists__empty-role {
     @include textType05();
   }
