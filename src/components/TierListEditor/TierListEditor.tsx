@@ -558,15 +558,17 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                       key={role}
                       className={`tierlist-column column-${role}`}
                     >
-                      <div className="column-header">
-                        <span className="column-title">
-                          {role === "dps"
-                            ? "DPS"
-                            : role === "hybrid"
-                              ? "HYBRID"
-                              : "SUPPORT"}
-                        </span>
-                      </div>
+                      {rowIndex === 0 && (
+                        <div className="column-header">
+                          <span className="column-title">
+                            {role === "dps"
+                              ? "DPS"
+                              : role === "hybrid"
+                                ? "HYBRID"
+                                : "SUPPORT"}
+                          </span>
+                        </div>
+                      )}
 
                       {/* Контейнер для дропа персонажей */}
                       <div
