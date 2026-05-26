@@ -363,6 +363,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   gap: 5px;
+  row-gap: 10px;
   padding: 5px;
   width: 100%;
   border-radius: 15px 15px 0 0;
@@ -431,10 +432,8 @@
     height: 100%;
     object-fit: cover;
     transition: transform 0.2s ease;
-
-    .tier-lists__resonator-card:hover & {
-      transform: scale(1.05);
-    }
+    z-index: 0;
+    border-radius: 15%;
   }
 
   &__element-img {
@@ -490,6 +489,13 @@
     background-color: $color2;
     padding: 0 3px;
     border-radius: 15px;
+    &_4 {
+      background-color: $color4;
+      outline: 2px solid $color4;
+      span {
+        color: $color2;
+      }
+    }
   }
 
   &__name {
@@ -622,7 +628,7 @@
     }
     &__name {
       @include textType05();
-      &{
+      & {
         color: $main;
       }
     }
@@ -638,7 +644,7 @@
   .tier-lists__item {
     padding: 5px;
   }
-  .resonator-card__info{
+  .resonator-card__info {
     top: 48px;
   }
 }

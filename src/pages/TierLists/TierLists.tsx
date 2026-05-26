@@ -355,7 +355,9 @@ export const TierLists = () => {
                                         alt={resonator.element}
                                       />
                                     </div>
-                                    <div className="resonator-card__info">
+                                    <div
+                                      className={`resonator-card__info ${resonator.rarity == 4 ? "resonator-card__info_4" : "ss"}`}
+                                    >
                                       <span className="resonator-card__name">
                                         {resonator.name}
                                       </span>
@@ -469,7 +471,9 @@ export const TierLists = () => {
                                         alt={resonator.element}
                                       />
                                     </div>
-                                    <div className="resonator-card__info">
+                                    <div
+                                      className={`resonator-card__info ${resonator.rarity == 4 ? "resonator-card__info_4" : "ss"}`}
+                                    >
                                       <span className="resonator-card__name">
                                         {resonator.name}
                                       </span>
@@ -582,7 +586,9 @@ export const TierLists = () => {
                                         }
                                         alt={resonator.element}
                                       />
-                                      <div className="resonator-card__info">
+                                      <div
+                                        className={`resonator-card__info ${resonator.rarity == 4 ? "resonator-card__info_4" : "ss"}`}
+                                      >
                                         <span className="resonator-card__name">
                                           {resonator.name}
                                         </span>
