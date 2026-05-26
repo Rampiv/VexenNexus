@@ -582,11 +582,11 @@ export const TierLists = () => {
                                         }
                                         alt={resonator.element}
                                       />
-                                    </div>
-                                    <div className="resonator-card__info">
-                                      <span className="resonator-card__name">
-                                        {resonator.name}
-                                      </span>
+                                      <div className="resonator-card__info">
+                                        <span className="resonator-card__name">
+                                          {resonator.name}
+                                        </span>
+                                      </div>
                                     </div>
                                     {settings &&
                                       settings?.tags?.filter(
