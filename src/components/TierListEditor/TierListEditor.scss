@@ -164,15 +164,18 @@
     gap: 8px;
 
     &.column-dps {
-      border-top: 3px solid #ff4444;
+      border-top: 3px solid $red;
+      color: $red;
     }
 
     &.column-hybrid {
-      border-top: 3px solid #9b40ff;
+      border-top: 3px solid $purple;
+      color: $purple;
     }
 
     &.column-support {
-      border-top: 3px solid #ffcc00;
+      border-top: 3px solid $yellow;
+      color: $yellow;
     }
 
     .column-header {
@@ -185,7 +188,7 @@
       .column-title {
         font-weight: 700;
         font-size: 1.5em;
-        color: #aaa;
+        color: inherit;
         text-transform: uppercase;
       }
 
