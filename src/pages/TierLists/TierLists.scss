@@ -496,7 +496,7 @@
 }
 
 .tier-lists__role-title {
-  @include textType1();
+  @include textType13();
   & {
     font-weight: 700;
     color: #aaa;

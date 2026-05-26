@@ -177,14 +177,14 @@
 
     .column-header {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
       padding-bottom: 5px;
       border-bottom: 1px solid #333;
 
       .column-title {
         font-weight: 700;
-        font-size: 0.85rem;
+        font-size: 1.5em;
         color: #aaa;
         text-transform: uppercase;
       }
