@@ -153,6 +153,7 @@
       background 0.2s ease,
       transform 0.1s ease;
     border: 1px solid transparent;
+    height: fit-content;
 
     &:hover {
       background: rgba(255, 255, 255, 0.1);
@@ -454,6 +455,117 @@
         }
       }
     }
+  }
+}
+
+.tier-lists__role-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.tier-lists__role-column {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  padding: 8px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &.column-dps {
+    border-top: 3px solid #ff4444;
+  }
+
+  &.column-hybrid {
+    border-top: 3px solid #9b40ff;
+  }
+
+  &.column-support {
+    border-top: 3px solid #ffcc00;
+  }
+}
+
+.tier-lists__role-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tier-lists__role-title {
+  @include textType1();
+  & {
+    font-weight: 700;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.tier-lists__empty-role {
+  @include textType08();
+  & {
+    color: $color3;
+    padding: 15px 5px;
+    text-align: center;
+    width: 100%;
+    font-style: italic;
+  }
+}
+
+.tier-lists__resonators-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 5px;
+  width: 100%;
+}
+
+// === Медиа-запросы для адаптивности ===
+@media (max-width: 900px) {
+  .tier-lists__role-columns {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .tier-lists__role-column.column-support {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .tier-lists__role-columns {
+    grid-template-columns: 1fr;
+  }
+  
+  .tier-lists__role-column {
+    grid-column: 1 / -1;
+  }
+  
+  .tier-lists__resonators-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 5px;
+  }
+  
+  .tier-lists__row {
+    gap: 10px;
+    grid-template-columns: 50px 1fr;
+  }
+  
+  .tier-lists__role-title {
+    @include textType08();
+  }
+  
+  .tier-lists__empty-role {
+    @include textType05();
+  }
+}
+
+@media (max-width: 400px) {
+  .tier-lists__resonators-grid {
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
   }
 }
 

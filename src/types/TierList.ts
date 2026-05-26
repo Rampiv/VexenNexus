@@ -3,7 +3,9 @@ export interface TierListRow {
   rating: string
   ratingColor?: string
   ratingImg?: string
-  resonatorIds: string[]
+  dpsResonatorIds: string[]
+  hybridResonatorIds: string[]
+  supportResonatorIds: string[]
   resonatorSettings?: Record<string, ResonatorSettings>
 }
 
@@ -23,7 +25,7 @@ export interface TierListDescription {
 }
 
 export interface ResonatorSettings {
-  status: 'up' | 'neutral' | 'down'
+  status: "up" | "neutral" | "down"
   tags: Array<{
     id: string
     text: string

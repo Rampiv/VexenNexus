@@ -11,10 +11,13 @@ interface TierListEditorProps {
   allResonators: Resonator[]
 }
 
+type Role = "dps" | "hybrid" | "support"
+
 type DragData = {
   resonatorId: string
   source: "pool" | "row"
   sourceRowIndex?: number
+  sourceRole?: Role
   sourceIndex?: number
 }
 
@@ -25,8 +28,11 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
 }) => {
   const [editingRow, setEditingRow] = useState<number | null>(null)
   const [draggedItem, setDraggedItem] = useState<DragData | null>(null)
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
-  const [dragOverRowIndex, setDragOverRowIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<{
+    rowIndex: number
+    role: Role
+    index: number
+  } | null>(null)
 
   // Состояние для модального окна
   const [modalOpen, setModalOpen] = useState(false)
@@ -37,9 +43,14 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     tags: [],
   })
 
-  const containerRefs = useRef<(HTMLDivElement | null)[]>([])
+  const containerRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
-  const usedResonatorIds = rows.flatMap(row => row.resonatorIds)
+  // Получаем все использованные ID персонажей
+  const usedResonatorIds = rows.flatMap(row => [
+    ...(row.dpsResonatorIds || []),
+    ...(row.hybridResonatorIds || []),
+    ...(row.supportResonatorIds || []),
+  ])
   const availableResonators = allResonators.filter(
     r => !usedResonatorIds.includes(r.id || ""),
   )
@@ -58,6 +69,20 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     }
   }
 
+  // Получаем массив персонажей для конкретной роли в строке
+  const getResonatorsByRole = (row: TierListRow, role: Role): string[] => {
+    switch (role) {
+      case "dps":
+        return row.dpsResonatorIds || []
+      case "hybrid":
+        return row.hybridResonatorIds || []
+      case "support":
+        return row.supportResonatorIds || []
+      default:
+        return []
+    }
+  }
+
   // === Row Handlers ===
   const handleAddRow = () => {
     setRows(prev => [
@@ -67,7 +92,9 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
         rating: `Tier ${prev.length + 1}`,
         ratingColor: "#4a4a4a",
         ratingImg: "",
-        resonatorIds: [],
+        dpsResonatorIds: [],
+        hybridResonatorIds: [],
+        supportResonatorIds: [],
       },
     ])
   }
@@ -158,9 +185,16 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     resonatorId: string,
     source: "pool" | "row",
     sourceRowIndex?: number,
+    sourceRole?: Role,
     sourceIndex?: number,
   ) => {
-    const data: DragData = { resonatorId, source, sourceRowIndex, sourceIndex }
+    const data: DragData = {
+      resonatorId,
+      source,
+      sourceRowIndex,
+      sourceRole,
+      sourceIndex,
+    }
     e.dataTransfer.setData("application/json", JSON.stringify(data))
     e.dataTransfer.effectAllowed = "move"
 
@@ -187,7 +221,6 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     }
     setDraggedItem(null)
     setDragOverIndex(null)
-    setDragOverRowIndex(null)
   }
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -201,6 +234,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
   ): number => {
     const rect = container.getBoundingClientRect()
     const mouseX = e.clientX - rect.left
+    const mouseY = e.clientY - rect.top
 
     const children = Array.from(
       container.querySelectorAll(".dropped-resonator"),
@@ -208,30 +242,48 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
 
     if (children.length === 0) return 0
 
-    let minDistance = Infinity
-    let insertIndex = 0
+    // Находим элементы в той же строке (по Y-координате)
+    const mouseYAbsolute = e.clientY
+    let sameRowChildren: { element: Element; center: number; index: number }[] =
+      []
 
     children.forEach((child, index) => {
       const childRect = child.getBoundingClientRect()
-      const childCenterX = childRect.left - rect.left + childRect.width / 2
-      const distance = Math.abs(mouseX - childCenterX)
+      const childCenterY = childRect.top + childRect.height / 2
 
-      if (distance < minDistance) {
-        minDistance = distance
-        if (mouseX < childCenterX) {
-          insertIndex = index
-        } else {
-          insertIndex = index + 1
-        }
+      // Проверяем, находится ли элемент примерно на той же строке
+      // (разница по Y не больше половины высоты элемента)
+      if (Math.abs(mouseYAbsolute - childCenterY) < childRect.height / 2) {
+        const childCenterX = childRect.left - rect.left + childRect.width / 2
+        sameRowChildren.push({ element: child, center: childCenterX, index })
       }
     })
+
+    // Если мышь не над какой-либо строкой, добавляем в конец
+    if (sameRowChildren.length === 0) {
+      return children.length
+    }
+
+    // Сортируем элементы в строке слева направо
+    sameRowChildren.sort((a, b) => a.center - b.center)
+
+    // Находим позицию для вставки среди элементов этой строки
+    let insertIndex = sameRowChildren[sameRowChildren.length - 1].index + 1
+
+    for (let i = 0; i < sameRowChildren.length; i++) {
+      if (mouseX < sameRowChildren[i].center) {
+        insertIndex = sameRowChildren[i].index
+        break
+      }
+    }
 
     return insertIndex
   }
 
-  const handleDropOnRow = (
+  const handleDropOnColumn = (
     e: React.DragEvent,
     targetRowIndex: number,
+    targetRole: Role,
     container: HTMLDivElement,
   ) => {
     e.preventDefault()
@@ -243,28 +295,32 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
       const rawData = e.dataTransfer.getData("application/json")
       if (!rawData) return
 
-      const { resonatorId, source, sourceRowIndex }: DragData =
+      const { resonatorId, source, sourceRowIndex, sourceRole }: DragData =
         JSON.parse(rawData)
 
       setRows(prev => {
         if (targetRowIndex < 0 || targetRowIndex >= prev.length) return prev
 
-        const targetRow = prev[targetRowIndex]
-        if (!targetRow) return prev
+        const currentTargetRow = prev[targetRowIndex]
+        if (!currentTargetRow) return prev
 
-        if (source === "row" && sourceRowIndex === targetRowIndex) {
-          const currentSourceIndex = targetRow.resonatorIds.indexOf(resonatorId)
+        // Если перетаскиваем внутри той же роли — просто меняем порядок
+        if (
+          source === "row" &&
+          sourceRowIndex === targetRowIndex &&
+          sourceRole === targetRole
+        ) {
+          const currentIds = getResonatorsByRole(currentTargetRow, targetRole)
+          const currentSourceIndex = currentIds.indexOf(resonatorId)
           if (currentSourceIndex === -1) return prev
 
           if (currentSourceIndex === targetIndex) {
             return prev.map((row, idx) =>
-              idx === targetRowIndex
-                ? { ...row, resonatorIds: [...row.resonatorIds] }
-                : row,
+              idx === targetRowIndex ? { ...row } : row,
             )
           }
 
-          const newIds = [...targetRow.resonatorIds]
+          const newIds = [...currentIds]
           newIds.splice(currentSourceIndex, 1)
 
           const adjustedTargetIndex =
@@ -276,34 +332,47 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
           )
           newIds.splice(safeIndex, 0, resonatorId)
 
-          return prev.map((row, idx) =>
-            idx === targetRowIndex ? { ...row, resonatorIds: newIds } : row,
-          )
+          return prev.map((row, idx) => {
+            if (idx !== targetRowIndex) return row
+            const updatedRow = { ...row }
+            if (targetRole === "dps") updatedRow.dpsResonatorIds = newIds
+            else if (targetRole === "hybrid")
+              updatedRow.hybridResonatorIds = newIds
+            else updatedRow.supportResonatorIds = newIds
+            return updatedRow
+          })
         }
 
+        // Перемещение между разными ролями или из пула
         let newRows = [...prev]
 
-        if (
-          source === "row" &&
-          sourceRowIndex !== undefined &&
-          sourceRowIndex !== targetRowIndex &&
-          sourceRowIndex < prev.length
-        ) {
+        // Удаляем из источника если это строка
+        if (source === "row" && sourceRowIndex !== undefined) {
           const sourceRow = newRows[sourceRowIndex]
           if (sourceRow) {
-            newRows[sourceRowIndex] = {
-              ...sourceRow,
-              resonatorIds: sourceRow.resonatorIds.filter(
-                id => id !== resonatorId,
-              ),
+            const updatedSourceRow = { ...sourceRow }
+            if (sourceRole === "dps") {
+              updatedSourceRow.dpsResonatorIds = (
+                sourceRow.dpsResonatorIds || []
+              ).filter(id => id !== resonatorId)
+            } else if (sourceRole === "hybrid") {
+              updatedSourceRow.hybridResonatorIds = (
+                sourceRow.hybridResonatorIds || []
+              ).filter(id => id !== resonatorId)
+            } else if (sourceRole === "support") {
+              updatedSourceRow.supportResonatorIds = (
+                sourceRow.supportResonatorIds || []
+              ).filter(id => id !== resonatorId)
             }
+            newRows[sourceRowIndex] = updatedSourceRow
           }
         }
 
-        const targetRowUpdated = newRows[targetRowIndex]
-        let newResonatorIds = [...targetRowUpdated.resonatorIds].filter(
-          id => id !== resonatorId,
-        )
+        // Добавляем в целевую роль
+        const targetRow = newRows[targetRowIndex]
+        let newResonatorIds = [
+          ...(getResonatorsByRole(targetRow, targetRole) || []),
+        ].filter(id => id !== resonatorId)
 
         const safeIndex = Math.max(
           0,
@@ -311,11 +380,15 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
         )
         newResonatorIds.splice(safeIndex, 0, resonatorId)
 
-        newRows = newRows.map((row, idx) =>
-          idx === targetRowIndex
-            ? { ...row, resonatorIds: newResonatorIds }
-            : row,
-        )
+        newRows = newRows.map((row, idx) => {
+          if (idx !== targetRowIndex) return row
+          const updatedRow = { ...row }
+          if (targetRole === "dps") updatedRow.dpsResonatorIds = newResonatorIds
+          else if (targetRole === "hybrid")
+            updatedRow.hybridResonatorIds = newResonatorIds
+          else updatedRow.supportResonatorIds = newResonatorIds
+          return updatedRow
+        })
 
         return newRows
       })
@@ -324,30 +397,43 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     }
 
     setDragOverIndex(null)
-    setDragOverRowIndex(null)
   }
 
   const handleContainerDragOver = (
     e: React.DragEvent,
     rowIndex: number,
+    role: Role,
     container: HTMLDivElement,
   ) => {
     e.preventDefault()
     const index = calculateDropIndex(e, container)
-    setDragOverIndex(index)
-    setDragOverRowIndex(rowIndex)
+    setDragOverIndex({ rowIndex, role, index })
   }
 
-  const handleRemoveFromRow = (rowIndex: number, resonatorId: string) => {
+  const handleRemoveFromRow = (
+    rowIndex: number,
+    resonatorId: string,
+    role: Role,
+  ) => {
     setRows(prev =>
-      prev.map((row, idx) =>
-        idx === rowIndex
-          ? {
-              ...row,
-              resonatorIds: row.resonatorIds.filter(id => id !== resonatorId),
-            }
-          : row,
-      ),
+      prev.map((row, idx) => {
+        if (idx !== rowIndex) return row
+        const updatedRow = { ...row }
+        if (role === "dps") {
+          updatedRow.dpsResonatorIds = (row.dpsResonatorIds || []).filter(
+            id => id !== resonatorId,
+          )
+        } else if (role === "hybrid") {
+          updatedRow.hybridResonatorIds = (row.hybridResonatorIds || []).filter(
+            id => id !== resonatorId,
+          )
+        } else {
+          updatedRow.supportResonatorIds = (
+            row.supportResonatorIds || []
+          ).filter(id => id !== resonatorId)
+        }
+        return updatedRow
+      }),
     )
   }
 
@@ -384,7 +470,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
               style={{ "--row-color": row.ratingColor } as React.CSSProperties}
               onDragOver={handleDragOver}
             >
-              {/* Левая секция */}
+              {/* Левая секция с рейтингом */}
               <div className="tierlist-row-label">
                 <div
                   className="rating-badge"
@@ -461,114 +547,187 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                 )}
               </div>
 
-              {/* Правая секция с персонажами */}
-              <div className="tierlist-row-dropper">
-                {row.resonatorIds.length === 0 ? (
-                  <div
-                    className="drop-hint"
-                    onDragOver={e => handleDragOver(e)}
-                    onDrop={e => {
-                      handleDropOnRow(
-                        e,
-                        rowIndex,
-                        e.currentTarget as HTMLDivElement,
-                      )
-                    }}
-                  >
-                    Перетащите персонажа сюда
-                  </div>
-                ) : (
-                  <div
-                    className="dropped-resonators"
-                    ref={el => {
-                      containerRefs.current[rowIndex] = el
-                    }}
-                    onDragOver={e =>
-                      handleContainerDragOver(e, rowIndex, e.currentTarget)
-                    }
-                    onDrop={e => handleDropOnRow(e, rowIndex, e.currentTarget)}
-                  >
-                    {row.resonatorIds.map((id, index) => {
-                      const res = getResonatorById(id)
-                      if (!res) return null
+              {/* Правая секция с тремя колонками ролей */}
+              <div className="tierlist-row-columns">
+                {(["dps", "hybrid", "support"] as Role[]).map(role => {
+                  const roleResonatorIds = getResonatorsByRole(row, role)
+                  const columnKey = `${rowIndex}-${role}`
 
-                      const settings = row.resonatorSettings?.[id]
-                      const showInsertBefore =
-                        dragOverRowIndex === rowIndex && dragOverIndex === index
+                  return (
+                    <div
+                      key={role}
+                      className={`tierlist-column column-${role}`}
+                    >
+                      <div className="column-header">
+                        <span className="column-title">
+                          {role === "dps"
+                            ? "DPS"
+                            : role === "hybrid"
+                              ? "HYBRID"
+                              : "SUPPORT"}
+                        </span>
+                      </div>
 
-                      return (
-                        <React.Fragment key={id}>
-                          {showInsertBefore && (
+                      {/* Контейнер для дропа персонажей */}
+                      <div
+                        className="dropped-resonators"
+                        ref={el => {
+                          containerRefs.current[columnKey] = el
+                        }}
+                        onDragOver={e =>
+                          handleContainerDragOver(
+                            e,
+                            rowIndex,
+                            role,
+                            e.currentTarget,
+                          )
+                        }
+                        onDrop={e =>
+                          handleDropOnColumn(e, rowIndex, role, e.currentTarget)
+                        }
+                      >
+                        {roleResonatorIds.length === 0 ? (
+                          <div className="drop-hint">Перетащите сюда</div>
+                        ) : (
+                          roleResonatorIds.map((id, index) => {
+                            const res = getResonatorById(id)
+                            if (!res) return null
+
+                            const settings = row.resonatorSettings?.[id]
+                            const showInsertBefore =
+                              dragOverIndex?.rowIndex === rowIndex &&
+                              dragOverIndex?.role === role &&
+                              dragOverIndex?.index === index
+
+                            return (
+                              <React.Fragment key={id}>
+                                {showInsertBefore && (
+                                  <div className="drop-indicator" />
+                                )}
+
+                                <div
+                                  className={`dropped-resonator ${
+                                    draggedItem?.resonatorId === id &&
+                                    draggedItem?.source === "row" &&
+                                    draggedItem?.sourceRowIndex === rowIndex &&
+                                    draggedItem?.sourceRole === role &&
+                                    draggedItem?.sourceIndex === index
+                                      ? "is-dragging"
+                                      : ""
+                                  }`}
+                                  draggable={true}
+                                  onDragStart={e =>
+                                    handleDragStart(
+                                      e,
+                                      id,
+                                      "row",
+                                      rowIndex,
+                                      role,
+                                      index,
+                                    )
+                                  }
+                                  onDragEnd={handleDragEnd}
+                                  style={
+                                    {
+                                      "--rarity-color": getRarityColor(
+                                        res.rarity,
+                                      ),
+                                    } as React.CSSProperties
+                                  }
+                                >
+                                  <img
+                                    src={
+                                      res.resonatorImgMini || res.resonatorImg
+                                    }
+                                    alt={res.name}
+                                    className="resonator-thumb"
+                                    onError={e => {
+                                      const target =
+                                        e.target as HTMLImageElement
+                                      target.src = "/placeholder-character.png"
+                                    }}
+                                  />
+
+                                  {/* Индикатор статуса */}
+                                  {settings?.status &&
+                                    settings.status !== "neutral" && (
+                                      <span
+                                        className={`status-indicator status-${settings.status}`}
+                                        title={
+                                          settings.status === "up"
+                                            ? "Перспективный"
+                                            : "Снижается"
+                                        }
+                                      >
+                                        {settings.status === "up" ? "↑" : "↓"}
+                                      </span>
+                                    )}
+
+                                  {/* Кнопка удаления */}
+                                  <button
+                                    type="button"
+                                    className="btn-remove"
+                                    onClick={() =>
+                                      handleRemoveFromRow(rowIndex, id, role)
+                                    }
+                                    aria-label={`Удалить ${res.name}`}
+                                  >
+                                    ×
+                                  </button>
+
+                                  {/* Кнопка настроек */}
+                                  <button
+                                    type="button"
+                                    className="btn-settings-resonator"
+                                    onClick={() =>
+                                      openSettingsModal(id, rowIndex)
+                                    }
+                                    aria-label={`Настройки ${res.name}`}
+                                    title="Настройки персонажа"
+                                  >
+                                    ⚙️
+                                  </button>
+
+                                  {/* Теги */}
+                                  {settings?.tags &&
+                                    settings.tags.length > 0 && (
+                                      <div className="resonator-tags">
+                                        {settings.tags.map(tag => (
+                                          <span
+                                            key={tag.id}
+                                            className="tag-chip"
+                                            style={{
+                                              backgroundColor: tag.color,
+                                            }}
+                                            title={tag.text}
+                                          >
+                                            {tag.text}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
+                                </div>
+
+                                {showInsertBefore === false &&
+                                  dragOverIndex?.rowIndex === rowIndex &&
+                                  dragOverIndex?.role === role &&
+                                  dragOverIndex?.index === index + 1 && (
+                                    <div className="drop-indicator" />
+                                  )}
+                              </React.Fragment>
+                            )
+                          })
+                        )}
+
+                        {dragOverIndex?.rowIndex === rowIndex &&
+                          dragOverIndex?.role === role &&
+                          dragOverIndex?.index === roleResonatorIds.length && (
                             <div className="drop-indicator" />
                           )}
-
-                          <div
-                            className={`dropped-resonator ${
-                              draggedItem?.resonatorId === id &&
-                              draggedItem?.source === "row" &&
-                              draggedItem?.sourceRowIndex === rowIndex &&
-                              draggedItem?.sourceIndex === index
-                                ? "is-dragging"
-                                : ""
-                            }`}
-                            draggable={true}
-                            onDragStart={e =>
-                              handleDragStart(e, id, "row", rowIndex, index)
-                            }
-                            onDragEnd={handleDragEnd}
-                            style={
-                              {
-                                "--rarity-color": getRarityColor(res.rarity),
-                              } as React.CSSProperties
-                            }
-                          >
-                            <img
-                              src={res.resonatorImgMini || res.resonatorImg}
-                              alt={res.name}
-                              className="resonator-thumb"
-                              onError={e => {
-                                const target = e.target as HTMLImageElement
-                                target.src = "/placeholder-character.png"
-                              }}
-                            />
-
-                            {/* Кнопка удаления */}
-                            <button
-                              type="button"
-                              className="btn-remove"
-                              onClick={() => handleRemoveFromRow(rowIndex, id)}
-                              aria-label={`Удалить ${res.name}`}
-                            >
-                              ×
-                            </button>
-
-                            {/* Кнопка настроек (шестерёнка) */}
-                            <button
-                              type="button"
-                              className="btn-settings-resonator"
-                              onClick={() => openSettingsModal(id, rowIndex)}
-                              aria-label={`Настройки ${res.name}`}
-                              title="Настройки персонажа"
-                            >
-                              ⚙️
-                            </button>
-                          </div>
-
-                          {showInsertBefore === false &&
-                            dragOverRowIndex === rowIndex &&
-                            dragOverIndex === index + 1 && (
-                              <div className="drop-indicator" />
-                            )}
-                        </React.Fragment>
-                      )
-                    })}
-
-                    {dragOverRowIndex === rowIndex &&
-                      dragOverIndex === row.resonatorIds.length && (
-                        <div className="drop-indicator" />
-                      )}
-                  </div>
-                )}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
 
               <button
@@ -584,12 +743,13 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
         })}
 
         <button type="button" onClick={handleAddRow} className="btn-add-row">
-          +
+          + Добавить ряд
         </button>
       </div>
 
       {/* === Пул персонажей === */}
       <div className="resonator-pool">
+        <h4>Доступные персонажи</h4>
         <div className="resonator-grid">
           {availableResonators.map(res => (
             <div
@@ -656,9 +816,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                         setModalSettings(prev => ({ ...prev, status: "up" }))
                       }
                     />
-                    <span className="status-label status-up">
-                      UP
-                    </span>
+                    <span className="status-label status-up">↑ UP</span>
                   </label>
                   <label
                     className={`status-option ${modalSettings.status === "neutral" ? "active" : ""}`}
@@ -676,7 +834,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                       }
                     />
                     <span className="status-label status-neutral">
-                      N
+                      — Нейтрально
                     </span>
                   </label>
                   <label
@@ -691,9 +849,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                         setModalSettings(prev => ({ ...prev, status: "down" }))
                       }
                     />
-                    <span className="status-label status-down">
-                      DOWN
-                    </span>
+                    <span className="status-label status-down">↓ DOWN</span>
                   </label>
                 </div>
               </div>
