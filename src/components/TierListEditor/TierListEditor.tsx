@@ -51,9 +51,10 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     ...(row.hybridResonatorIds || []),
     ...(row.supportResonatorIds || []),
   ])
-  const availableResonators = allResonators.filter(
-    r => !usedResonatorIds.includes(r.id || ""),
-  )
+  // const availableResonators = allResonators.filter(
+  //   r => !usedResonatorIds.includes(r.id || ""),
+  // )
+  const availableResonators = allResonators
 
   const getResonatorById = useCallback(
     (id: string) => allResonators.find(r => r.id === id),
@@ -562,10 +563,10 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                         <div className="column-header">
                           <span className="column-title">
                             {role === "dps"
-                              ? "DPS"
+                              ? "МДД"
                               : role === "hybrid"
-                                ? "HYBRID"
-                                : "SUPPORT"}
+                                ? "САП-ДД"
+                                : "САППОРТ"}
                           </span>
                         </div>
                       )}
