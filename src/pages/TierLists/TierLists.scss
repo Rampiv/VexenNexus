@@ -1,5 +1,8 @@
 @use "../../styles/style.scss" as *;
 
+// =============================================================================
+// 1. BASE CONTAINER
+// =============================================================================
 .tier-lists {
   @include flexible();
   & {
@@ -15,196 +18,388 @@
       text-align: center;
     }
   }
+}
 
-  &__empty {
-    @include textType1();
-    & {
-      text-align: center;
-      color: $color3;
-      padding: 40px;
-      background: $color1;
-      border-radius: 12px;
-      width: 100%;
-    }
-  }
-
-  &__list {
-    @include flexible();
-    @include listReset();
-    & {
-      flex-direction: column;
-      gap: 25px;
-      width: 100%;
-    }
+// =============================================================================
+// 2. DESCRIPTIONS (ACCORDION)
+// =============================================================================
+.tier-lists-descr {
+  @include listReset();
+  & {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 15px;
   }
 
   &__item {
-    @include standartTransition();
-    & {
-      background: $color1;
-      border-radius: 15px;
-      border: 1px solid $color2;
-      padding: 5px;
-      width: 100%;
-    }
-  }
-
-  &__title {
-    @include flexible();
-    @include textType2();
-    & {
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 5px;
-      padding-bottom: 5px;
-      border-bottom: 1px solid $color2;
-    }
-    &-img {
-      width: fit-content;
-      max-height: 50px;
-      object-fit: cover;
-    }
-  }
-
-  &__rows {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  &__row {
-    display: grid;
-    grid-template-columns: 80px 1fr;
-    gap: 10px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 10px;
+    background: rgba($color1, 0.8);
+    border-radius: 5px;
     border: 1px solid transparent;
-    transition: border-color 0.2s ease;
+    transition: all ease-in-out 0.3s;
+    overflow: hidden;
 
-    &:hover {
-      border-color: rgba($color2, 0.2);
+    &--open {
+      border-color: rgba($color2, 0.3);
     }
   }
 
-  &__tier-badge {
+  &__header {
+    @include btnReset();
     @include flexible();
     & {
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
       width: 100%;
-      height: 100%;
-      background: var(--rarity-color-badge);
-      border-radius: 8px;
-      flex-shrink: 0;
-      border: 1px solid $color2;
-      grid-column: 1;
+      padding: 5px 5px 5px 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: all ease-in-out 0.3s;
+      background: rgba($color10, 0.5);
     }
-
-    .tier-lists__tier-img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      border-radius: 4px;
-    }
-
-    .tier-lists__tier-text {
-      @include textType2();
-      & {
-        color: $white;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      }
-    }
-  }
-
-  &__resonators-grid {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 5px;
-    width: 100%;
-    grid-column: 2 / -1;
-  }
-
-  &__empty-row {
-    @include textType1();
-    & {
-      color: $color3;
-      padding: 20px;
-      text-align: center;
-      width: 100%;
-      grid-column: 1 / -1;
-    }
-  }
-
-  // Стили карточки персонажа
-  &__resonator-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    padding-bottom: 3px;
-    border-radius: 8px;
-    text-decoration: none;
-    color: inherit;
-    transition:
-      background 0.2s ease,
-      transform 0.1s ease;
-    border: 1px solid transparent;
-    height: fit-content;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba($color2, 0.5);
-      transform: translateY(-2px);
-    }
-
-    &:active {
-      transform: translateY(0);
+      background: rgba(255, 255, 255, 0.05);
     }
   }
 
-  &__filters {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, mimax(100px, 1fr));
-    padding: 5px;
-    background-color: $color1;
-    gap: 5px;
-    margin-bottom: 15px;
-    width: 100%;
+  &__h3 {
+    @include textType1();
   }
-  &__filter-btn {
-    @include btnReset();
-    @include standartTransition();
-    @include standartAnimZoom();
-    & {
-      border: 1px solid rgba($color2, 0.5);
-      grid-row: 1;
-      width: 100%;
-      // min-height: 80px;
-      border-radius: 5px;
-      color: $white;
-      outline: none;
-    }
-  }
-  &__filter-img {
-    object-fit: contain;
-    width: 100%;
-    height: 100%;
-  }
-  &__filter-name {
+
+  &__toggle {
     @include flexible();
+    @include textReset();
+    @include textType1();
     & {
-      padding: 10px;
-      width: 100%;
-      height: 100%;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: rgba($main, 0.3);
+      color: $white;
+      font-weight: bold;
+      text-align: center;
+      transform: rotate(90deg);
+      transition: all ease-in-out 0.3s;
+    }
+
+    .tier-lists-descr__item--open & {
+      transform: rotate(90deg);
+    }
+  }
+
+  &__content {
+    max-height: 0;
+    overflow: hidden;
+    transition: all ease-in-out 0.3s;
+    opacity: 0;
+
+    &--open {
+      max-height: 2000px;
+      opacity: 1;
+    }
+  }
+
+  &__article {
+    @include textType08();
+    & {
+      color: $color3;
+      padding: 0 5px 5px 10px;
+    }
+
+    p {
+      margin: 0.5rem 0;
+    }
+    ul,
+    ol {
+      padding-left: 1.5rem;
+      margin: 0.5rem 0;
+    }
+    li {
+      margin: 0.25rem 0;
+    }
+    strong {
+      color: $white;
+      font-weight: 600;
+    }
+    em {
+      font-style: italic;
+    }
+    h2 {
+      @include textType1();
+      & {
+        color: $white;
+        margin: 1rem 0 0.5rem;
+      }
+    }
+    a {
+      color: $color5;
+      text-decoration: none;
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 }
 
-// Карточка резонатора (переиспользуемые стили)
+// =============================================================================
+// 3. FILTERS
+// =============================================================================
+.tier-lists__filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  padding: 5px;
+  background-color: $color1;
+  gap: 10px;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.tier-lists__filter-btn {
+  @include btnReset();
+  @include standartTransition();
+  @include standartAnimZoom();
+  & {
+    border: 1px solid rgba($color2, 0.5);
+    grid-row: 1;
+    width: 100%;
+    border-radius: 5px;
+    color: $white;
+    outline: none;
+  }
+}
+
+.tier-lists__filter-img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.tier-lists__filter-name {
+  @include flexible();
+  & {
+    padding: 10px;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// =============================================================================
+// 4. TIER LIST & ROWS
+// =============================================================================
+.tier-lists__list {
+  @include flexible();
+  @include listReset();
+  & {
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+  }
+}
+
+.tier-lists__item {
+  @include standartTransition();
+  & {
+    background: $color1;
+    border-radius: 15px;
+    border: 1px solid $color2;
+    padding: 5px;
+    width: 100%;
+  }
+}
+
+.tier-lists__title {
+  @include flexible();
+  @include textType2();
+  & {
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid $color2;
+  }
+
+  &-img {
+    width: fit-content;
+    max-height: 50px;
+    object-fit: cover;
+  }
+}
+
+.tier-lists__rows {
+  @include listReset();
+  & {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+.tier-lists__row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: rgba($color2, 0.2);
+  }
+}
+
+.tier-lists__tier-badge {
+  @include flexible();
+  & {
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    flex-shrink: 0;
+    grid-column: 1;
+  }
+
+  .tier-lists__tier-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    background: var(--rarity-color-badge);
+    border-radius: 8px;
+    border: 1px solid $color2;
+  }
+
+  .tier-lists__tier-text {
+    @include textType2();
+    @include flexible();
+    & {
+      color: $white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      background: var(--rarity-color-badge);
+      border-radius: 8px;
+      width: 100%;
+      height: 100%;
+      border: 1px solid $color2;
+    }
+  }
+}
+
+// =============================================================================
+// 5. ROLE COLUMNS (DPS / HYBRID / SUPPORT)
+// =============================================================================
+.tier-lists__role-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.tier-lists__role-column {
+  border-radius: 8px;
+  padding: 0;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &.column-dps {
+    border-top: 3px solid $red;
+  }
+  &.column-hybrid {
+    border-top: 3px solid $purple;
+  }
+  &.column-support {
+    border-top: 3px solid $yellow;
+  }
+}
+
+.tier-lists__role-column-title {
+  @include textType13();
+  & {
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 0.5px;
+    padding: 5px;
+    margin-bottom: 5px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    &.column-dps {
+      border-bottom: 1px solid $red;
+    }
+    &.column-hybrid {
+      border-bottom: 1px solid $purple;
+    }
+    &.column-support {
+      border-bottom: 1px solid $yellow;
+    }
+  }
+
+  .column-dps & {
+    color: $red;
+  }
+  .column-hybrid & {
+    color: $purple;
+  }
+  .column-support & {
+    color: $yellow;
+  }
+}
+
+.tier-lists__resonators-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 5px;
+  padding: 5px;
+  width: 100%;
+  border-radius: 15px 15px 0 0;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tier-lists__empty-role {
+  @include textType08();
+  & {
+    color: $color3;
+    padding: 15px 5px;
+    text-align: center;
+    width: 100%;
+    font-style: italic;
+  }
+}
+
+// =============================================================================
+// 6. RESONATOR CARD
+// =============================================================================
+.tier-lists__resonator-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding-bottom: 3px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    background 0.2s ease,
+    transform 0.1s ease;
+  border: 1px solid transparent;
+  height: fit-content;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba($color2, 0.5);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
 .resonator-card {
   &__image-wrapper {
     position: relative;
@@ -244,10 +439,10 @@
     position: absolute;
     bottom: 0;
     right: 0;
-
     z-index: 2;
     background-color: rgba(0, 0, 0, 0.579);
     border-radius: 5px;
+
     &_green {
       g {
         filter: drop-shadow(0 0 3px rgb(1, 219, 1)) drop-shadow(0 0 2px green)
@@ -257,6 +452,7 @@
         }
       }
     }
+
     &_red {
       transform: rotateX(180deg);
       g {
@@ -298,6 +494,7 @@
       max-width: 100%;
     }
   }
+
   &__tags-list {
     display: flex;
     flex-wrap: wrap;
@@ -306,6 +503,7 @@
     padding: 0 2px;
     gap: 2px;
   }
+
   &__tag {
     @include textType1();
     & {
@@ -316,7 +514,9 @@
   }
 }
 
-// Утилитарный класс для скрытия элемента
+// =============================================================================
+// 7. UTILITIES
+// =============================================================================
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -329,205 +529,21 @@
   border: 0;
 }
 
-// === Стили для accordion описаний ===
-.tier-lists-descr {
-  @include listReset();
+.tier-lists__empty {
+  @include textType1();
   & {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-bottom: 15px;
-  }
-
-  &__item {
-    background: rgba($color1, 0.8);
-    border-radius: 5px;
-    border: 1px solid transparent;
-    transition: all ease-in-out 0.3s;
-    overflow: hidden;
-
-    &--open {
-      border-color: rgba($color2, 0.3);
-    }
-  }
-
-  &__header {
-    @include btnReset();
-    @include flexible();
-    & {
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      padding: 5px 5px 5px 10px;
-      text-align: left;
-      cursor: pointer;
-      transition: all ease-in-out 0.3s;
-      background: rgba($color10, 0.5);
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.05);
-      }
-    }
-  }
-
-  &__h3 {
-    @include textType1();
-  }
-
-  &__toggle {
-    @include flexible();
-    @include textReset();
-    @include textType1();
-    & {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      background: rgba($main, 0.3);
-      color: $white;
-      font-weight: bold;
-      text-align: center;
-      transform: rotate(90deg);
-      transition: all ease-in-out 0.3s;
-
-      .tier-lists-descr__item--open & {
-        transform: rotate(90deg);
-      }
-    }
-  }
-
-  &__content {
-    max-height: 0;
-    overflow: hidden;
-    transition: all ease-in-out 0.3s;
-    opacity: 0;
-
-    &--open {
-      max-height: 2000px; // достаточно большое значение для контента
-      opacity: 1;
-    }
-  }
-
-  &__article {
-    @include textType08();
-    & {
-      color: $color3;
-      padding: 0 5px 5px 10px;
-
-      // Стили для контента из TipTap
-      p {
-        margin: 0.5rem 0;
-      }
-
-      ul,
-      ol {
-        padding-left: 1.5rem;
-        margin: 0.5rem 0;
-      }
-
-      li {
-        margin: 0.25rem 0;
-      }
-
-      strong {
-        color: $white;
-        font-weight: 600;
-      }
-
-      em {
-        font-style: italic;
-      }
-
-      h2 {
-        @include textType1();
-        & {
-          color: $white;
-          margin: 1rem 0 0.5rem;
-        }
-      }
-
-      a {
-        color: $color5;
-        text-decoration: none;
-
-        &:hover {
-          text-decoration: underline;
-        }
-      }
-    }
-  }
-}
-
-.tier-lists__role-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-  width: 100%;
-}
-
-.tier-lists__role-column {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 8px;
-  padding: 8px;
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  &.column-dps {
-    border-top: 3px solid $red;
-    color: $red;
-  }
-
-  &.column-hybrid {
-    border-top: 3px solid $purple;
-    color: $purple;
-  }
-
-  &.column-support {
-    border-top: 3px solid $yellow;
-    color: $yellow;
-  }
-}
-
-.tier-lists__role-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-bottom: 5px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.tier-lists__role-title {
-  @include textType13();
-  & {
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: inherit;
-  }
-}
-
-.tier-lists__empty-role {
-  @include textType08();
-  & {
-    color: $color3;
-    padding: 15px 5px;
     text-align: center;
+    color: $color3;
+    padding: 40px;
+    background: $color1;
+    border-radius: 12px;
     width: 100%;
-    font-style: italic;
   }
 }
 
-.tier-lists__resonators-grid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 5px;
-  width: 100%;
-}
-
-// === Медиа-запросы для адаптивности ===
+// =============================================================================
+// 8. MEDIA QUERIES
+// =============================================================================
 @media (max-width: 900px) {
   .tier-lists__role-columns {
     grid-template-columns: 1fr 1fr;
@@ -557,58 +573,51 @@
     grid-template-columns: 50px 1fr;
   }
 
-  .tier-lists__role-title {
+  .tier-lists__role-column-title {
     @include textType08();
   }
 
   .tier-lists__empty-role {
     @include textType05();
   }
+
+  // Card adjustments
+  .tier-lists__resonator-card {
+    padding: 5px;
+  }
+
+  .resonator-card {
+    &__image-wrapper {
+      width: 100%;
+      height: fit-content;
+    }
+    &__element-img,
+    &__status-img {
+      width: 10px;
+      height: 10px;
+    }
+    &__tag {
+      @include textType03();
+    }
+    &__name {
+      @include textType05();
+    }
+    &__eng-name {
+      @include textType03();
+    }
+  }
+
+  .tier-lists__title {
+    @include textType1();
+  }
+
+  .tier-lists__item {
+    padding: 5px;
+  }
 }
 
 @media (max-width: 400px) {
   .tier-lists__resonators-grid {
     grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-  }
-}
-
-@media (max-width: 600px) {
-  .tier-lists__resonators-grid {
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-    gap: 10px;
-  }
-  .tier-lists__resonator-card {
-    padding: 5px;
-  }
-  .resonator-card__image-wrapper {
-    width: 100%;
-    height: fit-content;
-  }
-  .resonator-card__element-img {
-    width: 10px;
-    height: 10px;
-  }
-  .resonator-card__status-img {
-    width: 10px;
-    height: 10px;
-  }
-  .resonator-card__tag {
-    @include textType03();
-  }
-  .resonator-card__name {
-    @include textType05();
-  }
-  .resonator-card__eng-name {
-    @include textType03();
-  }
-  .tier-lists__title {
-    @include textType1();
-  }
-  .tier-lists__item {
-    padding: 5px;
-  }
-  .tier-lists__row {
-    gap: 10px;
-    grid-template-columns: 50px 1fr;
   }
 }
