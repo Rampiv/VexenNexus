@@ -1,57 +1,94 @@
+// src/hooks/useEchoAggregation.ts
 import { useMemo } from "react"
-import type { Resonator } from "../types/resonator"
+import type {
+  Resonator,
+  EchoSetSelection,
+  CostSelection,
+  EchoCost,
+} from "../types/resonator"
 import type { EchoSet } from "../types/echoSet"
-import type { AggregatedEchoData } from "../types/echoApp"
+import type { EchoRecommendation } from "../types/echoApp"
+
+const COSTS: readonly EchoCost[] = [1, 3, 4] as const
+
+// Хелпер для безопасного получения CostSelection
+const getCostSelection = (
+  selection: EchoSetSelection,
+  cost: EchoCost,
+): CostSelection => {
+  const key = `cost${cost}` as const
+  return selection[key]
+}
 
 export const useEchoAggregation = (
   selectedResonatorIds: string[],
   allResonators: Resonator[],
   allEchoSets: EchoSet[],
-) => {
+): EchoRecommendation[] => {
   return useMemo(() => {
-    const aggregated: AggregatedEchoData = {}
+    if (!selectedResonatorIds.length || !allResonators.length) return []
 
-    // Фильтруем выбранных персонажей
     const selectedResonators = allResonators.filter(r =>
-      selectedResonatorIds.includes(r.id || ""),
+      r.id && selectedResonatorIds.includes(r.id),
     )
 
-    // Проходим по каждому персонажу и его эхо-рекомендациям
+    const aggregated = new Map<string, EchoRecommendation>()
+
     selectedResonators.forEach(resonator => {
-      const echoSelections = resonator.echoSets || []
+      resonator.echoSets?.forEach(selection => {
+        if (!selection.id) return
 
-      echoSelections.forEach(selection => {
-        const echoSet = allEchoSets.find(es => es.id === selection.id)
-        if (!echoSet || !echoSet.id) return
+        const echoSet = allEchoSets.find(set => set.id === selection.id)
+        if (!echoSet) return
 
-        if (!aggregated[echoSet.id]) {
-          aggregated[echoSet.id] = {
-            setId: echoSet.id,
-            setName: echoSet.name || "",
-            setImg: echoSet.img || "",
+        if (!aggregated.has(selection.id)) {
+          aggregated.set(selection.id, {
+            setId: selection.id,
+            setName: echoSet.name || "Без названия",
+            setImg: echoSet.img,
+            resonatorCount: 0,
             lock: {},
             discard: {},
-            resonatorCount: 0,
-          }
+            costStats: {
+              1: { lock: {}, discard: {} },
+              3: { lock: {}, discard: {} },
+              4: { lock: {}, discard: {} },
+            },
+          })
         }
 
-        const rec = aggregated[echoSet.id]
+        const rec = aggregated.get(selection.id)!
         rec.resonatorCount += 1
 
-        // Агрегируем lock статы
-        selection.lock.forEach(stat => {
-          rec.lock[stat] = (rec.lock[stat] || 0) + 1
+        // Агрегация по стоимости
+        COSTS.forEach(cost => {
+          const costSelection = getCostSelection(selection, cost)
+
+          const costStats = rec.costStats?.[cost]
+          if (costStats) {
+            costSelection.lock.forEach((stat: string) => {
+              costStats.lock[stat] = (costStats.lock[stat] || 0) + 1
+            })
+            costSelection.discard.forEach((stat: string) => {
+              costStats.discard[stat] = (costStats.discard[stat] || 0) + 1
+            })
+          }
         })
 
-        // Агрегируем discard статы
-        selection.discard.forEach(stat => {
-          rec.discard[stat] = (rec.discard[stat] || 0) + 1
+        // Обратная совместимость: суммируем все статы
+        COSTS.forEach(cost => {
+          const costSelection = getCostSelection(selection, cost)
+          costSelection.lock.forEach((stat: string) => {
+            rec.lock[stat] = (rec.lock[stat] || 0) + 1
+          })
+          costSelection.discard.forEach((stat: string) => {
+            rec.discard[stat] = (rec.discard[stat] || 0) + 1
+          })
         })
       })
     })
 
-    // Конвертируем в массив и сортируем по популярности
-    return Object.values(aggregated).sort(
+    return Array.from(aggregated.values()).sort(
       (a, b) => b.resonatorCount - a.resonatorCount,
     )
   }, [selectedResonatorIds, allResonators, allEchoSets])

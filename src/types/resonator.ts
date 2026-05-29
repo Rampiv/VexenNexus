@@ -22,8 +22,16 @@ export interface Resonator {
   echoSets?: EchoSetSelection[]
 }
 
-export interface EchoSetSelection {
-  id: string
+export interface CostSelection {
   lock: string[]
   discard: string[]
 }
+
+export interface EchoSetSelection {
+  id: string
+  cost1: CostSelection
+  cost3: CostSelection
+  cost4: CostSelection
+}
+
+export type EchoCost = 1 | 3 | 4

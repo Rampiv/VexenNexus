@@ -529,7 +529,7 @@ export const Admin = () => {
         } else if (activeTab === "tierlist") {
           collectionName = TIER_LISTS_COLLECTION
           objTitle = tierListForm.name || ""
-          objLink = `/tierlists/${tierListForm.nameImg}`
+          objLink = `/tierlists/${tierListForm.name}`
 
           const allTagsMap = new Map<string, TierListTag>()
           tierListForm.rows.forEach(row => {
