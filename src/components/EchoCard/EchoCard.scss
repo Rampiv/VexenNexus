@@ -58,6 +58,8 @@
       flex-direction: column;
       gap: 10px;
       align-items: flex-start;
+      height: 100%;
+      justify-content: flex-start;
     }
   }
   &__text {
@@ -84,10 +86,14 @@
     @include flexible();
     & {
       gap: 10px;
+      justify-content: flex-start;
     }
   }
   &__resonators-item {
     max-width: 70px;
+  }
+  &__resonators {
+    margin-top: auto;
   }
 }
 

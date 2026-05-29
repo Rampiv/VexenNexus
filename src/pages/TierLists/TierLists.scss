@@ -202,8 +202,8 @@
   @include standartTransition();
   & {
     background: $color1;
-    border-radius: 15px;
-    border: 1px solid $color2;
+    border-radius: 5px;
+    border: 1px solid rgba($color2, 0.2);
     padding: 5px;
     width: 100%;
   }
@@ -216,8 +216,9 @@
     justify-content: center;
     gap: 10px;
     margin-bottom: 5px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid $color2;
+    padding-bottom: 15px;
+    padding-top: 15px;
+    border-bottom: 1px solid rgba($color2, 0.2);
   }
 
   &-img {
@@ -241,13 +242,7 @@
   grid-template-columns: 80px 1fr;
   gap: 5px;
   background: rgba(255, 255, 255, 0.03);
-  border-radius: 10px;
-  border: 1px solid transparent;
-  transition: border-color 0.2s ease;
-
-  &:hover {
-    border-color: rgba($color2, 0.2);
-  }
+  border-radius: 3px;
 }
 
 .tier-lists__tier-badge {
@@ -279,10 +274,9 @@
       color: $white;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       background: var(--rarity-color-badge);
-      border-radius: 8px;
+      border-radius: 2px;
       width: 100%;
       height: 100%;
-      border: 1px solid $color2;
     }
   }
 }
@@ -298,27 +292,27 @@
 }
 
 .tier-lists__role-column {
-  border-radius: 8px;
+  border-radius: 5px;
   padding: 0;
   min-height: 100px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 
-  &.column-dps-bottom {
-    border-top: 3px solid #5f0007;
-  }
-  &.column-hybrid-bottom {
-    border-top: 3px solid #38005b;
-  }
-  &.column-support-bottom {
-    border-top: 3px solid #957700;
-  }
+  // &.column-dps-bottom {
+  //   border-top: 3px solid #5f0007;
+  // }
+  // &.column-hybrid-bottom {
+  //   border-top: 3px solid #38005b;
+  // }
+  // &.column-support-bottom {
+  //   border-top: 3px solid #957700;
+  // }
   &.column-dps-up {
     border-top: 3px solid #ff6363;
   }
   &.column-hybrid-up {
-    border-top: 3px solid #6400a3;
+    border-top: 3px solid $purple;
   }
   &.column-support-up {
     border-top: 3px solid #ddb100;
@@ -361,7 +355,7 @@
 .tier-lists__resonators-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 5px;
   row-gap: 10px;
   padding: 5px;
@@ -385,23 +379,21 @@
 // 6. RESONATOR CARD
 // =============================================================================
 .tier-lists__resonator-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  border-radius: 8px;
-  text-decoration: none;
-  color: inherit;
-  transition:
-    background 0.2s ease,
-    transform 0.1s ease;
-  border: 1px solid transparent;
-  height: fit-content;
-  position: relative;
+  @include standartTransition();
+  & {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    border-radius: 3px;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid transparent;
+    height: fit-content;
+    position: relative;
+  }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba($color2, 0.5);
     transform: translateY(-2px);
   }
 
@@ -413,8 +405,8 @@
 .resonator-card {
   &__image-wrapper {
     position: relative;
-    width: 80px;
-    border-radius: 15%;
+    width: 95px;
+    border-radius: 3px;
     background: #000;
     border: 2px solid $color2;
     transition: border-color 0.2s ease;
@@ -443,6 +435,8 @@
     width: 25px;
     height: 25px;
     object-fit: cover;
+    background-color: rgba($main, 0.3);
+    border-radius: 5px;
   }
 
   &__status-img {
@@ -482,7 +476,7 @@
     flex-direction: column;
     align-items: center;
     position: absolute;
-    top: 70px;
+    top: 85px;
     left: 50%;
     transform: translate(-50%, 0%);
     z-index: 2;

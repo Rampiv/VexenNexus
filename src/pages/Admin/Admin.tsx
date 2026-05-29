@@ -1,5 +1,6 @@
 import type React from "react"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
+import type { FirestoreError } from "firebase/firestore"
 import {
   collection,
   addDoc,
@@ -12,6 +13,7 @@ import {
   serverTimestamp,
   setDoc,
   getDoc,
+  onSnapshot,
 } from "firebase/firestore"
 import "./Admin.scss"
 import type { Resonator } from "../../types/resonator"
@@ -19,7 +21,7 @@ import type { Weapon } from "../../types/weapon"
 import type { SiteSettings } from "../../types/siteSettings"
 import type { Mechanic } from "../../types/mechanic"
 import type { EchoSet } from "../../types/echoSet"
-import type { TierList, TierListRow } from "../../types/TierList"
+import type { TierList, TierListRow, TierListTag } from "../../types/TierList"
 import { db } from "../../firebase/config"
 import {
   ArrayEditor,
@@ -31,10 +33,12 @@ import {
 } from "../../components"
 import { useAuth } from "@contexts/AuthContext"
 import { convertOldTeamsToNew } from "../../supp/ConvertOldTeamsToNew"
+
 const RESONATORS_COLLECTION = "resonators"
 const WEAPONS_COLLECTION = "weapons"
 const MECHANICS_COLLECTION = "mechanics"
 const ECHO_SETS_COLLECTION = "echo_sets"
+const SETTINGS_COLLECTION = "settings"
 const SETTINGS_DOC_ID = "site_settings"
 const TIER_LISTS_COLLECTION = "tier_lists"
 
@@ -66,7 +70,13 @@ interface SettingsForm {
 }
 
 export const Admin = () => {
-  const { userRole, isAuthenticated, isLoading, login, logout } = useAuth()
+  const {
+    userRole,
+    isAuthenticated,
+    isLoading: authLoading,
+    login,
+    logout,
+  } = useAuth()
   const [inputKey, setInputKey] = useState("")
   const [authError, setAuthError] = useState("")
 
@@ -84,6 +94,24 @@ export const Admin = () => {
 
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [settingsError, setSettingsError] = useState<string | null>(null)
+  const [isDbReady, setIsDbReady] = useState(false)
+
+  const [globalTagRegistry, setGlobalTagRegistry] = useState<
+    Map<string, TierListTag>
+  >(new Map())
+
+  useEffect(() => {
+    const checkDb = async () => {
+      try {
+        await getDoc(doc(db, "_check", "connection"))
+      } catch {
+        // Игнорируем ошибку
+      }
+      setIsDbReady(true)
+    }
+    checkDb()
+  }, [])
 
   const [resonatorForm, setResonatorForm] = useState<ResonatorForm>({
     name: "",
@@ -161,94 +189,227 @@ export const Admin = () => {
 
   const [editingId, setEditingId] = useState<string | null>(null)
 
-  const fetchData = async () => {
+  const extractGlobalTags = useCallback(
+    (lists: TierList[]): Map<string, TierListTag> => {
+      const tagMap = new Map<string, TierListTag>()
+      lists.forEach(list => {
+        list.rows?.forEach(row => {
+          Object.values(row.resonatorSettings || {}).forEach(
+            (settings: any) => {
+              settings?.tags?.forEach((tag: TierListTag) => {
+                if (!tagMap.has(tag.id)) tagMap.set(tag.id, { ...tag })
+              })
+            },
+          )
+        })
+        list.usedTags?.forEach(tag => {
+          if (!tagMap.has(tag.id)) tagMap.set(tag.id, { ...tag })
+        })
+      })
+      return tagMap
+    },
+    [],
+  )
+
+  const registerTag = useCallback((tag: TierListTag) => {
+    setGlobalTagRegistry(prev => {
+      if (prev.has(tag.id)) return prev
+      const newMap = new Map(prev)
+      newMap.set(tag.id, tag)
+      return newMap
+    })
+  }, [])
+
+  const moveTierListRow = useCallback(
+    (direction: "up" | "down", rowIndex: number) => {
+      setTierListForm(prev => {
+        const newRows = [...prev.rows]
+        const targetIndex = direction === "up" ? rowIndex - 1 : rowIndex + 1
+        if (targetIndex < 0 || targetIndex >= newRows.length) return prev
+        ;[newRows[rowIndex], newRows[targetIndex]] = [
+          newRows[targetIndex],
+          newRows[rowIndex],
+        ]
+        return { ...prev, rows: newRows }
+      })
+    },
+    [],
+  )
+
+  const fetchSettings = useCallback(
+    async (retryCount = 0): Promise<boolean> => {
+      try {
+        const settingsRef = doc(db, SETTINGS_COLLECTION, SETTINGS_DOC_ID)
+        const docSnap = await getDoc(settingsRef)
+
+        if (docSnap.exists()) {
+          const data = docSnap.data() as SiteSettings
+          setSettingsForm({
+            nextBannerDate: data.nextBannerDate ?? "",
+            futureResonatorIds: data.futureResonatorIds ?? [],
+            preview_img: data.preview_img ?? "",
+            filter_img: data.filter_img ?? "",
+            tierListDescriptions: (data.tierListDescriptions || []).map(
+              (d: any) => ({
+                id: d.id || crypto.randomUUID(),
+                title: d.title || "",
+                content: d.content || "",
+              }),
+            ),
+          })
+          setSettingsError(null)
+          return true
+        } else {
+          const defaultSettings: Partial<SiteSettings> = {
+            nextBannerDate: "",
+            futureResonatorIds: [],
+            preview_img: "",
+            filter_img: "",
+            tierListDescriptions: [],
+          }
+          await setDoc(
+            doc(db, SETTINGS_COLLECTION, SETTINGS_DOC_ID),
+            defaultSettings,
+          )
+          setSettingsForm({
+            nextBannerDate: "",
+            futureResonatorIds: [],
+            preview_img: "",
+            filter_img: "",
+            tierListDescriptions: [],
+          })
+          setSettingsError(null)
+          return true
+        }
+      } catch (error) {
+        const err = error as FirestoreError
+        if (
+          retryCount < 3 &&
+          (err.code === "unavailable" || err.code === "deadline-exceeded")
+        ) {
+          await new Promise(resolve =>
+            setTimeout(resolve, 500 * (retryCount + 1)),
+          )
+          return fetchSettings(retryCount + 1)
+        }
+        setSettingsError(`Не удалось загрузить настройки: ${err.message}`)
+        return false
+      }
+    },
+    [],
+  )
+
+  const fetchData = useCallback(async () => {
+    if (!isAuthenticated || !isDbReady) return
     setLoading(true)
+    setSettingsError(null)
+
     try {
-      const resSnap = await getDocs(
-        query(collection(db, RESONATORS_COLLECTION), orderBy("name")),
-      )
+      const [resSnap, weapSnap, mechSnap, echoSnap, tierSnap] =
+        await Promise.all([
+          getDocs(
+            query(collection(db, RESONATORS_COLLECTION), orderBy("name")),
+          ),
+          getDocs(query(collection(db, WEAPONS_COLLECTION), orderBy("name"))),
+          getDocs(
+            query(collection(db, MECHANICS_COLLECTION), orderBy("title")),
+          ),
+          getDocs(query(collection(db, ECHO_SETS_COLLECTION), orderBy("name"))),
+          getDocs(
+            query(collection(db, TIER_LISTS_COLLECTION), orderBy("name")),
+          ),
+        ])
+
       setResonators(
         resSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Resonator[],
-      )
-
-      const weapSnap = await getDocs(
-        query(collection(db, WEAPONS_COLLECTION), orderBy("name")),
       )
       setWeapons(
         weapSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Weapon[],
       )
-
-      const mechSnap = await getDocs(
-        query(collection(db, MECHANICS_COLLECTION), orderBy("title")),
-      )
       setMechanics(
         mechSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Mechanic[],
-      )
-
-      const echoSnap = await getDocs(
-        query(collection(db, ECHO_SETS_COLLECTION), orderBy("name")),
       )
       setEchoSets(
         echoSnap.docs.map(d => ({ id: d.id, ...d.data() })) as EchoSet[],
       )
 
-      const settingsRef = doc(db, "settings", SETTINGS_DOC_ID)
-      const docSnap = await getDoc(settingsRef)
-      if (docSnap.exists()) {
-        const data = docSnap.data() as SiteSettings
-        setSettingsForm({
-          nextBannerDate: data.nextBannerDate || "",
-          futureResonatorIds: data.futureResonatorIds || [],
-          preview_img: data.preview_img || "",
-          filter_img: data.filter_img || "",
-          tierListDescriptions: (data.tierListDescriptions || []).map(
-            (d: any) => ({
-              id: crypto.randomUUID(),
-              title: d.title || "",
-              content: d.content || "",
-            }),
-          ),
-        })
-      } else {
-        setSettingsForm({
-          nextBannerDate: "",
-          futureResonatorIds: [],
-          preview_img: "",
-          filter_img: "",
-          tierListDescriptions: [],
-        })
-      }
+      const loadedTierLists = tierSnap.docs.map(d => ({
+        id: d.id,
+        ...d.data(),
+      })) as TierList[]
+      setTierLists(loadedTierLists)
 
-      const tierSnap = await getDocs(
-        query(collection(db, TIER_LISTS_COLLECTION), orderBy("name")),
-      )
-      setTierLists(
-        tierSnap.docs.map(d => ({ id: d.id, ...d.data() })) as TierList[],
-      )
+      const tags = extractGlobalTags(loadedTierLists)
+      setGlobalTagRegistry(tags)
+
+      await fetchSettings()
     } catch (error) {
       console.error("Ошибка загрузки данных:", error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [isAuthenticated, isDbReady, fetchSettings, extractGlobalTags])
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchData()
+    if (!isAuthenticated || !isAdmin || !isDbReady) return
+    const settingsRef = doc(db, SETTINGS_COLLECTION, SETTINGS_DOC_ID)
+    const unsubscribe = onSnapshot(
+      settingsRef,
+      docSnap => {
+        if (docSnap.exists()) {
+          const data = docSnap.data() as SiteSettings
+          setSettingsForm(prev => ({
+            ...prev,
+            nextBannerDate: data.nextBannerDate ?? prev.nextBannerDate,
+            futureResonatorIds:
+              data.futureResonatorIds ?? prev.futureResonatorIds,
+            preview_img: data.preview_img ?? prev.preview_img,
+            filter_img: data.filter_img ?? prev.filter_img,
+            tierListDescriptions: (data.tierListDescriptions || []).map(
+              (d: any, idx: number) => ({
+                id:
+                  d.id ||
+                  prev.tierListDescriptions[idx]?.id ||
+                  crypto.randomUUID(),
+                title: d.title || "",
+                content: d.content || "",
+              }),
+            ),
+          }))
+          setSettingsError(null)
+        }
+      },
+      error => {
+        setSettingsError("Ошибка синхронизации настроек")
+      },
+    )
+    return () => unsubscribe()
+  }, [isAuthenticated, isAdmin, isDbReady])
+
+  useEffect(() => {
+    if (isAuthenticated && isDbReady) fetchData()
+  }, [isAuthenticated, isDbReady, fetchData])
+
+  const refreshSettings = useCallback(async () => {
+    setSettingsError(null)
+    const success = await fetchSettings()
+    if (success) {
+      const btn = document.querySelector(".btn-refresh-settings")
+      if (btn) {
+        btn.classList.add("refreshed")
+        setTimeout(() => btn.classList.remove("refreshed"), 300)
+      }
     }
-  }, [isAuthenticated])
+  }, [fetchSettings])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setAuthError("")
-
     if (!userRole) return
-
     const success = await login(inputKey, userRole)
-
     if (success) {
       setInputKey("")
-      fetchData()
+      setTimeout(() => fetchData(), 100)
     } else {
       setAuthError(
         `Неверный ключ доступа для роли: ${userRole === "admin" ? "Админ" : "Модератор"}.`,
@@ -270,6 +431,7 @@ export const Admin = () => {
       tierListDescriptions: [],
     })
     setSearchTerm("")
+    setSettingsError(null)
   }
 
   const handleResonatorChange = (
@@ -278,26 +440,22 @@ export const Admin = () => {
     const { name, value } = e.target
     setResonatorForm(prev => ({ ...prev, [name]: value }))
   }
-
   const handleWeaponChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target
     setWeaponForm(prev => ({ ...prev, [name]: value }))
   }
-
   const handleMechanicChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target
     setMechanicForm(prev => ({ ...prev, [name]: value }))
   }
-
   const handleEchoSetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setEchoSetForm(prev => ({ ...prev, [name]: value }))
   }
-
   const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setSettingsForm(prev => ({ ...prev, [name]: value }))
@@ -306,17 +464,16 @@ export const Admin = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-
     try {
-      let collectionName = ""
-      let dataToSave: any = {}
-      let objTitle = ""
-      let objLink = ""
-      let isSettings = false
+      let collectionName = "",
+        dataToSave: any = {},
+        objTitle = "",
+        objLink = "",
+        isSettings = false
 
       if (activeTab === "settings") {
         isSettings = true
-        const settingsRef = doc(db, "settings", SETTINGS_DOC_ID)
+        const settingsRef = doc(db, SETTINGS_COLLECTION, SETTINGS_DOC_ID)
         dataToSave = {
           nextBannerDate: settingsForm.nextBannerDate,
           futureResonatorIds: settingsForm.futureResonatorIds,
@@ -328,6 +485,7 @@ export const Admin = () => {
           updatedAt: serverTimestamp(),
         }
         await setDoc(settingsRef, dataToSave, { merge: true })
+        setSettingsError(null)
         alert("Настройки сохранены!")
       } else {
         if (activeTab === "resonators") {
@@ -351,9 +509,8 @@ export const Admin = () => {
         } else if (activeTab === "mechanics") {
           collectionName = MECHANICS_COLLECTION
           objTitle = mechanicForm.engName || ""
-          if (mechanicForm.engName) {
+          if (mechanicForm.engName)
             objLink = `/mechanics/${mechanicForm.engName.toLowerCase().replace(/\s+/g, "-")}`
-          }
           dataToSave = {
             ...mechanicForm,
             updatedAt: serverTimestamp(),
@@ -362,9 +519,8 @@ export const Admin = () => {
         } else if (activeTab === "echoSets") {
           collectionName = ECHO_SETS_COLLECTION
           objTitle = echoSetForm.name || ""
-          if (echoSetForm.engName) {
+          if (echoSetForm.engName)
             objLink = `/echoSets/${echoSetForm.engName.toLowerCase().replace(/\s+/g, "-")}`
-          }
           dataToSave = {
             ...echoSetForm,
             updatedAt: serverTimestamp(),
@@ -374,17 +530,37 @@ export const Admin = () => {
           collectionName = TIER_LISTS_COLLECTION
           objTitle = tierListForm.name || ""
           objLink = `/tierlists/${tierListForm.nameImg}`
+
+          const allTagsMap = new Map<string, TierListTag>()
+          tierListForm.rows.forEach(row => {
+            Object.values(row.resonatorSettings || {}).forEach(
+              (settings: any) => {
+                settings?.tags?.forEach((tag: any) => {
+                  if (tag?.id) {
+                    const uniqueKey = `${(tag.text || tag.name || "").toLowerCase()}_${tag.color || "#000000"}`
+                    if (!allTagsMap.has(uniqueKey)) {
+                      allTagsMap.set(uniqueKey, {
+                        id: tag.id,
+                        name: tag.text || tag.name || "",
+                        color: tag.color || "#7d40ff",
+                      })
+                    }
+                  }
+                })
+              },
+            )
+          })
+
           dataToSave = {
             ...tierListForm,
+            usedTags: Array.from(allTagsMap.values()),
             updatedAt: serverTimestamp(),
             ...(editingId ? {} : { createdAt: serverTimestamp() }),
           }
         }
-
         if (editingId) {
           const docRef = doc(db, collectionName, editingId)
           await updateDoc(docRef, dataToSave)
-
           if (activeTab === "resonators")
             await addUpdateLog("Изменено", `гайд на ${objTitle}`, objLink)
           if (activeTab === "mechanics")
@@ -395,11 +571,9 @@ export const Admin = () => {
             await addUpdateLog("Изменено", `эхо сет: ${objTitle}`, objLink)
           if (activeTab === "tierlist")
             await addUpdateLog("Изменено", `тир-лист: ${objTitle}`, objLink)
-
           alert("Объект обновлен!")
         } else {
           await addDoc(collection(db, collectionName), dataToSave)
-
           if (activeTab === "resonators")
             await addUpdateLog("Добавлено", `гайд на ${objTitle}`, objLink)
           if (activeTab === "mechanics")
@@ -410,16 +584,14 @@ export const Admin = () => {
             await addUpdateLog("Добавлено", `эхо сет: ${objTitle}`, objLink)
           if (activeTab === "tierlist")
             await addUpdateLog("Добавлено", `тир-лист: ${objTitle}`, objLink)
-
           alert("Объект добавлен!")
         }
       }
-
       resetForms()
       fetchData()
     } catch (error) {
       console.error("Ошибка сохранения:", error)
-      alert("Ошибка при сохранении")
+      alert("Ошибка при сохранении. Проверьте консоль.")
     } finally {
       setIsSubmitting(false)
     }
@@ -427,10 +599,8 @@ export const Admin = () => {
 
   const handleEdit = (item: any) => {
     setEditingId(item.id || null)
-
     if (activeTab === "resonators") {
       const convertedTeams = convertOldTeamsToNew(item.teams || [])
-
       setResonatorForm({
         name: item.name || "",
         engName: item.engName || "",
@@ -444,8 +614,8 @@ export const Admin = () => {
         resonatorImgGuide: item.resonatorImgGuide || "",
         resonatorYTLink: item.resonatorYTLink || "",
         teams: convertedTeams,
-        descr: item.descr && item.descr.length > 0 ? item.descr : [],
-        result: item.result && item.result.length > 0 ? item.result : [],
+        descr: item.descr?.length ? item.descr : [],
+        result: item.result?.length ? item.result : [],
         resonatorImgDetails: item.resonatorImgDetails || "",
         echoSets: item.echoSets || [],
       })
@@ -481,7 +651,19 @@ export const Admin = () => {
       setTierListForm({
         name: item.name || "",
         nameImg: item.nameImg || "",
-        rows: item.rows || [],
+        rows: item.rows?.map((r: TierListRow) => ({
+          ...r,
+          resonatorSettings: r.resonatorSettings || {},
+        })) || [
+          {
+            id: crypto.randomUUID(),
+            rating: "S",
+            ratingImg: "",
+            dpsResonatorIds: [],
+            hybridResonatorIds: [],
+            supportResonatorIds: [],
+          },
+        ],
       })
     }
     window.scrollTo({ top: 0, behavior: "smooth" })
@@ -489,14 +671,12 @@ export const Admin = () => {
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Вы уверены?")) return
-
     let collectionName = ""
     if (activeTab === "resonators") collectionName = RESONATORS_COLLECTION
     else if (activeTab === "weapons") collectionName = WEAPONS_COLLECTION
     else if (activeTab === "mechanics") collectionName = MECHANICS_COLLECTION
     else if (activeTab === "echoSets") collectionName = ECHO_SETS_COLLECTION
     else if (activeTab === "tierlist") collectionName = TIER_LISTS_COLLECTION
-
     try {
       await deleteDoc(doc(db, collectionName, id))
       fetchData()
@@ -513,7 +693,6 @@ export const Admin = () => {
       }))
     }
   }
-
   const handleRemoveResonatorFromBanner = (resonatorId: string) => {
     setSettingsForm(prev => ({
       ...prev,
@@ -542,7 +721,6 @@ export const Admin = () => {
       resonatorImgDetails: "",
       echoSets: [],
     })
-
     setWeaponForm({
       name: "",
       engName: "",
@@ -551,14 +729,7 @@ export const Admin = () => {
       img: "",
       description: [],
     })
-
-    setMechanicForm({
-      title: "",
-      engName: "",
-      img: "",
-      paragraphs: [],
-    })
-
+    setMechanicForm({ title: "", engName: "", img: "", paragraphs: [] })
     setEchoSetForm({
       name: "",
       img: "",
@@ -570,22 +741,20 @@ export const Admin = () => {
       patchNumber: "",
       index: 0,
     })
-
     setTierListForm({
       name: "",
       nameImg: "",
       rows: [
-      {
-        id: crypto.randomUUID(),
-        rating: "S",
-        ratingImg: "",
-        dpsResonatorIds: [],      // ✅
-        hybridResonatorIds: [],   // ✅
-        supportResonatorIds: [],  // ✅
-      },
-    ],
+        {
+          id: crypto.randomUUID(),
+          rating: "S",
+          ratingImg: "",
+          dpsResonatorIds: [],
+          hybridResonatorIds: [],
+          supportResonatorIds: [],
+        },
+      ],
     })
-
     setSettingsForm({
       nextBannerDate: "",
       futureResonatorIds: [],
@@ -593,7 +762,6 @@ export const Admin = () => {
       filter_img: "",
       tierListDescriptions: [],
     })
-
     setEditingId(null)
   }
 
@@ -610,20 +778,14 @@ export const Admin = () => {
     else if (activeTab === "mechanics") list = mechanics
     else if (activeTab === "echoSets") list = echoSets
     else if (activeTab === "tierlist") list = tierLists
-
     if (!searchTerm) return list
-
     const lowerTerm = searchTerm.toLowerCase()
-
-    return list.filter(item => {
-      if (item.name && item.name.toLowerCase().includes(lowerTerm)) return true
-      if (item.engName && item.engName.toLowerCase().includes(lowerTerm))
-        return true
-      if (item.title && item.title.toLowerCase().includes(lowerTerm))
-        return true
-
-      return false
-    })
+    return list.filter(
+      item =>
+        (item.name && item.name.toLowerCase().includes(lowerTerm)) ||
+        (item.engName && item.engName.toLowerCase().includes(lowerTerm)) ||
+        (item.title && item.title.toLowerCase().includes(lowerTerm)),
+    )
   }, [
     activeTab,
     resonators,
@@ -634,8 +796,7 @@ export const Admin = () => {
     searchTerm,
   ])
 
-  if (isLoading) return <Loader width="100px" height="100px" />
-
+  if (authLoading || !isDbReady) return <Loader width="100px" height="100px" />
   if (!isAuthenticated)
     return (
       <AuthScreen
@@ -822,7 +983,6 @@ export const Admin = () => {
                     />
                   </>
                 )}
-
                 <InputGroup
                   label="URL Детального подсчета"
                   name="resonatorImgDetails"
@@ -1114,7 +1274,6 @@ export const Admin = () => {
                     }
                   />
                 </div>
-
                 <TierListEditor
                   rows={tierListForm.rows}
                   setRows={newRows =>
@@ -1127,12 +1286,31 @@ export const Admin = () => {
                     }))
                   }
                   allResonators={resonators}
+                  availableTags={Array.from(globalTagRegistry.values())}
+                  onTagRegistered={registerTag}
+                  onMoveRow={moveTierListRow}
+                  canMoveUp={(index: number) => index > 0}
+                  canMoveDown={(index: number) =>
+                    index < tierListForm.rows.length - 1
+                  }
                 />
               </>
             )}
 
             {activeTab === "settings" && (
               <div className="settings-container">
+                {settingsError && (
+                  <div className="settings-error-banner">
+                    ⚠️ {settingsError}
+                    <button
+                      type="button"
+                      onClick={refreshSettings}
+                      className="btn-retry"
+                    >
+                      Повторить
+                    </button>
+                  </div>
+                )}
                 <div className="form-group">
                   <label>Дата следующего баннера</label>
                   <input
@@ -1153,7 +1331,6 @@ export const Admin = () => {
                     }
                   />
                 </div>
-
                 <div className="form-group">
                   <label>Персонажи на будущем баннере</label>
                   <div className="resonator-selector">
@@ -1164,8 +1341,11 @@ export const Admin = () => {
                         e.target.value = ""
                       }}
                       className="resonator-select"
+                      disabled={resonators.length === 0}
                     >
-                      <option value="">Выберите персонажа...</option>
+                      <option value="">
+                        {resonators.length !== 0 && "Выберите персонажа..."}
+                      </option>
                       {resonators.map(r => (
                         <option
                           key={r.id}
@@ -1179,30 +1359,40 @@ export const Admin = () => {
                       ))}
                     </select>
                   </div>
+                  {resonators.length === 0 && (
+                    <p className="hint">⏳ Персонажи загружаются...</p>
+                  )}
                   <ul className="selected-resonators">
                     {settingsForm.futureResonatorIds.map(id => {
                       const res = resonators.find(r => r.id === id)
-                      return res ? (
-                        <li key={id} className="selected-resonator-item">
-                          <img
-                            src={res.resonatorImg}
-                            alt={res.name}
-                            className="resonator-thumb"
-                          />
-                          <span>{res.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveResonatorFromBanner(id)}
-                            className="btn-remove-resonator"
-                          >
-                            ×
-                          </button>
-                        </li>
-                      ) : null
+                      return (
+                        res && (
+                          <li key={id} className="selected-resonator-item">
+                            <img
+                              src={res.resonatorImg}
+                              alt={res.name}
+                              className="resonator-thumb"
+                              onError={e => {
+                                ;(e.target as HTMLImageElement).src =
+                                  "/placeholder.png"
+                              }}
+                            />
+                            <span>{res.name}</span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleRemoveResonatorFromBanner(id)
+                              }
+                              className="btn-remove-resonator"
+                            >
+                              ×
+                            </button>
+                          </li>
+                        )
+                      )
                     })}
                   </ul>
                 </div>
-
                 <InputGroup
                   label="Ссылка на Preview Image (Баннер)"
                   name="preview_img"
@@ -1217,10 +1407,8 @@ export const Admin = () => {
                   onChange={handleSettingsChange}
                   placeholder="https://..."
                 />
-
                 <div className="form-group">
                   <label>Глобальные описания для тир-листов</label>
-
                   {settingsForm.tierListDescriptions.map(desc => (
                     <DescriptionEditor
                       key={desc.id}
@@ -1257,7 +1445,6 @@ export const Admin = () => {
                       }
                     />
                   ))}
-
                   <button
                     type="button"
                     onClick={() =>
@@ -1273,11 +1460,23 @@ export const Admin = () => {
                   >
                     + Добавить описание
                   </button>
-
                   <p className="hint">
                     Эти описания будут отображаться на <strong>всех</strong>{" "}
                     страницах тир-листов.
                   </p>
+                </div>
+                <div className="settings-actions">
+                  <button
+                    type="button"
+                    onClick={refreshSettings}
+                    className="btn-refresh-settings"
+                    disabled={loading}
+                  >
+                    🔄 Обновить настройки
+                  </button>
+                  {loading && (
+                    <span className="loading-indicator">Загрузка...</span>
+                  )}
                 </div>
               </div>
             )}
@@ -1285,36 +1484,39 @@ export const Admin = () => {
             <div className="form-actions">
               {isAdmin && (
                 <>
-                  <button type="submit" disabled={isSubmitting}>
+                  <button type="submit" disabled={isSubmitting || loading}>
                     {isSubmitting
                       ? "Сохранение..."
-                      : editingId && activeTab !== "settings"
-                        ? "Обновить"
-                        : "Сохранить"}
+                      : loading && activeTab === "settings"
+                        ? "Загрузка..."
+                        : editingId && activeTab !== "settings"
+                          ? "Обновить"
+                          : "Сохранить"}
                   </button>
                   {editingId && activeTab !== "settings" && (
                     <button
                       type="button"
                       onClick={resetForms}
                       className="btn-cancel"
+                      disabled={isSubmitting}
                     >
                       Отмена
                     </button>
                   )}
                 </>
               )}
-
               {isModerator && (
                 <>
                   {editingId && activeTab !== "settings" && (
                     <>
-                      <button type="submit" disabled={isSubmitting}>
+                      <button type="submit" disabled={isSubmitting || loading}>
                         {isSubmitting ? "Сохранение..." : "Обновить"}
                       </button>
                       <button
                         type="button"
                         onClick={resetForms}
                         className="btn-cancel"
+                        disabled={isSubmitting}
                       >
                         Отмена
                       </button>
@@ -1346,7 +1548,6 @@ export const Admin = () => {
                       ? "Тир-листы"
                       : "Настройки"}
           </h2>
-
           {activeTab !== "settings" && activeTab !== "tierlist" && (
             <div className="admin-search-wrapper">
               <input
@@ -1358,13 +1559,17 @@ export const Admin = () => {
               />
             </div>
           )}
-
           {activeTab === "settings" ? (
             <div className="settings-info">
               <p>
                 Глобальные настройки сайта. Изменения применяются ко всем
                 пользователям.
               </p>
+              {settingsError && (
+                <p className="error-text">
+                  ⚠️ {settingsError}. Попробуйте обновить страницу.
+                </p>
+              )}
             </div>
           ) : activeTab === "tierlist" ? (
             <ul className="admin-list">
@@ -1373,7 +1578,6 @@ export const Admin = () => {
                   <li key={item.id} className="admin-list-item">
                     <div className="admin-info">
                       <strong>{item.name}</strong>
-
                       <span className="admin-meta">
                         {item.rows.length} ряд(ов)
                       </span>
@@ -1396,6 +1600,8 @@ export const Admin = () => {
                     </div>
                   </li>
                 ))
+              ) : loading ? (
+                <li className="admin-list-empty">Загрузка...</li>
               ) : (
                 <li className="admin-list-empty">Ничего не найдено</li>
               )}
@@ -1409,6 +1615,9 @@ export const Admin = () => {
                       src={item.resonatorImg || item.img}
                       alt={item.name || item.title}
                       className="admin-thumb"
+                      onError={e => {
+                        ;(e.target as HTMLImageElement).src = "/placeholder.png"
+                      }}
                     />
                     <div className="admin-info">
                       <strong>{item.name || item.title}</strong>
@@ -1439,6 +1648,8 @@ export const Admin = () => {
                     </div>
                   </li>
                 ))
+              ) : loading ? (
+                <li className="admin-list-empty">Загрузка...</li>
               ) : (
                 <li className="admin-list-empty">Ничего не найдено</li>
               )}
@@ -1460,7 +1671,10 @@ const InputGroup = ({
   type = "text",
 }: any) => (
   <div className="form-group">
-    <label>{label}</label>
+    <label>
+      {label}
+      {required && <span className="required">*</span>}
+    </label>
     <input
       type={type}
       name={name}
@@ -1501,7 +1715,7 @@ const AuthScreen = ({
 }: any) => (
   <section className="admin-auth-screen">
     <div className="admin-auth-box">
-      <h2>🔒 Доступ ограничен</h2>
+      <h2>Доступ ограничен</h2>
       <form onSubmit={handleLogin} className="admin-key-form">
         <input
           type="password"
@@ -1526,9 +1740,9 @@ const addUpdateLog = async (
 ) => {
   try {
     await addDoc(collection(db, "updates"), {
-      type: type,
-      title: title,
-      link: link,
+      type,
+      title,
+      link,
       date: new Date().toISOString(),
       createdAt: serverTimestamp(),
     })

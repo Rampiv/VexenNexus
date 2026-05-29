@@ -8,6 +8,7 @@ export interface TierListRow {
   supportResonatorIds: string[]
   resonatorIds?: string[]
   resonatorSettings?: Record<string, ResonatorSettings>
+  taggedResonators?: TaggedResonator[]
 }
 
 export interface TierList {
@@ -17,6 +18,7 @@ export interface TierList {
   rows: TierListRow[]
   createdAt?: any
   updatedAt?: any
+  usedTags?: TierListTag[]
 }
 
 export interface TierListDescription {
@@ -32,4 +34,16 @@ export interface ResonatorSettings {
     text: string
     color: string
   }>
+}
+
+export interface TierListTag {
+  id: string
+  name: string
+  text?: string
+  color: string
+}
+
+export interface TaggedResonator {
+  resonatorId: string
+  tags: TierListTag[]
 }
