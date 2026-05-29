@@ -1,6 +1,10 @@
-import React, { useState, useCallback, useRef, useEffect } from "react"
+import React, { useState, useCallback, useRef, useEffect, useMemo } from "react"
 import type { Resonator } from "../../types/resonator"
-import type { TierListRow, ResonatorSettings } from "../../types/TierList"
+import type {
+  TierListRow,
+  ResonatorSettings,
+  TierListTag,
+} from "../../types/TierList"
 import "./TierListEditor.scss"
 
 interface TierListEditorProps {
@@ -9,10 +13,15 @@ interface TierListEditorProps {
     rows: TierListRow[] | ((prev: TierListRow[]) => TierListRow[]),
   ) => void
   allResonators: Resonator[]
+  availableTags?: TierListTag[]
+  onTagCreated?: (tag: TierListTag) => void
+  onTagRegistered?: (tag: TierListTag) => void
+  onMoveRow?: (direction: "up" | "down", rowIndex: number) => void
+  canMoveUp?: (index: number) => boolean
+  canMoveDown?: (index: number) => boolean
 }
 
 type Role = "dps" | "hybrid" | "support"
-
 type DragData = {
   resonatorId: string
   source: "pool" | "row"
@@ -25,6 +34,12 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
   rows,
   setRows,
   allResonators,
+  availableTags = [],
+  onTagCreated,
+  onTagRegistered,
+  onMoveRow,
+  canMoveUp,
+  canMoveDown,
 }) => {
   const [editingRow, setEditingRow] = useState<number | null>(null)
   const [draggedItem, setDraggedItem] = useState<DragData | null>(null)
@@ -34,7 +49,6 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     index: number
   } | null>(null)
 
-  // Состояние для модального окна
   const [modalOpen, setModalOpen] = useState(false)
   const [modalResonatorId, setModalResonatorId] = useState<string | null>(null)
   const [modalRowIndex, setModalRowIndex] = useState<number | null>(null)
@@ -43,18 +57,46 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     tags: [],
   })
 
+  const [editableTags, setEditableTags] = useState<
+    Array<{ id: string; text: string; color: string }>
+  >([])
+  const [selectedTagId, setSelectedTagId] = useState<string>("")
+
   const containerRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
-  // Получаем все использованные ID персонажей
-  const usedResonatorIds = rows.flatMap(row => [
-    ...(row.dpsResonatorIds || []),
-    ...(row.hybridResonatorIds || []),
-    ...(row.supportResonatorIds || []),
-  ])
-  // const availableResonators = allResonators.filter(
-  //   r => !usedResonatorIds.includes(r.id || ""),
-  // )
-  const availableResonators = allResonators
+  // прокрутка во время drag и drop
+  const isDraggingRef = useRef(false)
+  const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const SCROLL_THRESHOLD = 100
+  const SCROLL_SPEED = 10
+
+  const globalTagPool = useMemo(() => {
+    const tagMap = new Map<string, TierListTag>()
+    if (rows && rows.length > 0) {
+      rows.forEach(row => {
+        if (row.resonatorSettings) {
+          Object.values(row.resonatorSettings).forEach((settings: any) => {
+            if (settings?.tags && Array.isArray(settings.tags)) {
+              settings.tags.forEach((tag: any) => {
+                if (tag?.id) {
+                  const uniqueKey = `${(tag.text || tag.name || "").toLowerCase()}_${tag.color || "#000000"}`
+                  if (!tagMap.has(uniqueKey)) {
+                    tagMap.set(uniqueKey, {
+                      id: tag.id,
+                      name: tag.text || tag.name || "",
+                      color: tag.color || "#7d40ff",
+                    })
+                  }
+                }
+              })
+            }
+          })
+        }
+      })
+    }
+
+    return Array.from(tagMap.values())
+  }, [rows])
 
   const getResonatorById = useCallback(
     (id: string) => allResonators.find(r => r.id === id),
@@ -62,15 +104,9 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
   )
 
   const getRarityColor = (rarity: number | undefined): string => {
-    switch (rarity) {
-      case 5:
-        return "#ffc947"
-      default:
-        return "#a078ff"
-    }
+    return rarity === 5 ? "#ffc947" : "#a078ff"
   }
 
-  // Получаем массив персонажей для конкретной роли в строке
   const getResonatorsByRole = (row: TierListRow, role: Role): string[] => {
     switch (role) {
       case "dps":
@@ -84,7 +120,6 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     }
   }
 
-  // === Row Handlers ===
   const handleAddRow = () => {
     setRows(prev => [
       ...prev,
@@ -105,6 +140,10 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     if (editingRow === rowIndex) setEditingRow(null)
   }
 
+  const handleMoveRow = (direction: "up" | "down", rowIndex: number) => {
+    onMoveRow?.(direction, rowIndex)
+  }
+
   const handleRowSettingChange = (
     rowIndex: number,
     field: string,
@@ -117,7 +156,6 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     )
   }
 
-  // === Modal Handlers ===
   const openSettingsModal = (resonatorId: string, rowIndex: number) => {
     const row = rows[rowIndex]
     const existingSettings = row?.resonatorSettings?.[resonatorId]
@@ -125,6 +163,8 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     setModalResonatorId(resonatorId)
     setModalRowIndex(rowIndex)
     setModalSettings(existingSettings || { status: "neutral", tags: [] })
+    setEditableTags([])
+    setSelectedTagId("")
     setModalOpen(true)
   }
 
@@ -133,54 +173,106 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     setModalResonatorId(null)
     setModalRowIndex(null)
     setModalSettings({ status: "neutral", tags: [] })
+    setEditableTags([])
+    setSelectedTagId("")
   }
 
   const saveModalSettings = () => {
     if (!modalResonatorId || modalRowIndex === null) return
 
+    const allTags = [
+      ...(modalSettings.tags || []),
+      ...editableTags.filter(t => t.text.trim()),
+    ]
+
     setRows(prev =>
       prev.map((row, idx) => {
         if (idx !== modalRowIndex) return row
-
         return {
           ...row,
           resonatorSettings: {
             ...row.resonatorSettings,
-            [modalResonatorId]: modalSettings,
+            [modalResonatorId]: {
+              ...modalSettings,
+              tags: allTags,
+            },
           },
         }
       }),
     )
+
+    editableTags
+      .filter(t => t.text.trim())
+      .forEach(tag => {
+        onTagCreated?.({ id: tag.id, name: tag.text, color: tag.color })
+        onTagRegistered?.({ id: tag.id, name: tag.text, color: tag.color })
+      })
+
     closeSettingsModal()
   }
 
-  const addTag = () => {
-    setModalSettings(prev => ({
+  const handleAddTagFromSelect = () => {
+    if (!selectedTagId) return
+    const tag = globalTagPool.find(t => t.id === selectedTagId)
+    if (!tag) return
+
+    const exists = [...(modalSettings.tags || []), ...editableTags].some(
+      t => t.id === tag.id,
+    )
+    if (exists) {
+      setSelectedTagId("")
+      return
+    }
+
+    setEditableTags(prev => [
       ...prev,
-      tags: [
-        ...prev.tags,
-        { id: crypto.randomUUID(), text: "", color: "#7d40ff" },
-      ],
-    }))
+      { id: tag.id, text: tag.name, color: tag.color },
+    ])
+    setSelectedTagId("")
+    onTagRegistered?.(tag)
   }
 
-  const updateTag = (tagId: string, field: "text" | "color", value: string) => {
+  const handleAddEditableTag = () => {
+    setEditableTags(prev => [
+      ...prev,
+      { id: crypto.randomUUID(), text: "", color: "#7d40ff" },
+    ])
+  }
+
+  const updateEditableTag = (
+    tagId: string,
+    field: "text" | "color",
+    value: string,
+  ) => {
+    setEditableTags(prev =>
+      prev.map(tag => (tag.id === tagId ? { ...tag, [field]: value } : tag)),
+    )
+  }
+
+  const removeEditableTag = (tagId: string) => {
+    setEditableTags(prev => prev.filter(tag => tag.id !== tagId))
+  }
+
+  const updateSavedTag = (
+    tagId: string,
+    field: "text" | "color",
+    value: string,
+  ) => {
     setModalSettings(prev => ({
       ...prev,
-      tags: prev.tags.map(tag =>
+      tags: (prev.tags || []).map(tag =>
         tag.id === tagId ? { ...tag, [field]: value } : tag,
       ),
     }))
   }
 
-  const removeTag = (tagId: string) => {
+  const removeSavedTag = (tagId: string) => {
     setModalSettings(prev => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag.id !== tagId),
+      tags: (prev.tags || []).filter(tag => tag.id !== tagId),
     }))
   }
 
-  // === Drag & Drop ===
   const handleDragStart = (
     e: React.DragEvent,
     resonatorId: string,
@@ -200,28 +292,22 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     e.dataTransfer.effectAllowed = "move"
 
     const dragEl = document.createElement("div")
-    dragEl.style.width = "64px"
-    dragEl.style.height = "64px"
-    dragEl.style.borderRadius = "10px"
-    dragEl.style.background = "rgba(125, 64, 255, 0.4)"
-    dragEl.style.border = "2px solid #7d40ff"
+    dragEl.style.cssText =
+      "width:64px;height:64px;border-radius:10px;background:rgba(125,64,255,0.4);border:2px solid #7d40ff"
     e.dataTransfer.setDragImage(dragEl, 32, 32)
 
     setDraggedItem(data)
+    isDraggingRef.current = true
+
+    document.addEventListener("dragend", handleGlobalDragEnd)
 
     requestAnimationFrame(() => {
-      if (e.currentTarget) {
-        e.currentTarget.classList.add("is-dragging")
-      }
+      if (e.currentTarget) e.currentTarget.classList.add("is-dragging")
     })
   }
 
   const handleDragEnd = (e: React.DragEvent) => {
-    if (e.currentTarget) {
-      e.currentTarget.classList.remove("is-dragging")
-    }
-    setDraggedItem(null)
-    setDragOverIndex(null)
+    if (e.currentTarget) e.currentTarget.classList.remove("is-dragging")
   }
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -235,15 +321,12 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
   ): number => {
     const rect = container.getBoundingClientRect()
     const mouseX = e.clientX - rect.left
-    const mouseY = e.clientY - rect.top
-
     const children = Array.from(
       container.querySelectorAll(".dropped-resonator"),
     )
 
     if (children.length === 0) return 0
 
-    // Находим элементы в той же строке (по Y-координате)
     const mouseYAbsolute = e.clientY
     let sameRowChildren: { element: Element; center: number; index: number }[] =
       []
@@ -251,33 +334,22 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     children.forEach((child, index) => {
       const childRect = child.getBoundingClientRect()
       const childCenterY = childRect.top + childRect.height / 2
-
-      // Проверяем, находится ли элемент примерно на той же строке
-      // (разница по Y не больше половины высоты элемента)
       if (Math.abs(mouseYAbsolute - childCenterY) < childRect.height / 2) {
         const childCenterX = childRect.left - rect.left + childRect.width / 2
         sameRowChildren.push({ element: child, center: childCenterX, index })
       }
     })
 
-    // Если мышь не над какой-либо строкой, добавляем в конец
-    if (sameRowChildren.length === 0) {
-      return children.length
-    }
-
-    // Сортируем элементы в строке слева направо
+    if (sameRowChildren.length === 0) return children.length
     sameRowChildren.sort((a, b) => a.center - b.center)
 
-    // Находим позицию для вставки среди элементов этой строки
     let insertIndex = sameRowChildren[sameRowChildren.length - 1].index + 1
-
     for (let i = 0; i < sameRowChildren.length; i++) {
       if (mouseX < sameRowChildren[i].center) {
         insertIndex = sameRowChildren[i].index
         break
       }
     }
-
     return insertIndex
   }
 
@@ -289,8 +361,11 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
   ) => {
     e.preventDefault()
     e.stopPropagation()
-
     const targetIndex = calculateDropIndex(e, container)
+    
+    setTimeout(() => {
+      if (!isDraggingRef.current) cleanupDragListeners()
+    }, 0)
 
     try {
       const rawData = e.dataTransfer.getData("application/json")
@@ -301,11 +376,9 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
 
       setRows(prev => {
         if (targetRowIndex < 0 || targetRowIndex >= prev.length) return prev
-
         const currentTargetRow = prev[targetRowIndex]
         if (!currentTargetRow) return prev
 
-        // Если перетаскиваем внутри той же роли — просто меняем порядок
         if (
           source === "row" &&
           sourceRowIndex === targetRowIndex &&
@@ -314,19 +387,15 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
           const currentIds = getResonatorsByRole(currentTargetRow, targetRole)
           const currentSourceIndex = currentIds.indexOf(resonatorId)
           if (currentSourceIndex === -1) return prev
-
-          if (currentSourceIndex === targetIndex) {
+          if (currentSourceIndex === targetIndex)
             return prev.map((row, idx) =>
               idx === targetRowIndex ? { ...row } : row,
             )
-          }
 
           const newIds = [...currentIds]
           newIds.splice(currentSourceIndex, 1)
-
           const adjustedTargetIndex =
             currentSourceIndex < targetIndex ? targetIndex - 1 : targetIndex
-
           const safeIndex = Math.max(
             0,
             Math.min(adjustedTargetIndex, newIds.length),
@@ -344,37 +413,32 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
           })
         }
 
-        // Перемещение между разными ролями или из пула
         let newRows = [...prev]
 
-        // Удаляем из источника если это строка
         if (source === "row" && sourceRowIndex !== undefined) {
           const sourceRow = newRows[sourceRowIndex]
           if (sourceRow) {
             const updatedSourceRow = { ...sourceRow }
-            if (sourceRole === "dps") {
+            if (sourceRole === "dps")
               updatedSourceRow.dpsResonatorIds = (
                 sourceRow.dpsResonatorIds || []
               ).filter(id => id !== resonatorId)
-            } else if (sourceRole === "hybrid") {
+            else if (sourceRole === "hybrid")
               updatedSourceRow.hybridResonatorIds = (
                 sourceRow.hybridResonatorIds || []
               ).filter(id => id !== resonatorId)
-            } else if (sourceRole === "support") {
+            else if (sourceRole === "support")
               updatedSourceRow.supportResonatorIds = (
                 sourceRow.supportResonatorIds || []
               ).filter(id => id !== resonatorId)
-            }
             newRows[sourceRowIndex] = updatedSourceRow
           }
         }
 
-        // Добавляем в целевую роль
         const targetRow = newRows[targetRowIndex]
         let newResonatorIds = [
           ...(getResonatorsByRole(targetRow, targetRole) || []),
         ].filter(id => id !== resonatorId)
-
         const safeIndex = Math.max(
           0,
           Math.min(targetIndex, newResonatorIds.length),
@@ -396,7 +460,6 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     } catch (err) {
       console.error("Drop error:", err)
     }
-
     setDragOverIndex(null)
   }
 
@@ -420,341 +483,403 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
       prev.map((row, idx) => {
         if (idx !== rowIndex) return row
         const updatedRow = { ...row }
-        if (role === "dps") {
+        if (role === "dps")
           updatedRow.dpsResonatorIds = (row.dpsResonatorIds || []).filter(
             id => id !== resonatorId,
           )
-        } else if (role === "hybrid") {
+        else if (role === "hybrid")
           updatedRow.hybridResonatorIds = (row.hybridResonatorIds || []).filter(
             id => id !== resonatorId,
           )
-        } else {
+        else
           updatedRow.supportResonatorIds = (
             row.supportResonatorIds || []
           ).filter(id => id !== resonatorId)
-        }
         return updatedRow
       }),
     )
   }
 
-  // Закрытие модального окна по клику вне его
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeSettingsModal()
     }
-
     if (modalOpen) {
       document.addEventListener("keydown", handleEscape)
       document.body.style.overflow = "hidden"
     }
-
     return () => {
       document.removeEventListener("keydown", handleEscape)
       document.body.style.overflow = ""
     }
   }, [modalOpen])
 
-  // === Рендер ===
+  // логика прокрутки страницы drag и drop
+  const cleanupDragListeners = useCallback(() => {
+    if (scrollIntervalRef.current) {
+      clearInterval(scrollIntervalRef.current)
+      scrollIntervalRef.current = null
+    }
+    isDraggingRef.current = false
+  }, [])
+
+  const checkAndScroll = useCallback((clientY: number) => {
+    const viewportHeight = window.innerHeight
+    const scrollTop = window.scrollY
+    const cursorY = clientY - scrollTop
+
+    let scrolled = false
+
+    // Прокрутка вверх
+    if (cursorY < SCROLL_THRESHOLD && scrollTop > 0) {
+      window.scrollBy({ top: -SCROLL_SPEED, behavior: "auto" })
+      scrolled = true
+    }
+    // Прокрутка вниз
+    else if (viewportHeight - cursorY < SCROLL_THRESHOLD) {
+      window.scrollBy({ top: SCROLL_SPEED, behavior: "auto" })
+      scrolled = true
+    }
+
+    // Продолжаем интервал только если была прокрутка И всё ещё тащим
+    if (scrolled && isDraggingRef.current) {
+      scrollIntervalRef.current = setTimeout(() => {
+        if (isDraggingRef.current) checkAndScroll(clientY)
+      }, 16)
+    }
+  }, [])
+
+  const handleGlobalMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDraggingRef.current) return
+      checkAndScroll(e.clientY)
+    },
+    [checkAndScroll],
+  )
+
+  const handleGlobalDragEnd = useCallback(() => {
+    cleanupDragListeners()
+    setDraggedItem(null)
+    setDragOverIndex(null)
+  }, [cleanupDragListeners])
+
+  useEffect(() => {
+    if (!isDraggingRef.current) return
+
+    // Добавляем слушатели
+    document.addEventListener("mousemove", handleGlobalMouseMove)
+    document.addEventListener("dragend", handleGlobalDragEnd)
+    document.addEventListener("mouseup", cleanupDragListeners)
+
+    // Очистка при размонтировании или остановке drag
+    return () => {
+      document.removeEventListener("mousemove", handleGlobalMouseMove)
+      document.removeEventListener("dragend", handleGlobalDragEnd)
+      document.removeEventListener("mouseup", cleanupDragListeners)
+      cleanupDragListeners()
+    }
+  }, [handleGlobalMouseMove, handleGlobalDragEnd, cleanupDragListeners])
+
   return (
     <div className="tierlist-editor">
       <div className="tierlist-rows-container">
-        {rows.map((row, rowIndex) => {
-          const draggedResonator = draggedItem
-            ? getResonatorById(draggedItem.resonatorId)
-            : null
-
-          return (
-            <div
-              key={row.id}
-              className="tierlist-row"
-              style={{ "--row-color": row.ratingColor } as React.CSSProperties}
-              onDragOver={handleDragOver}
-            >
-              {/* Левая секция с рейтингом */}
-              <div className="tierlist-row-label">
-                <div
-                  className="rating-badge"
-                  style={{ backgroundColor: row.ratingColor }}
-                >
-                  {row.ratingImg ? (
-                    <img
-                      src={row.ratingImg}
-                      alt={row.rating}
-                      className="rating-img"
-                    />
-                  ) : (
-                    <span className="rating-text">{row.rating}</span>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  className="btn-settings"
-                  onClick={() =>
-                    setEditingRow(editingRow === rowIndex ? null : rowIndex)
-                  }
-                  aria-label="Настроить ряд"
-                >
-                  ⚙️
-                </button>
-
-                {editingRow === rowIndex && (
-                  <div className="settings-panel">
-                    <div className="settings-field">
-                      <label>Название</label>
-                      <input
-                        type="text"
-                        value={row.rating}
-                        onChange={e =>
-                          handleRowSettingChange(
-                            rowIndex,
-                            "rating",
-                            e.target.value,
-                          )
-                        }
-                        placeholder="S, A, B..."
-                      />
-                    </div>
-                    <div className="settings-field">
-                      <label>Цвет</label>
-                      <input
-                        type="color"
-                        value={row.ratingColor || "#4a4a4a"}
-                        onChange={e =>
-                          handleRowSettingChange(
-                            rowIndex,
-                            "ratingColor",
-                            e.target.value,
-                          )
-                        }
-                      />
-                    </div>
-                    <div className="settings-field">
-                      <label>ИЛИ изображение</label>
-                      <input
-                        type="text"
-                        value={row.ratingImg || ""}
-                        onChange={e =>
-                          handleRowSettingChange(
-                            rowIndex,
-                            "ratingImg",
-                            e.target.value,
-                          )
-                        }
-                        placeholder="https://..."
-                      />
-                    </div>
-                  </div>
+        {rows.map((row, rowIndex) => (
+          <div
+            key={row.id}
+            className="tierlist-row"
+            style={{ "--row-color": row.ratingColor } as React.CSSProperties}
+            onDragOver={handleDragOver}
+          >
+            <div className="tierlist-row-label">
+              <div
+                className="rating-badge"
+                style={{ backgroundColor: row.ratingColor }}
+              >
+                {row.ratingImg ? (
+                  <img
+                    src={row.ratingImg}
+                    alt={row.rating}
+                    className="rating-img"
+                  />
+                ) : (
+                  <span className="rating-text">{row.rating}</span>
                 )}
               </div>
 
-              {/* Правая секция с тремя колонками ролей */}
-              <div className="tierlist-row-columns">
-                {(["dps", "hybrid", "support"] as Role[]).map(role => {
-                  const roleResonatorIds = getResonatorsByRole(row, role)
-                  const columnKey = `${rowIndex}-${role}`
-
-                  return (
-                    <div
-                      key={role}
-                      className={`tierlist-column column-${role}`}
-                    >
-                      {rowIndex === 0 && (
-                        <div className="column-header">
-                          <span className="column-title">
-                            {role === "dps"
-                              ? "МДД"
-                              : role === "hybrid"
-                                ? "САП-ДД"
-                                : "САППОРТ"}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Контейнер для дропа персонажей */}
-                      <div
-                        className="dropped-resonators"
-                        ref={el => {
-                          containerRefs.current[columnKey] = el
-                        }}
-                        onDragOver={e =>
-                          handleContainerDragOver(
-                            e,
-                            rowIndex,
-                            role,
-                            e.currentTarget,
-                          )
-                        }
-                        onDrop={e =>
-                          handleDropOnColumn(e, rowIndex, role, e.currentTarget)
-                        }
-                      >
-                        {roleResonatorIds.length === 0 ? (
-                          <div className="drop-hint">Перетащите сюда</div>
-                        ) : (
-                          roleResonatorIds.map((id, index) => {
-                            const res = getResonatorById(id)
-                            if (!res) return null
-
-                            const settings = row.resonatorSettings?.[id]
-                            const showInsertBefore =
-                              dragOverIndex?.rowIndex === rowIndex &&
-                              dragOverIndex?.role === role &&
-                              dragOverIndex?.index === index
-
-                            return (
-                              <React.Fragment key={id}>
-                                {showInsertBefore && (
-                                  <div className="drop-indicator" />
-                                )}
-
-                                <div
-                                  className={`dropped-resonator ${
-                                    draggedItem?.resonatorId === id &&
-                                    draggedItem?.source === "row" &&
-                                    draggedItem?.sourceRowIndex === rowIndex &&
-                                    draggedItem?.sourceRole === role &&
-                                    draggedItem?.sourceIndex === index
-                                      ? "is-dragging"
-                                      : ""
-                                  }`}
-                                  draggable={true}
-                                  onDragStart={e =>
-                                    handleDragStart(
-                                      e,
-                                      id,
-                                      "row",
-                                      rowIndex,
-                                      role,
-                                      index,
-                                    )
-                                  }
-                                  onDragEnd={handleDragEnd}
-                                  style={
-                                    {
-                                      "--rarity-color": getRarityColor(
-                                        res.rarity,
-                                      ),
-                                    } as React.CSSProperties
-                                  }
-                                >
-                                  <img
-                                    src={
-                                      res.resonatorImgMini || res.resonatorImg
-                                    }
-                                    alt={res.name}
-                                    className="resonator-thumb"
-                                    onError={e => {
-                                      const target =
-                                        e.target as HTMLImageElement
-                                      target.src = "/placeholder-character.png"
-                                    }}
-                                  />
-
-                                  {/* Индикатор статуса */}
-                                  {settings?.status &&
-                                    settings.status !== "neutral" && (
-                                      <span
-                                        className={`status-indicator status-${settings.status}`}
-                                        title={
-                                          settings.status === "up"
-                                            ? "Перспективный"
-                                            : "Снижается"
-                                        }
-                                      >
-                                        {settings.status === "up" ? "↑" : "↓"}
-                                      </span>
-                                    )}
-
-                                  {/* Кнопка удаления */}
-                                  <button
-                                    type="button"
-                                    className="btn-remove"
-                                    onClick={() =>
-                                      handleRemoveFromRow(rowIndex, id, role)
-                                    }
-                                    aria-label={`Удалить ${res.name}`}
-                                  >
-                                    ×
-                                  </button>
-
-                                  {/* Кнопка настроек */}
-                                  <button
-                                    type="button"
-                                    className="btn-settings-resonator"
-                                    onClick={() =>
-                                      openSettingsModal(id, rowIndex)
-                                    }
-                                    aria-label={`Настройки ${res.name}`}
-                                    title="Настройки персонажа"
-                                  >
-                                    ⚙️
-                                  </button>
-
-                                  {/* Теги */}
-                                  {settings?.tags &&
-                                    settings.tags.length > 0 && (
-                                      <div className="resonator-tags">
-                                        {settings.tags.map(tag => (
-                                          <span
-                                            key={tag.id}
-                                            className="tag-chip"
-                                            style={{
-                                              color: tag.color,
-                                            }}
-                                            title={tag.text}
-                                          >
-                                            {tag.text}
-                                          </span>
-                                        ))}
-                                      </div>
-                                    )}
-                                </div>
-
-                                {showInsertBefore === false &&
-                                  dragOverIndex?.rowIndex === rowIndex &&
-                                  dragOverIndex?.role === role &&
-                                  dragOverIndex?.index === index + 1 && (
-                                    <div className="drop-indicator" />
-                                  )}
-                              </React.Fragment>
-                            )
-                          })
-                        )}
-
-                        {dragOverIndex?.rowIndex === rowIndex &&
-                          dragOverIndex?.role === role &&
-                          dragOverIndex?.index === roleResonatorIds.length && (
-                            <div className="drop-indicator" />
-                          )}
-                      </div>
-                    </div>
-                  )
-                })}
+              <div className="row-move-controls">
+                <button
+                  type="button"
+                  className="btn-move-row"
+                  disabled={!canMoveUp?.(rowIndex)}
+                  onClick={() => handleMoveRow("up", rowIndex)}
+                  title="Переместить выше"
+                >
+                  ▲
+                </button>
+                <button
+                  type="button"
+                  className="btn-move-row"
+                  disabled={!canMoveDown?.(rowIndex)}
+                  onClick={() => handleMoveRow("down", rowIndex)}
+                  title="Переместить ниже"
+                >
+                  ▼
+                </button>
               </div>
 
               <button
                 type="button"
-                className="btn-delete-row"
-                onClick={() => handleRemoveRow(rowIndex)}
-                aria-label="Удалить ряд"
+                className="btn-settings"
+                onClick={() =>
+                  setEditingRow(editingRow === rowIndex ? null : rowIndex)
+                }
+                aria-label="Настроить ряд"
               >
-                ✕
+                ⚙️
               </button>
+
+              {editingRow === rowIndex && (
+                <div className="settings-panel">
+                  <div className="settings-field">
+                    <label>Название</label>
+                    <input
+                      type="text"
+                      value={row.rating}
+                      onChange={e =>
+                        handleRowSettingChange(
+                          rowIndex,
+                          "rating",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="S, A, B..."
+                    />
+                  </div>
+                  <div className="settings-field">
+                    <label>Цвет</label>
+                    <input
+                      type="color"
+                      value={row.ratingColor || "#4a4a4a"}
+                      onChange={e =>
+                        handleRowSettingChange(
+                          rowIndex,
+                          "ratingColor",
+                          e.target.value,
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="settings-field">
+                    <label>ИЛИ изображение</label>
+                    <input
+                      type="text"
+                      value={row.ratingImg || ""}
+                      onChange={e =>
+                        handleRowSettingChange(
+                          rowIndex,
+                          "ratingImg",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-          )
-        })}
+
+            <div className="tierlist-row-columns">
+              {(["dps", "hybrid", "support"] as Role[]).map(role => {
+                const roleResonatorIds = getResonatorsByRole(row, role)
+                const columnKey = `${rowIndex}-${role}`
+
+                return (
+                  <div key={role} className={`tierlist-column column-${role}`}>
+                    {rowIndex === 0 && (
+                      <div className="column-header">
+                        <span className="column-title">
+                          {role === "dps"
+                            ? "МДД"
+                            : role === "hybrid"
+                              ? "САП-ДД"
+                              : "САППОРТ"}
+                        </span>
+                      </div>
+                    )}
+
+                    <div
+                      className="dropped-resonators"
+                      ref={el => {
+                        containerRefs.current[columnKey] = el
+                      }}
+                      onDragOver={e =>
+                        handleContainerDragOver(
+                          e,
+                          rowIndex,
+                          role,
+                          e.currentTarget,
+                        )
+                      }
+                      onDrop={e =>
+                        handleDropOnColumn(e, rowIndex, role, e.currentTarget)
+                      }
+                    >
+                      {roleResonatorIds.length === 0 ? (
+                        <div className="drop-hint">Перетащите сюда</div>
+                      ) : (
+                        roleResonatorIds.map((id, index) => {
+                          const res = getResonatorById(id)
+                          if (!res) return null
+
+                          const settings = row.resonatorSettings?.[id]
+                          const showInsertBefore =
+                            dragOverIndex?.rowIndex === rowIndex &&
+                            dragOverIndex?.role === role &&
+                            dragOverIndex?.index === index
+
+                          return (
+                            <React.Fragment key={id}>
+                              {showInsertBefore && (
+                                <div className="drop-indicator" />
+                              )}
+
+                              <div
+                                className={`dropped-resonator ${
+                                  draggedItem?.resonatorId === id &&
+                                  draggedItem?.source === "row" &&
+                                  draggedItem?.sourceRowIndex === rowIndex &&
+                                  draggedItem?.sourceRole === role &&
+                                  draggedItem?.sourceIndex === index
+                                    ? "is-dragging"
+                                    : ""
+                                }`}
+                                draggable={true}
+                                onDragStart={e =>
+                                  handleDragStart(
+                                    e,
+                                    id,
+                                    "row",
+                                    rowIndex,
+                                    role,
+                                    index,
+                                  )
+                                }
+                                onDragEnd={handleDragEnd}
+                                style={
+                                  {
+                                    "--rarity-color": getRarityColor(
+                                      res.rarity,
+                                    ),
+                                  } as React.CSSProperties
+                                }
+                              >
+                                <img
+                                  src={res.resonatorImgMini || res.resonatorImg}
+                                  alt={res.name}
+                                  className="resonator-thumb"
+                                  onError={e => {
+                                    ;(e.target as HTMLImageElement).src =
+                                      "/placeholder-character.png"
+                                  }}
+                                />
+
+                                {settings?.status &&
+                                  settings.status !== "neutral" && (
+                                    <span
+                                      className={`status-indicator status-${settings.status}`}
+                                      title={
+                                        settings.status === "up"
+                                          ? "Перспективный"
+                                          : "Снижается"
+                                      }
+                                    >
+                                      {settings.status === "up" ? "↑" : "↓"}
+                                    </span>
+                                  )}
+
+                                <button
+                                  type="button"
+                                  className="btn-remove"
+                                  onClick={() =>
+                                    handleRemoveFromRow(rowIndex, id, role)
+                                  }
+                                  aria-label={`Удалить ${res.name}`}
+                                >
+                                  ×
+                                </button>
+
+                                <button
+                                  type="button"
+                                  className="btn-settings-resonator"
+                                  onClick={() =>
+                                    openSettingsModal(id, rowIndex)
+                                  }
+                                  aria-label={`Настройки ${res.name}`}
+                                  title="Настройки персонажа"
+                                >
+                                  ⚙️
+                                </button>
+
+                                {settings?.tags && settings.tags.length > 0 && (
+                                  <div className="resonator-tags">
+                                    {settings.tags.map(tag => (
+                                      <span
+                                        key={tag.id}
+                                        className="tag-chip"
+                                        style={{
+                                          color: tag.color,
+                                        }}
+                                        title={tag.text}
+                                      >
+                                        {tag.text}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+
+                              {showInsertBefore === false &&
+                                dragOverIndex?.rowIndex === rowIndex &&
+                                dragOverIndex?.role === role &&
+                                dragOverIndex?.index === index + 1 && (
+                                  <div className="drop-indicator" />
+                                )}
+                            </React.Fragment>
+                          )
+                        })
+                      )}
+
+                      {dragOverIndex?.rowIndex === rowIndex &&
+                        dragOverIndex?.role === role &&
+                        dragOverIndex?.index === roleResonatorIds.length && (
+                          <div className="drop-indicator" />
+                        )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <button
+              type="button"
+              className="btn-delete-row"
+              onClick={() => handleRemoveRow(rowIndex)}
+              aria-label="Удалить ряд"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
 
         <button type="button" onClick={handleAddRow} className="btn-add-row">
           + Добавить ряд
         </button>
       </div>
 
-      {/* === Пул персонажей === */}
       <div className="resonator-pool">
         <h4>Доступные персонажи</h4>
         <div className="resonator-grid">
-          {availableResonators.map(res => (
+          {allResonators.map(res => (
             <div
               key={res.id}
               className="resonator-card"
@@ -773,20 +898,16 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                 alt={res.name}
                 className="resonator-thumb"
                 onError={e => {
-                  const target = e.target as HTMLImageElement
-                  target.src = "/placeholder-character.png"
+                  ;(e.target as HTMLImageElement).src =
+                    "/placeholder-character.png"
                 }}
               />
               <span className="resonator-name">{res.name}</span>
             </div>
           ))}
-          {availableResonators.length === 0 && (
-            <p className="pool-empty">Все персонажи уже распределены</p>
-          )}
         </div>
       </div>
 
-      {/* === Модальное окно настроек персонажа === */}
       {modalOpen && (
         <div className="modal-overlay" onClick={closeSettingsModal}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -803,7 +924,6 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
             </div>
 
             <div className="modal-body">
-              {/* Выбор статуса */}
               <div className="modal-section">
                 <label className="modal-label">Статус персонажа</label>
                 <div className="status-options">
@@ -857,56 +977,135 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                 </div>
               </div>
 
-              {/* Теги */}
               <div className="modal-section">
-                <div className="modal-section-header">
-                  <label className="modal-label">Теги</label>
+                <label className="modal-label">Теги</label>
+
+                <div className="tag-select-wrapper">
+                  <select
+                    value={selectedTagId}
+                    onChange={e => setSelectedTagId(e.target.value)}
+                    className="tag-select"
+                  >
+                    <option value="">— Выбрать из созданных —</option>
+                    {globalTagPool.map(tag => {
+                      const exists = [
+                        ...(modalSettings.tags || []),
+                        ...editableTags,
+                      ].some(t => t.id === tag.id)
+                      return (
+                        <option
+                          key={tag.id}
+                          value={tag.id}
+                          disabled={exists}
+                          style={{ color: tag.color }}
+                        >
+                          {tag.name}
+                        </option>
+                      )
+                    })}
+                  </select>
                   <button
                     type="button"
-                    className="btn-add-tag"
-                    onClick={addTag}
+                    className="btn-add-tag-select"
+                    onClick={handleAddTagFromSelect}
+                    disabled={!selectedTagId}
+                    title="Добавить выбранный тег"
                   >
-                    + Добавить тег
+                    +
                   </button>
                 </div>
 
-                {modalSettings.tags.length === 0 ? (
-                  <p className="tags-empty">Нет добавленных тегов</p>
-                ) : (
-                  <div className="tags-list">
-                    {modalSettings.tags.map((tag, index) => (
-                      <div key={tag.id} className="tag-item">
-                        <input
-                          type="text"
-                          placeholder="Название тега..."
-                          value={tag.text}
-                          onChange={e =>
-                            updateTag(tag.id, "text", e.target.value)
-                          }
-                          className="tag-input"
-                          maxLength={20}
-                        />
-                        <input
-                          type="color"
-                          value={tag.color}
-                          onChange={e =>
-                            updateTag(tag.id, "color", e.target.value)
-                          }
-                          className="tag-color"
-                          title="Цвет тега"
-                        />
-                        <button
-                          type="button"
-                          className="btn-remove-tag"
-                          onClick={() => removeTag(tag.id)}
-                          aria-label="Удалить тег"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
+                <button
+                  type="button"
+                  className="btn-add-tag-inline"
+                  onClick={handleAddEditableTag}
+                >
+                  + Создать новый тег
+                </button>
+
+                {modalSettings.tags && modalSettings.tags.length > 0 && (
+                  <div className="tags-subsection">
+                    <span className="tags-subtitle">Сохранённые:</span>
+                    <div className="tags-list">
+                      {modalSettings.tags.map(tag => (
+                        <div key={tag.id} className="tag-item">
+                          <input
+                            type="text"
+                            placeholder="Название..."
+                            value={tag.text}
+                            onChange={e =>
+                              updateSavedTag(tag.id, "text", e.target.value)
+                            }
+                            className="tag-input"
+                            maxLength={20}
+                          />
+                          <input
+                            type="color"
+                            value={tag.color}
+                            onChange={e =>
+                              updateSavedTag(tag.id, "color", e.target.value)
+                            }
+                            className="tag-color"
+                            title="Цвет тега"
+                          />
+                          <button
+                            type="button"
+                            className="btn-remove-tag"
+                            onClick={() => removeSavedTag(tag.id)}
+                            aria-label="Удалить тег"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
+
+                {editableTags.length > 0 && (
+                  <div className="tags-subsection">
+                    <span className="tags-subtitle">Новые:</span>
+                    <div className="tags-list">
+                      {editableTags.map(tag => (
+                        <div key={tag.id} className="tag-item new-tag">
+                          <input
+                            type="text"
+                            placeholder="Название тега..."
+                            value={tag.text}
+                            onChange={e =>
+                              updateEditableTag(tag.id, "text", e.target.value)
+                            }
+                            className="tag-input"
+                            maxLength={20}
+                            autoFocus
+                          />
+                          <input
+                            type="color"
+                            value={tag.color}
+                            onChange={e =>
+                              updateEditableTag(tag.id, "color", e.target.value)
+                            }
+                            className="tag-color"
+                            title="Цвет тега"
+                          />
+                          <button
+                            type="button"
+                            className="btn-remove-tag"
+                            onClick={() => removeEditableTag(tag.id)}
+                            aria-label="Удалить тег"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {modalSettings.tags?.length === 0 &&
+                  editableTags.length === 0 && (
+                    <p className="tags-empty">Нет добавленных тегов</p>
+                  )}
               </div>
             </div>
 

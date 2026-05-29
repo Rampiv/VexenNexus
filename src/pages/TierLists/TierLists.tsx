@@ -152,6 +152,11 @@ export const TierLists = () => {
     navigate(`/tierlists/${id}`)
   }
 
+  const resonatorNameCut = (name: string) => {
+    if (name.toLocaleLowerCase() === "хранительница берегов") return "ХБ"
+    return name
+  }
+
   if (loading || loadingResonators) {
     return <Loader width="100px" height="100px" />
   }
@@ -313,7 +318,7 @@ export const TierLists = () => {
                                           height="25"
                                           viewBox="0 0 25 25"
                                           xmlns="http://www.w3.org/2000/svg"
-                                          className={`resonator-card__status-img ${status === "up" ? "resonator-card__status-img_green" : "resonator-card__status-img_red"}`}
+                                          className={`resonator-card__status-img ${status === "neutral" ? "opacityHide" : status === "up" ?"resonator-card__status-img_green" : "resonator-card__status-img_red"}`}
                                         >
                                           <g
                                             stroke="white"
@@ -359,7 +364,7 @@ export const TierLists = () => {
                                       className={`resonator-card__info ${resonator.rarity == 4 ? "resonator-card__info_4" : "ss"}`}
                                     >
                                       <span className="resonator-card__name">
-                                        {resonator.name}
+                                        {resonatorNameCut(resonator.name)}
                                       </span>
                                     </div>
                                     {settings &&
@@ -429,7 +434,7 @@ export const TierLists = () => {
                                           height="25"
                                           viewBox="0 0 25 25"
                                           xmlns="http://www.w3.org/2000/svg"
-                                          className={`resonator-card__status-img ${status === "up" ? "resonator-card__status-img_green" : "resonator-card__status-img_red"}`}
+                                          className={`resonator-card__status-img ${status === "neutral" ? "opacityHide" : status === "up" ?"resonator-card__status-img_green" : "resonator-card__status-img_red"}`}
                                         >
                                           <g
                                             stroke="white"
@@ -475,7 +480,7 @@ export const TierLists = () => {
                                       className={`resonator-card__info ${resonator.rarity == 4 ? "resonator-card__info_4" : "ss"}`}
                                     >
                                       <span className="resonator-card__name">
-                                        {resonator.name}
+                                        {resonatorNameCut(resonator.name)}
                                       </span>
                                     </div>
                                     {settings &&
@@ -545,7 +550,7 @@ export const TierLists = () => {
                                           height="25"
                                           viewBox="0 0 25 25"
                                           xmlns="http://www.w3.org/2000/svg"
-                                          className={`resonator-card__status-img ${status === "up" ? "resonator-card__status-img_green" : "resonator-card__status-img_red"}`}
+                                        className={`resonator-card__status-img ${status === "neutral" ? "opacityHide" : status === "up" ?"resonator-card__status-img_green" : "resonator-card__status-img_red"}`}
                                         >
                                           <g
                                             stroke="white"
@@ -590,7 +595,7 @@ export const TierLists = () => {
                                         className={`resonator-card__info ${resonator.rarity == 4 ? "resonator-card__info_4" : "ss"}`}
                                       >
                                         <span className="resonator-card__name">
-                                          {resonator.name}
+                                          {resonatorNameCut(resonator.name)}
                                         </span>
                                       </div>
                                     </div>
