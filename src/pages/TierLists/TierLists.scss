@@ -408,14 +408,14 @@
     width: 95px;
     border-radius: 3px;
     background: #000;
-    border: 2px solid $color2;
+    border: 2px solid rgba($color2, 0.4);
     transition: border-color 0.2s ease;
     height: fit-content;
     display: flex;
     align-items: flex-end;
 
     &_4 {
-      border: 2px solid $color4;
+      border: 2px solid rgba($color4, 0.4);
     }
   }
 

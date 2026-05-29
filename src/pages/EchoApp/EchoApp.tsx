@@ -1,4 +1,3 @@
-// src/pages/EchoApp/EchoApp.tsx
 import { useState } from "react"
 import { useEchoSets } from "../../hook/useEchoSets"
 import { useResonators } from "../../hook/useResonators"
@@ -7,9 +6,8 @@ import {
   EchoSetAggregator,
   Loader,
 } from "../../components"
-
-import "./EchoApp.scss"
 import { useEchoAggregation } from "../../hook/useEchoAggregation"
+import "./EchoApp.scss"
 
 export const EchoApp = () => {
   const { resonators: allResonators, loading: loadingResonators } =
@@ -18,7 +16,6 @@ export const EchoApp = () => {
 
   const [selectedResonatorIds, setSelectedResonatorIds] = useState<string[]>([])
 
-  // Агрегируем эхо-рекомендации
   const aggregatedEchoes = useEchoAggregation(
     selectedResonatorIds,
     allResonators,

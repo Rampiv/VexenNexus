@@ -44,19 +44,21 @@
 .echo-set-card {
   background: #252525;
   border-radius: 8px;
-  padding: 15px;
+  padding: 5px;
   border: 1px solid #333;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  gap: 5px;
 
   &__header {
     @include flexible();
     & {
       flex-direction: column;
-      gap: 1rem;
+      gap: 5px;
       margin-bottom: 1rem;
       padding-bottom: 0.8rem;
       grid-column: 1;
+      justify-content: flex-start;
     }
   }
 
@@ -76,14 +78,14 @@
     }
   }
   &__name {
-    @include textType1();
+    @include textType08();
     & {
       text-align: center;
     }
   }
 
   &__usage {
-    @include textType08();
+    @include textType05();
     & {
       color: $color3;
       text-align: center;
@@ -92,9 +94,7 @@
 
   &__content {
     gap: 5px;
-    grid-column: span 3;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-column: span 4;
   }
 }
 
@@ -129,24 +129,27 @@
   @include flexible();
   & {
     border-radius: 6px;
-    padding: 5px;
+    padding: 2px;
     flex-direction: column;
   }
 
   &.lock {
-    border-left: 3px solid $color6;
+    border-left: 2px solid $color6;
   }
 
   &.discard {
-    border-left: 3px solid $color11;
+    border-left: 2px solid $color11;
   }
 
   &__name {
-    @include textType1();
+    @include textType08();
+    & {
+      text-align: center;
+    }
   }
 
   &__count {
-    @include textType08();
+    @include textType05();
     & {
       color: #888;
     }
@@ -164,6 +167,31 @@
     .discard & {
       background: $color11;
     }
+  }
+}
+.cost-stats {
+  &__chips {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+    gap: 5px;
+  }
+  &__title {
+    @include textType1();
+    & {
+      text-decoration: underline;
+    }
+  }
+  &__label {
+    @include textType08();
+    &.lock {
+      color: $color6;
+    }
+    &.discard {
+      color: $color11;
+    }
+  }
+  &__section:not(:last-child) {
+    margin-bottom: 15px;
   }
 }
 
@@ -185,9 +213,11 @@
 @media (max-width: 460px) {
   .echo-set-card {
     @include flexible();
-    &{flex-direction: column;}
+    & {
+      flex-direction: column;
+    }
   }
-  .echo-set-card__content{
+  .echo-set-card__content {
     width: 100%;
   }
 }
