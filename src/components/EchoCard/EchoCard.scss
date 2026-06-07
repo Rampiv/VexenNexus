@@ -59,6 +59,7 @@
       gap: 10px;
       align-items: flex-start;
       height: 100%;
+      width: 100%;
       justify-content: flex-start;
     }
   }
@@ -83,10 +84,12 @@
   }
   &__resonators-list {
     @include listReset();
-    @include flexible();
     & {
       gap: 10px;
-      justify-content: flex-start;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      grid-template-rows: auto;
+      width: 100%;
     }
   }
   &__resonators-item {
@@ -94,6 +97,7 @@
   }
   &__resonators {
     margin-top: auto;
+    width: 100%;
   }
 }
 
