@@ -4,10 +4,11 @@ export interface EchoSet {
   img: string
   engName: string
   createdAt?: any
+  onePartsDescr?: string[]
   twoPartsDescr?: string[]
   fivePartsDescr?: string[]
   threePartsDescr?: string[]
   important?: string[]
-  patchNumber? : string
+  patchNumber?: string
   index?: number
 }

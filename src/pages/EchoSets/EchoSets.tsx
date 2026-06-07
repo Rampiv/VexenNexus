@@ -32,13 +32,13 @@ export const EchoSets = () => {
         setEchoSetsAll(echoList)
 
         const resSnap = await getDocs(
-        query(collection(db, "resonators"), orderBy("name")),
-      )
-      const resList = resSnap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Resonator[]
-      setResonators(resList)
+          query(collection(db, "resonators"), orderBy("name")),
+        )
+        const resList = resSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Resonator[]
+        setResonators(resList)
 
         setLoading(false)
       } catch (err) {
@@ -54,9 +54,9 @@ export const EchoSets = () => {
       setSearchTerm("")
       return
     }
-
+    const normalizedUrlEngName = urlEngName.toLowerCase().replace(/-/g, " ")
     const foundSet = echoSetsAll.find(
-      s => s.engName?.toLowerCase() === urlEngName.toLowerCase(),
+      s => s.engName?.toLowerCase() === normalizedUrlEngName,
     )
 
     if (foundSet) {
@@ -73,8 +73,6 @@ export const EchoSets = () => {
       }
     })
     // Преобразуем в массив и сортируем.
-    // Если патчи имеют формат "1.1", "1.2", "2.0", простая строковая сортировка может работать некорректно для мажорных версий.
-    // Для простоты используем localeCompare с numeric: true, если версии числовые.
     return Array.from(patches)
       .sort((a, b) => {
         // Попытка сортировки как версий (1.1 < 1.2 < 2.0)
@@ -150,7 +148,13 @@ export const EchoSets = () => {
       <ul className="echo-sets__list">
         {filteredAndSortedSets.length > 0 ? (
           filteredAndSortedSets.map(item => {
-            return <EchoCard key={item.id} EchoSet={item} allResonators={resonators}/>
+            return (
+              <EchoCard
+                key={item.id}
+                EchoSet={item}
+                allResonators={resonators}
+              />
+            )
           })
         ) : (
           <li className="echo-sets__empty">Ничего не найдено</li>

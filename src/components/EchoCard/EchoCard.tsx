@@ -50,6 +50,21 @@ export const EchoCard = ({ EchoSet: item, index, allResonators }: Props) => {
         <h2 className="echo-sets__h2">{item.name}</h2>
       </div>
       <div className="echo-sets__descr-block">
+        {item.onePartsDescr && item.onePartsDescr.length > 0 && (
+          <>
+            <h3 className="echo-sets__h3">1 - часть</h3>
+            {item.onePartsDescr.map((text, indexText) => {
+              return (
+                <p
+                  className="echo-sets__text"
+                  key={`ключ текста эхо сетов 1 части ${indexText}`}
+                >
+                  {text}
+                </p>
+              )
+            })}
+          </>
+        )}
         {item.twoPartsDescr && item.twoPartsDescr.length > 0 && (
           <>
             <h3 className="echo-sets__h3">2 - части</h3>

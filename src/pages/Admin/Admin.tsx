@@ -152,6 +152,7 @@ export const Admin = () => {
     name: "",
     engName: "",
     img: "",
+    onePartsDescr: [],
     twoPartsDescr: [],
     fivePartsDescr: [],
     threePartsDescr: [],
@@ -640,6 +641,7 @@ export const Admin = () => {
         name: item.name || "",
         engName: item.engName || "",
         img: item.img || "",
+        onePartsDescr: item.onePartsDescr || [],
         twoPartsDescr: item.twoPartsDescr || [],
         fivePartsDescr: item.fivePartsDescr || [],
         threePartsDescr: item.threePartsDescr || [],
@@ -734,6 +736,7 @@ export const Admin = () => {
       name: "",
       img: "",
       engName: "",
+      onePartsDescr: [],
       twoPartsDescr: [],
       fivePartsDescr: [],
       threePartsDescr: [],
@@ -1187,6 +1190,20 @@ export const Admin = () => {
                   name="index"
                   value={echoSetForm.index || 0}
                   onChange={handleEchoSetChange}
+                />
+                <ArrayEditor
+                  title="Описание сета 1 части"
+                  items={echoSetForm.onePartsDescr || []}
+                  setItems={newDescription =>
+                    setEchoSetForm(prev => ({
+                      ...prev,
+                      onePartsDescr:
+                        typeof newDescription === "function"
+                          ? newDescription(prev.onePartsDescr || [])
+                          : newDescription,
+                    }))
+                  }
+                  placeholder="Описание сета"
                 />
                 <ArrayEditor
                   title="Описание сета 2 части"
