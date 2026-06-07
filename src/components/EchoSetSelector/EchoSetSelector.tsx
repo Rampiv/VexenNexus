@@ -23,10 +23,8 @@ const STATS_BY_COST = {
     "Aero DMG%",
     "Spectro DMG%",
     "Energy Regen",
-    "ATK",
   ] as const,
   4: [
-    "ATK",
     "HP%",
     "ATK%",
     "DEF%",
