@@ -59,6 +59,9 @@
       margin-bottom: 15px;
     }
   }
+  &__details-content {
+    @include flexible();
+  }
   &__result {
     grid-column: span 2;
     grid-row: 6;

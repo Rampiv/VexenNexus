@@ -385,16 +385,18 @@ export const ResonatorPage = () => {
       {resonator.resonatorImgDetails && (
         <div className="resonator__details-block">
           <h2 className="resonator__h2">Детальный подсчет</h2>
-          <img
-            src={resonator.resonatorImgDetails}
-            alt="картинка деталей"
-            className="resonator__details-img"
-            onClick={() => {
-              setIsLightboxSrc(resonator.resonatorImgDetails)
-              setIsLightboxOpen(true)
-            }}
-            style={{ cursor: "zoom-in" }}
-          />
+          <div className="resonator__details-content">
+            <img
+              src={resonator.resonatorImgDetails}
+              alt="картинка деталей"
+              className="resonator__details-img"
+              onClick={() => {
+                setIsLightboxSrc(resonator.resonatorImgDetails)
+                setIsLightboxOpen(true)
+              }}
+              style={{ cursor: "zoom-in" }}
+            />
+          </div>
         </div>
       )}
 
