@@ -10,12 +10,20 @@ export interface TierListRow {
   resonatorSettings?: Record<string, ResonatorSettings>
   taggedResonators?: TaggedResonator[]
 }
+export interface TierListCycle {
+  id: string
+  name: string
+  cycleNumber?: number
+  rows: TierListRow[]
+  createdAt?: any
+  updatedAt?: any
+}
 
 export interface TierList {
   id?: string
   name: string
   nameImg?: string
-  rows: TierListRow[]
+  cycles: TierListCycle[]
   createdAt?: any
   updatedAt?: any
   usedTags?: TierListTag[]

@@ -43,8 +43,9 @@ export default function App() {
               <Route path="/feedback" element={<FeedbackMemo />} />
 
               <Route path="/admin" element={<Admin />} />
-
               <Route path="/moderator" element={<Admin />} />
+              <Route path="/tiermake" element={<Admin />} />
+              
               <Route path="/echoSets/:engName?" element={<EchoSetsMemo />} />
               <Route path="/weapons/:engName?" element={<WeaponsMemo />} />
               <Route path="/echoapp" element={<EchoAppMemo />} />
