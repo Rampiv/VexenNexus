@@ -11,29 +11,73 @@ import {
   getDoc,
 } from "firebase/firestore"
 import Cookies from "js-cookie"
+import { useLocation } from "react-router"
 
-// Простая функция хеширования строки (не криптографически стойкая, но для сравнения подойдет)
+// ============================================================================
+// 🔐 КОНФИГУРАЦИЯ РОЛЕЙ (добавление новой роли = одна строка здесь)
+// ============================================================================
+
+export type UserRole = "admin" | "moderator" | "tiermake"
+
+interface RoleConfig {
+  cookieId: string
+  cookieHash: string
+  firestoreField: string
+  label: string
+}
+
+export const ROLES: Record<UserRole, RoleConfig> = {
+  admin: {
+    cookieId: "vexen_admin_id",
+    cookieHash: "vexen_admin_hash",
+    firestoreField: "admin",
+    label: "Админ",
+  },
+  moderator: {
+    cookieId: "vexen_moderator_id",
+    cookieHash: "vexen_moderator_hash",
+    firestoreField: "moderator",
+    label: "Модератор",
+  },
+  tiermake: {
+    cookieId: "vexen_tiermake_id",
+    cookieHash: "vexen_tiermake_hash",
+    firestoreField: "tiermake",
+    label: "Тирмейкер",
+  },
+}
+
+// Определяем роль по URL
+const detectRoleFromPath = (): UserRole => {
+  const path = window.location.pathname
+  if (path.includes("/moderator")) return "moderator"
+  if (path.includes("/tiermake")) return "tiermake"
+  return "admin"
+}
+
+// ============================================================================
+// 🔧 УТИЛИТЫ
+// ============================================================================
+
 const simpleHash = (str: string): string => {
   let hash = 0
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i)
     hash = (hash << 5) - hash + char
-    hash = hash & hash // Convert to 32bit integer
+    hash = hash & hash
   }
   return Math.abs(hash).toString(16)
 }
 
-type UserRole = "admin" | "moderator" | null
+// ============================================================================
+// 🎯 AUTH CONTEXT
+// ============================================================================
 
 interface AuthContextType {
-  userRole: UserRole
+  userRole: UserRole | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (
-    key: string,
-    role: "admin" | "moderator",
-    rememberMe?: boolean,
-  ) => Promise<boolean>
+  login: (key: string, role: UserRole, rememberMe?: boolean) => Promise<boolean>
   logout: () => void
 }
 
@@ -52,71 +96,46 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [userRole, setUserRole] = useState<UserRole>(null)
+  const [userRole, setUserRole] = useState<UserRole | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const location = useLocation()
 
-  // Проверяем роль из URL при монтировании
   useEffect(() => {
-    const path = window.location.pathname
-    const detectedRole = path.includes("/moderator") ? "moderator" : "admin"
+    const detectedRole = detectRoleFromPath()
     setUserRole(detectedRole)
-
-    // Проверяем сохраненную сессию в cookies
+    setIsAuthenticated(false)
     checkSavedSession(detectedRole)
-  }, [])
+  }, [location.pathname])
 
-  const checkSavedSession = async (role: "admin" | "moderator") => {
+  const checkSavedSession = async (role: UserRole) => {
+    const config = ROLES[role]
     try {
-      const cookieNameId =
-        role === "admin" ? "vexen_admin_id" : "vexen_moderator_id"
-      const cookieNameHash =
-        role === "admin" ? "vexen_admin_hash" : "vexen_moderator_hash"
-      
-      const savedDocId = Cookies.get(cookieNameId)
-      const savedKeyHash = Cookies.get(cookieNameHash)
+      const savedDocId = Cookies.get(config.cookieId)
+      const savedKeyHash = Cookies.get(config.cookieHash)
 
-      if (savedDocId && savedKeyHash) {
-        // Загружаем документ по ID
-        const docRef = doc(db, "admin_keys", savedDocId)
-        const docSnap = await getDoc(docRef)
+      if (!savedDocId || !savedKeyHash) return
 
-        if (docSnap.exists()) {
-          const data = docSnap.data()
-          // Определяем поле ключа в зависимости от роли
-          const currentKey = role === "admin" ? data.key : data.moderator
-          
-          if (currentKey) {
-            // Хешируем текущий ключ из базы
-            const currentKeyHash = simpleHash(currentKey)
-            
-            // Сравниваем с хешем из кук
-            if (currentKeyHash === savedKeyHash) {
-              setUserRole(role)
-              setIsAuthenticated(true)
-            } else {
-              // Ключ изменился в базе данных
-              console.log("Key mismatch. Logging out.")
-              Cookies.remove(cookieNameId)
-              Cookies.remove(cookieNameHash)
-            }
-          } else {
-             // Поле ключа отсутствует в документе
-             Cookies.remove(cookieNameId)
-             Cookies.remove(cookieNameHash)
-          }
-        } else {
-          // Документ удален
-          Cookies.remove(cookieNameId)
-          Cookies.remove(cookieNameHash)
-        }
+      const docSnap = await getDoc(doc(db, "admin_keys", savedDocId))
+
+      if (!docSnap.exists()) {
+        clearCookies(role)
+        return
       }
+
+      const data = docSnap.data()
+      const currentKey = data[config.firestoreField]
+
+      if (!currentKey || simpleHash(currentKey) !== savedKeyHash) {
+        clearCookies(role)
+        return
+      }
+
+      setUserRole(role)
+      setIsAuthenticated(true)
     } catch (error) {
       console.error("Ошибка проверки сессии:", error)
-      const cookieNameId = role === "admin" ? "vexen_admin_id" : "vexen_moderator_id"
-      const cookieNameHash = role === "admin" ? "vexen_admin_hash" : "vexen_moderator_hash"
-      Cookies.remove(cookieNameId)
-      Cookies.remove(cookieNameHash)
+      clearCookies(role)
     } finally {
       setIsLoading(false)
     }
@@ -124,81 +143,69 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (
     key: string,
-    role: "admin" | "moderator",
+    role: UserRole,
     rememberMe: boolean = false,
   ): Promise<boolean> => {
+    const config = ROLES[role]
     try {
-      const keyField = role === "admin" ? "key" : "moderator"
       const q = query(
         collection(db, "admin_keys"),
-        where(keyField, "==", key.trim()),
+        where(config.firestoreField, "==", key.trim()),
       )
 
       const querySnapshot = await getDocs(q)
+      if (querySnapshot.empty) return false
 
-      if (!querySnapshot.empty) {
-        const docSnap = querySnapshot.docs[0]
-        const docId = docSnap.id
-        // Берем ключ из найденного документа для генерации хеша
-        const data = docSnap.data()
-        const validKey = role === "admin" ? data.key : data.moderator
+      const docSnap = querySnapshot.docs[0]
+      const validKey = docSnap.data()[config.firestoreField]
+      if (!validKey) return false
 
-        if (validKey) {
-          setUserRole(role)
-          setIsAuthenticated(true)
+      setUserRole(role)
+      setIsAuthenticated(true)
 
-          const cookieNameId =
-            role === "admin" ? "vexen_admin_id" : "vexen_moderator_id"
-          const cookieNameHash =
-            role === "admin" ? "vexen_admin_hash" : "vexen_moderator_hash"
-          
-          const expires = rememberMe ? 7 : undefined
-          const keyHash = simpleHash(validKey)
+      const expires = rememberMe ? 7 : undefined
+      const keyHash = simpleHash(validKey)
 
-          // Сохраняем ID документа и Хеш ключа
-          Cookies.set(cookieNameId, docId, {
-            expires: expires,
-            secure: true,
-            sameSite: "strict",
-          })
-          
-          Cookies.set(cookieNameHash, keyHash, {
-            expires: expires,
-            secure: true,
-            sameSite: "strict",
-          })
+      Cookies.set(config.cookieId, docSnap.id, {
+        expires,
+        secure: true,
+        sameSite: "strict",
+      })
+      Cookies.set(config.cookieHash, keyHash, {
+        expires,
+        secure: true,
+        sameSite: "strict",
+      })
 
-          return true
-        }
-      }
-
-      return false
+      return true
     } catch (error) {
       console.error("Ошибка входа:", error)
       return false
     }
   }
-
   const logout = () => {
-    const cookieNameId =
-      userRole === "admin" ? "vexen_admin_id" : "vexen_moderator_id"
-    const cookieNameHash =
-      userRole === "admin" ? "vexen_admin_hash" : "vexen_moderator_hash"
-    
-    Cookies.remove(cookieNameId)
-    Cookies.remove(cookieNameHash)
-    
+    if (userRole) clearCookies(userRole)
     setUserRole(null)
     setIsAuthenticated(false)
   }
 
-  const value = {
-    userRole,
-    isAuthenticated,
-    isLoading,
-    login,
-    logout,
+  const clearCookies = (role: UserRole) => {
+    const config = ROLES[role]
+    Cookies.remove(config.cookieId)
+    Cookies.remove(config.cookieHash)
   }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider
+      value={{
+        userRole,
+        isAuthenticated,
+        isLoading,
+        login,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
 }

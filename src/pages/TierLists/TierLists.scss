@@ -186,6 +186,47 @@
 }
 
 // =============================================================================
+// 3.1. TIER LIST CYCLE
+// =============================================================================
+.tier-lists__cycle-selector {
+  margin-bottom: 10px;
+}
+
+.tier-lists__cycle-title {
+  @include textType08();
+  color: $white;
+}
+.tier-lists__cycle-select {
+  @include textType08();
+  background: $color1;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 2px 5px;
+  color: $white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  &:focus {
+    border-color: #7d40ff;
+    background: rgba(125, 64, 255, 0.2);
+  }
+
+  option {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 0.5rem;
+  }
+}
+
+// =============================================================================
 // 4. TIER LIST & ROWS
 // =============================================================================
 .tier-lists__list {
@@ -592,10 +633,6 @@
   .tier-lists__row {
     gap: 10px;
     grid-template-columns: 50px 1fr;
-  }
-
-  .tier-lists__role-column-title {
-    @include textType08();
   }
 
   .tier-lists__empty-role {

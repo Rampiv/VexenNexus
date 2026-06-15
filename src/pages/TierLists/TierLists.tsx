@@ -15,6 +15,7 @@ import type {
   TierList,
   TierListDescription,
   TierListRow,
+  TierListCycle,
 } from "../../types/TierList"
 import { useResonators } from "../../hook/useResonators"
 import DOMPurify from "dompurify"
@@ -39,6 +40,7 @@ export const TierLists = () => {
     useResonators()
   const [elements, setElements] = useState<ElementData[]>([])
   const [selectedTierList, setSelectedTierList] = useState("")
+  const [selectedCycleId, setSelectedCycleId] = useState<string>("")
   const navigate = useNavigate()
   const [openDescriptions, setOpenDescriptions] = useState<Set<number>>(
     new Set(),
@@ -116,6 +118,19 @@ export const TierLists = () => {
 
     if (foundTierList) {
       setSelectedTierList(foundTierList.name)
+
+      // Устанавливаем активный цикл
+      if (foundTierList.cycles && foundTierList.cycles.length > 0) {
+        const urlParams = new URLSearchParams(window.location.search)
+        const cycleFromUrl = urlParams.get("cycle")
+        const defaultCycle = cycleFromUrl
+          ? foundTierList.cycles.find(c => c.id === cycleFromUrl)
+          : foundTierList.cycles[0]
+
+        if (defaultCycle) {
+          setSelectedCycleId(defaultCycle.id)
+        }
+      }
     }
   }, [urlName, tierListsAll])
 
@@ -148,14 +163,30 @@ export const TierLists = () => {
       .filter((r): r is NonNullable<typeof r> => r !== undefined)
   }
 
-  const handleFilterClick = (id: string) => {
-    navigate(`/tierlists/${id}`)
+  const handleFilterClick = (name: string) => {
+    navigate(`/tierlists/${name}`)
+  }
+
+  const handleCycleChange = (cycleId: string) => {
+    setSelectedCycleId(cycleId)
+    const newUrl = `/tierlists/${urlName}?cycle=${cycleId}`
+    navigate(newUrl)
   }
 
   const resonatorNameCut = (name: string) => {
     if (name.toLocaleLowerCase() === "хранительница берегов") return "ХБ"
     return name
   }
+
+  // Получаем активный цикл
+  const activeCycle = useMemo(() => {
+    const activeTierList = tierListsAll.find(t => t.name === urlName)
+    if (!activeTierList || !activeTierList.cycles) return null
+    return (
+      activeTierList.cycles.find(c => c.id === selectedCycleId) ||
+      activeTierList.cycles[0]
+    )
+  }, [tierListsAll, urlName, selectedCycleId])
 
   if (loading || loadingResonators) {
     return <Loader width="100px" height="100px" />
@@ -231,366 +262,159 @@ export const TierLists = () => {
         ))}
       </div>
 
+      {/* === Выбор цикла === */}
+      {filteredAndSorted.length > 0 &&
+        filteredAndSorted[0].cycles &&
+        filteredAndSorted[0].cycles.length > 1 && (
+          <div className="tier-lists__cycle-selector">
+            <h2 className="tier-lists__cycle-title">
+              {filteredAndSorted[0].name}. Цикл:{" "}
+              <select
+                value={selectedCycleId}
+                onChange={e => handleCycleChange(e.target.value)}
+                className="tier-lists__cycle-select"
+              >
+                {filteredAndSorted[0].cycles.map((cycle: TierListCycle) => (
+                  <option key={cycle.id} value={cycle.id}>
+                    {cycle.name}
+                  </option>
+                ))}
+              </select>
+            </h2>
+          </div>
+        )}
+
       {/* === Список тир-листов === */}
       {filteredAndSorted && (
         <ul className="tier-lists__list">
-          {filteredAndSorted.map(tierList => (
-            <li className="tier-lists__item" key={tierList.id}>
-              <h2 className="tier-lists__title">
-                <span>{tierList.name}</span>
-              </h2>
+          {filteredAndSorted.map(tierList => {
+            const currentRows = activeCycle?.rows || []
 
-              <ul className="tier-lists__rows">
-                {tierList.rows?.map((row: TierListRow, rowIndex: number) => {
-                  const dpsResonators = getResonatorsByRole(row, "dps")
-                  const hybridResonators = getResonatorsByRole(row, "hybrid")
-                  const supportResonators = getResonatorsByRole(row, "support")
+            return (
+              <li className="tier-lists__item" key={tierList.id}>
 
-                  return (
-                    <li className="tier-lists__row" key={row.id || rowIndex}>
-                      {/* Бейдж тира */}
+                <ul className="tier-lists__rows">
+                  {currentRows.map((row: TierListRow, rowIndex: number) => {
+                    const dpsResonators = getResonatorsByRole(row, "dps")
+                    const hybridResonators = getResonatorsByRole(row, "hybrid")
+                    const supportResonators = getResonatorsByRole(
+                      row,
+                      "support",
+                    )
 
-                      <div
-                        className="tier-lists__tier-badge"
-                        style={
-                          {
-                            "--rarity-color-badge": row.ratingColor,
-                          } as React.CSSProperties
-                        }
-                      >
-                        {rowIndex === 0 && (
-                          <div className="tier-lists__role-column-title opacityHide">
-                            ТИР
-                          </div>
-                        )}
-                        {row.ratingImg ? (
-                          <img
-                            src={row.ratingImg}
-                            alt={`Тир ${row.rating}`}
-                            className="tier-lists__tier-img"
-                            onError={e => {
-                              const target = e.target as HTMLImageElement
-                              target.style.display = "none"
-                              target.nextElementSibling?.classList.remove(
-                                "visually-hidden",
-                              )
-                            }}
-                          />
-                        ) : null}
-                        <span
-                          className={`tier-lists__tier-text ${row.ratingImg ? "visually-hidden" : ""}`}
-                        >
-                          {row.rating}
-                        </span>
-                      </div>
-
-                      {/* Колонки с ролями */}
-                      <div className="tier-lists__role-columns">
-                        {/* DPS Column */}
+                    return (
+                      <li className="tier-lists__row" key={row.id || rowIndex}>
+                        {/* Бейдж тира */}
                         <div
-                          className={`tier-lists__role-column column-dps-bottom ${rowIndex === 0 && "column-dps-up"}`}
+                          className="tier-lists__tier-badge"
+                          style={
+                            {
+                              "--rarity-color-badge": row.ratingColor,
+                            } as React.CSSProperties
+                          }
                         >
                           {rowIndex === 0 && (
-                            <div className="tier-lists__role-column-title column-dps">
-                              МДД
+                            <div className="tier-lists__role-column-title opacityHide">
+                              ТИР
                             </div>
                           )}
-                          <div className="tier-lists__resonators-grid">
-                            {dpsResonators.length > 0 ? (
-                              dpsResonators.map(resonator => {
-                                if (!resonator.id) return null
-                                const settings =
-                                  row.resonatorSettings?.[resonator.id]
-                                const status = settings?.status
-
-                                return (
-                                  <Link
-                                    key={resonator.id}
-                                    to={`/resonator/${resonator.engName}`}
-                                    className="tier-lists__resonator-card"
-                                  >
-                                    <div
-                                      className={`resonator-card__image-wrapper ${resonator.rarity == 4 ? "resonator-card__image-wrapper_4" : ""}`}
-                                    >
-                                      {status && (
-                                        <svg
-                                          width="25"
-                                          height="25"
-                                          viewBox="0 0 25 25"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          className={`resonator-card__status-img ${status === "neutral" ? "opacityHide" : status === "up" ?"resonator-card__status-img_green" : "resonator-card__status-img_red"}`}
-                                        >
-                                          <g
-                                            stroke="white"
-                                            strokeWidth="1.5"
-                                            fill="none"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                          >
-                                            <path d="M 7 9 L 12.5 4 L 18 9" />
-                                            <path d="M 7 14 L 12.5 9 L 18 14" />
-                                            <path d="M 7 19 L 12.5 14 L 18 19" />
-                                          </g>
-                                        </svg>
-                                      )}
-                                      <img
-                                        src={
-                                          resonator.resonatorImgMini ||
-                                          resonator.resonatorImg
-                                        }
-                                        alt={resonator.name}
-                                        className="resonator-card__image"
-                                        loading="lazy"
-                                        onError={e => {
-                                          const target =
-                                            e.target as HTMLImageElement
-                                          target.src =
-                                            "/placeholder-character.png"
-                                        }}
-                                      />
-                                      <img
-                                        className="resonator-card__element-img"
-                                        src={
-                                          elements.find(
-                                            el =>
-                                              el.id?.toLowerCase() ===
-                                              resonator.element?.toLowerCase(),
-                                          )?.iconUrl
-                                        }
-                                        alt={resonator.element}
-                                      />
-                                    </div>
-                                    <div
-                                      className={`resonator-card__info ${resonator.rarity == 4 ? "resonator-card__info_4" : "ss"}`}
-                                    >
-                                      <span className="resonator-card__name">
-                                        {resonatorNameCut(resonator.name)}
-                                      </span>
-                                    </div>
-                                    {settings &&
-                                      settings?.tags?.filter(
-                                        (t: { text: string }) => t.text.trim(),
-                                      ).length > 0 && (
-                                        <div className="resonator-card__tags-list">
-                                          {settings.tags
-                                            .filter((t: { text: string }) =>
-                                              t.text.trim(),
-                                            )
-                                            .map(
-                                              (tag: {
-                                                id: string
-                                                text: string
-                                                color: string
-                                              }) => (
-                                                <span
-                                                  key={tag.id}
-                                                  className="resonator-card__tag"
-                                                  style={{ color: tag.color }}
-                                                >
-                                                  {tag.text}
-                                                </span>
-                                              ),
-                                            )}
-                                        </div>
-                                      )}
-                                  </Link>
+                          {row.ratingImg ? (
+                            <img
+                              src={row.ratingImg}
+                              alt={`Тир ${row.rating}`}
+                              className="tier-lists__tier-img"
+                              onError={e => {
+                                const target = e.target as HTMLImageElement
+                                target.style.display = "none"
+                                target.nextElementSibling?.classList.remove(
+                                  "visually-hidden",
                                 )
-                              })
-                            ) : (
-                              <span className="tier-lists__empty-role">—</span>
-                            )}
-                          </div>
+                              }}
+                            />
+                          ) : null}
+                          <span
+                            className={`tier-lists__tier-text ${row.ratingImg ? "visually-hidden" : ""}`}
+                          >
+                            {row.rating}
+                          </span>
                         </div>
 
-                        {/* HYBRID Column */}
-                        <div
-                          className={`tier-lists__role-column column-hybrid-bottom ${rowIndex === 0 && "column-hybrid-up"}`}
-                        >
-                          {rowIndex === 0 && (
-                            <div className="tier-lists__role-column-title column-hybrid">
-                              САП-ДД
-                            </div>
-                          )}
-                          <div className="tier-lists__resonators-grid">
-                            {hybridResonators.length > 0 ? (
-                              hybridResonators.map(resonator => {
-                                if (!resonator.id) return null
-                                const settings =
-                                  row.resonatorSettings?.[resonator.id]
-                                const status = settings?.status
-
-                                return (
-                                  <Link
-                                    key={resonator.id}
-                                    to={`/resonator/${resonator.engName}`}
-                                    className="tier-lists__resonator-card"
-                                  >
-                                    <div
-                                      className={`resonator-card__image-wrapper ${resonator.rarity == 4 ? "resonator-card__image-wrapper_4" : ""}`}
-                                    >
-                                      {status && (
-                                        <svg
-                                          width="25"
-                                          height="25"
-                                          viewBox="0 0 25 25"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          className={`resonator-card__status-img ${status === "neutral" ? "opacityHide" : status === "up" ?"resonator-card__status-img_green" : "resonator-card__status-img_red"}`}
-                                        >
-                                          <g
-                                            stroke="white"
-                                            strokeWidth="1.5"
-                                            fill="none"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                          >
-                                            <path d="M 7 9 L 12.5 4 L 18 9" />
-                                            <path d="M 7 14 L 12.5 9 L 18 14" />
-                                            <path d="M 7 19 L 12.5 14 L 18 19" />
-                                          </g>
-                                        </svg>
-                                      )}
-                                      <img
-                                        src={
-                                          resonator.resonatorImgMini ||
-                                          resonator.resonatorImg
-                                        }
-                                        alt={resonator.name}
-                                        className="resonator-card__image"
-                                        loading="lazy"
-                                        onError={e => {
-                                          const target =
-                                            e.target as HTMLImageElement
-                                          target.src =
-                                            "/placeholder-character.png"
-                                        }}
-                                      />
-                                      <img
-                                        className="resonator-card__element-img"
-                                        src={
-                                          elements.find(
-                                            el =>
-                                              el.id?.toLowerCase() ===
-                                              resonator.element?.toLowerCase(),
-                                          )?.iconUrl
-                                        }
-                                        alt={resonator.element}
-                                      />
-                                    </div>
-                                    <div
-                                      className={`resonator-card__info ${resonator.rarity == 4 ? "resonator-card__info_4" : "ss"}`}
-                                    >
-                                      <span className="resonator-card__name">
-                                        {resonatorNameCut(resonator.name)}
-                                      </span>
-                                    </div>
-                                    {settings &&
-                                      settings?.tags?.filter(
-                                        (t: { text: string }) => t.text.trim(),
-                                      ).length > 0 && (
-                                        <div className="resonator-card__tags-list">
-                                          {settings.tags
-                                            .filter((t: { text: string }) =>
-                                              t.text.trim(),
-                                            )
-                                            .map(
-                                              (tag: {
-                                                id: string
-                                                text: string
-                                                color: string
-                                              }) => (
-                                                <span
-                                                  key={tag.id}
-                                                  className="resonator-card__tag"
-                                                  style={{ color: tag.color }}
-                                                >
-                                                  {tag.text}
-                                                </span>
-                                              ),
-                                            )}
-                                        </div>
-                                      )}
-                                  </Link>
-                                )
-                              })
-                            ) : (
-                              <span className="tier-lists__empty-role">—</span>
+                        {/* Колонки с ролями */}
+                        <div className="tier-lists__role-columns">
+                          {/* DPS Column */}
+                          <div
+                            className={`tier-lists__role-column column-dps-bottom ${rowIndex === 0 && "column-dps-up"}`}
+                          >
+                            {rowIndex === 0 && (
+                              <div className="tier-lists__role-column-title column-dps">
+                                МДД
+                              </div>
                             )}
-                          </div>
-                        </div>
+                            <div className="tier-lists__resonators-grid">
+                              {dpsResonators.length > 0 ? (
+                                dpsResonators.map(resonator => {
+                                  if (!resonator.id) return null
+                                  const settings =
+                                    row.resonatorSettings?.[resonator.id]
+                                  const status = settings?.status
 
-                        {/* SUPPORT Column */}
-                        <div
-                          className={`tier-lists__role-column column-support-bottom ${rowIndex === 0 && "column-support-up"}`}
-                        >
-                          {rowIndex === 0 && (
-                            <div className="tier-lists__role-column-title column-support">
-                              САППОРТ
-                            </div>
-                          )}
-                          <div className="tier-lists__resonators-grid">
-                            {supportResonators.length > 0 ? (
-                              supportResonators.map(resonator => {
-                                if (!resonator.id) return null
-                                const settings =
-                                  row.resonatorSettings?.[resonator.id]
-                                const status = settings?.status
-
-                                return (
-                                  <Link
-                                    key={resonator.id}
-                                    to={`/resonator/${resonator.engName}`}
-                                    className="tier-lists__resonator-card"
-                                  >
-                                    <div
-                                      className={`resonator-card__image-wrapper ${resonator.rarity == 4 ? "resonator-card__image-wrapper_4" : ""}`}
+                                  return (
+                                    <Link
+                                      key={resonator.id}
+                                      to={`/resonator/${resonator.engName}`}
+                                      className="tier-lists__resonator-card"
                                     >
-                                      {status && (
-                                        <svg
-                                          width="25"
-                                          height="25"
-                                          viewBox="0 0 25 25"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                        className={`resonator-card__status-img ${status === "neutral" ? "opacityHide" : status === "up" ?"resonator-card__status-img_green" : "resonator-card__status-img_red"}`}
-                                        >
-                                          <g
-                                            stroke="white"
-                                            strokeWidth="1.5"
-                                            fill="none"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
+                                      <div
+                                        className={`resonator-card__image-wrapper ${resonator.rarity == 4 ? "resonator-card__image-wrapper_4" : ""}`}
+                                      >
+                                        {status && (
+                                          <svg
+                                            width="25"
+                                            height="25"
+                                            viewBox="0 0 25 25"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className={`resonator-card__status-img ${status === "neutral" ? "opacityHide" : status === "up" ? "resonator-card__status-img_green" : "resonator-card__status-img_red"}`}
                                           >
-                                            <path d="M 7 9 L 12.5 4 L 18 9" />
-                                            <path d="M 7 14 L 12.5 9 L 18 14" />
-                                            <path d="M 7 19 L 12.5 14 L 18 19" />
-                                          </g>
-                                        </svg>
-                                      )}
-                                      <img
-                                        src={
-                                          resonator.resonatorImgMini ||
-                                          resonator.resonatorImg
-                                        }
-                                        alt={resonator.name}
-                                        className="resonator-card__image"
-                                        loading="lazy"
-                                        onError={e => {
-                                          const target =
-                                            e.target as HTMLImageElement
-                                          target.src =
-                                            "/placeholder-character.png"
-                                        }}
-                                      />
-                                      <img
-                                        className="resonator-card__element-img"
-                                        src={
-                                          elements.find(
-                                            el =>
-                                              el.id?.toLowerCase() ===
-                                              resonator.element?.toLowerCase(),
-                                          )?.iconUrl
-                                        }
-                                        alt={resonator.element}
-                                      />
+                                            <g
+                                              stroke="white"
+                                              strokeWidth="1.5"
+                                              fill="none"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                            >
+                                              <path d="M 7 9 L 12.5 4 L 18 9" />
+                                              <path d="M 7 14 L 12.5 9 L 18 14" />
+                                              <path d="M 7 19 L 12.5 14 L 18 19" />
+                                            </g>
+                                          </svg>
+                                        )}
+                                        <img
+                                          src={
+                                            resonator.resonatorImgMini ||
+                                            resonator.resonatorImg
+                                          }
+                                          alt={resonator.name}
+                                          className="resonator-card__image"
+                                          loading="lazy"
+                                          onError={e => {
+                                            const target =
+                                              e.target as HTMLImageElement
+                                            target.src =
+                                              "/placeholder-character.png"
+                                          }}
+                                        />
+                                        <img
+                                          className="resonator-card__element-img"
+                                          src={
+                                            elements.find(
+                                              el =>
+                                                el.id?.toLowerCase() ===
+                                                resonator.element?.toLowerCase(),
+                                            )?.iconUrl
+                                          }
+                                          alt={resonator.element}
+                                        />
+                                      </div>
                                       <div
                                         className={`resonator-card__info ${resonator.rarity == 4 ? "resonator-card__info_4" : "ss"}`}
                                       >
@@ -598,48 +422,289 @@ export const TierLists = () => {
                                           {resonatorNameCut(resonator.name)}
                                         </span>
                                       </div>
-                                    </div>
-                                    {settings &&
-                                      settings?.tags?.filter(
-                                        (t: { text: string }) => t.text.trim(),
-                                      ).length > 0 && (
-                                        <div className="resonator-card__tags-list">
-                                          {settings.tags
-                                            .filter((t: { text: string }) =>
-                                              t.text.trim(),
-                                            )
-                                            .map(
-                                              (tag: {
-                                                id: string
-                                                text: string
-                                                color: string
-                                              }) => (
-                                                <span
-                                                  key={tag.id}
-                                                  className="resonator-card__tag"
-                                                  style={{ color: tag.color }}
-                                                >
-                                                  {tag.text}
-                                                </span>
-                                              ),
-                                            )}
-                                        </div>
-                                      )}
-                                  </Link>
-                                )
-                              })
-                            ) : (
-                              <span className="tier-lists__empty-role">—</span>
+                                      {settings &&
+                                        settings?.tags?.filter(
+                                          (t: { text: string }) =>
+                                            t.text.trim(),
+                                        ).length > 0 && (
+                                          <div className="resonator-card__tags-list">
+                                            {settings.tags
+                                              .filter((t: { text: string }) =>
+                                                t.text.trim(),
+                                              )
+                                              .map(
+                                                (tag: {
+                                                  id: string
+                                                  text: string
+                                                  color: string
+                                                }) => (
+                                                  <span
+                                                    key={tag.id}
+                                                    className="resonator-card__tag"
+                                                    style={{ color: tag.color }}
+                                                  >
+                                                    {tag.text}
+                                                  </span>
+                                                ),
+                                              )}
+                                          </div>
+                                        )}
+                                    </Link>
+                                  )
+                                })
+                              ) : (
+                                <span className="tier-lists__empty-role">
+                                  —
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* HYBRID Column */}
+                          <div
+                            className={`tier-lists__role-column column-hybrid-bottom ${rowIndex === 0 && "column-hybrid-up"}`}
+                          >
+                            {rowIndex === 0 && (
+                              <div className="tier-lists__role-column-title column-hybrid">
+                                САП-ДД
+                              </div>
                             )}
+                            <div className="tier-lists__resonators-grid">
+                              {hybridResonators.length > 0 ? (
+                                hybridResonators.map(resonator => {
+                                  if (!resonator.id) return null
+                                  const settings =
+                                    row.resonatorSettings?.[resonator.id]
+                                  const status = settings?.status
+
+                                  return (
+                                    <Link
+                                      key={resonator.id}
+                                      to={`/resonator/${resonator.engName}`}
+                                      className="tier-lists__resonator-card"
+                                    >
+                                      <div
+                                        className={`resonator-card__image-wrapper ${resonator.rarity == 4 ? "resonator-card__image-wrapper_4" : ""}`}
+                                      >
+                                        {status && (
+                                          <svg
+                                            width="25"
+                                            height="25"
+                                            viewBox="0 0 25 25"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className={`resonator-card__status-img ${status === "neutral" ? "opacityHide" : status === "up" ? "resonator-card__status-img_green" : "resonator-card__status-img_red"}`}
+                                          >
+                                            <g
+                                              stroke="white"
+                                              strokeWidth="1.5"
+                                              fill="none"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                            >
+                                              <path d="M 7 9 L 12.5 4 L 18 9" />
+                                              <path d="M 7 14 L 12.5 9 L 18 14" />
+                                              <path d="M 7 19 L 12.5 14 L 18 19" />
+                                            </g>
+                                          </svg>
+                                        )}
+                                        <img
+                                          src={
+                                            resonator.resonatorImgMini ||
+                                            resonator.resonatorImg
+                                          }
+                                          alt={resonator.name}
+                                          className="resonator-card__image"
+                                          loading="lazy"
+                                          onError={e => {
+                                            const target =
+                                              e.target as HTMLImageElement
+                                            target.src =
+                                              "/placeholder-character.png"
+                                          }}
+                                        />
+                                        <img
+                                          className="resonator-card__element-img"
+                                          src={
+                                            elements.find(
+                                              el =>
+                                                el.id?.toLowerCase() ===
+                                                resonator.element?.toLowerCase(),
+                                            )?.iconUrl
+                                          }
+                                          alt={resonator.element}
+                                        />
+                                      </div>
+                                      <div
+                                        className={`resonator-card__info ${resonator.rarity == 4 ? "resonator-card__info_4" : "ss"}`}
+                                      >
+                                        <span className="resonator-card__name">
+                                          {resonatorNameCut(resonator.name)}
+                                        </span>
+                                      </div>
+                                      {settings &&
+                                        settings?.tags?.filter(
+                                          (t: { text: string }) =>
+                                            t.text.trim(),
+                                        ).length > 0 && (
+                                          <div className="resonator-card__tags-list">
+                                            {settings.tags
+                                              .filter((t: { text: string }) =>
+                                                t.text.trim(),
+                                              )
+                                              .map(
+                                                (tag: {
+                                                  id: string
+                                                  text: string
+                                                  color: string
+                                                }) => (
+                                                  <span
+                                                    key={tag.id}
+                                                    className="resonator-card__tag"
+                                                    style={{ color: tag.color }}
+                                                  >
+                                                    {tag.text}
+                                                  </span>
+                                                ),
+                                              )}
+                                          </div>
+                                        )}
+                                    </Link>
+                                  )
+                                })
+                              ) : (
+                                <span className="tier-lists__empty-role">
+                                  —
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* SUPPORT Column */}
+                          <div
+                            className={`tier-lists__role-column column-support-bottom ${rowIndex === 0 && "column-support-up"}`}
+                          >
+                            {rowIndex === 0 && (
+                              <div className="tier-lists__role-column-title column-support">
+                                САППОРТ
+                              </div>
+                            )}
+                            <div className="tier-lists__resonators-grid">
+                              {supportResonators.length > 0 ? (
+                                supportResonators.map(resonator => {
+                                  if (!resonator.id) return null
+                                  const settings =
+                                    row.resonatorSettings?.[resonator.id]
+                                  const status = settings?.status
+
+                                  return (
+                                    <Link
+                                      key={resonator.id}
+                                      to={`/resonator/${resonator.engName}`}
+                                      className="tier-lists__resonator-card"
+                                    >
+                                      <div
+                                        className={`resonator-card__image-wrapper ${resonator.rarity == 4 ? "resonator-card__image-wrapper_4" : ""}`}
+                                      >
+                                        {status && (
+                                          <svg
+                                            width="25"
+                                            height="25"
+                                            viewBox="0 0 25 25"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className={`resonator-card__status-img ${status === "neutral" ? "opacityHide" : status === "up" ? "resonator-card__status-img_green" : "resonator-card__status-img_red"}`}
+                                          >
+                                            <g
+                                              stroke="white"
+                                              strokeWidth="1.5"
+                                              fill="none"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                            >
+                                              <path d="M 7 9 L 12.5 4 L 18 9" />
+                                              <path d="M 7 14 L 12.5 9 L 18 14" />
+                                              <path d="M 7 19 L 12.5 14 L 18 19" />
+                                            </g>
+                                          </svg>
+                                        )}
+                                        <img
+                                          src={
+                                            resonator.resonatorImgMini ||
+                                            resonator.resonatorImg
+                                          }
+                                          alt={resonator.name}
+                                          className="resonator-card__image"
+                                          loading="lazy"
+                                          onError={e => {
+                                            const target =
+                                              e.target as HTMLImageElement
+                                            target.src =
+                                              "/placeholder-character.png"
+                                          }}
+                                        />
+                                        <img
+                                          className="resonator-card__element-img"
+                                          src={
+                                            elements.find(
+                                              el =>
+                                                el.id?.toLowerCase() ===
+                                                resonator.element?.toLowerCase(),
+                                            )?.iconUrl
+                                          }
+                                          alt={resonator.element}
+                                        />
+                                        <div
+                                          className={`resonator-card__info ${resonator.rarity == 4 ? "resonator-card__info_4" : "ss"}`}
+                                        >
+                                          <span className="resonator-card__name">
+                                            {resonatorNameCut(resonator.name)}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      {settings &&
+                                        settings?.tags?.filter(
+                                          (t: { text: string }) =>
+                                            t.text.trim(),
+                                        ).length > 0 && (
+                                          <div className="resonator-card__tags-list">
+                                            {settings.tags
+                                              .filter((t: { text: string }) =>
+                                                t.text.trim(),
+                                              )
+                                              .map(
+                                                (tag: {
+                                                  id: string
+                                                  text: string
+                                                  color: string
+                                                }) => (
+                                                  <span
+                                                    key={tag.id}
+                                                    className="resonator-card__tag"
+                                                    style={{ color: tag.color }}
+                                                  >
+                                                    {tag.text}
+                                                  </span>
+                                                ),
+                                              )}
+                                          </div>
+                                        )}
+                                    </Link>
+                                  )
+                                })
+                              ) : (
+                                <span className="tier-lists__empty-role">
+                                  —
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </li>
-                  )
-                })}
-              </ul>
-            </li>
-          ))}
+                      </li>
+                    )
+                  })}
+                </ul>
+              </li>
+            )
+          })}
         </ul>
       )}
     </section>

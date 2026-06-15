@@ -238,6 +238,16 @@ export const Weapons = () => {
               />
               <div className="weapons__description-container">
                 <h2 className="weapons__h2">{selectedWeapon.name}</h2>
+                {selectedWeapon.stat1 && (
+                  <span className="weapons__description-item">
+                    {selectedWeapon.stat1}
+                  </span>
+                )}
+                {selectedWeapon.stat2 && (
+                  <span className="weapons__description-item">
+                    {selectedWeapon.stat2}
+                  </span>
+                )}
                 <h4 className="weapons__h4">Пассивка</h4>
                 <ul className="weapons__description-list">
                   {selectedWeapon.description?.length > 0 ? (

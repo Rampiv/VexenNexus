@@ -234,6 +234,21 @@
   background-color: #121212;
 }
 
+.admin-auth-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 5px;
+  margin-bottom: 5px;
+  a {
+    border: 1px solid $white;
+    display: block;
+    color: $white;
+  }
+  .active {
+    border: 1px solid green;
+  }
+}
+
 .admin-auth-box {
   background: #1e1e1e;
   padding: 2rem;
@@ -1118,5 +1133,60 @@
     &:hover {
       background: #45a049;
     }
+  }
+}
+
+// =============================================================================
+// 📊 TIER LIST CYCLE
+// =============================================================================
+
+.cycles-management {
+  @include textType1();
+  @include flexible();
+  & {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}
+.cycles-tabs {
+  @include flexible();
+  width: 100%;
+  & {
+    gap: 5px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .active {
+    .cycle-tab-btn {
+      background-color: green;
+    }
+  }
+}
+.cycle-tab {
+  @include flexible();
+  & {
+    gap: 5px;
+  }
+}
+.cycle-tab-btn {
+  min-width: 50px;
+}
+.cycle-name-input,
+.cycle-remove-btn,
+.cycle-tab-btn,
+.cycle-add-btn {
+  padding: 3px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: #7d40ff;
   }
 }
