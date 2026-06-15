@@ -119,13 +119,15 @@ export const TierLists = () => {
     if (foundTierList) {
       setSelectedTierList(foundTierList.name)
 
-      // Устанавливаем активный цикл
       if (foundTierList.cycles && foundTierList.cycles.length > 0) {
         const urlParams = new URLSearchParams(window.location.search)
         const cycleFromUrl = urlParams.get("cycle")
+
+        const lastCycle = foundTierList.cycles[foundTierList.cycles.length - 1]
+
         const defaultCycle = cycleFromUrl
           ? foundTierList.cycles.find(c => c.id === cycleFromUrl)
-          : foundTierList.cycles[0]
+          : lastCycle
 
         if (defaultCycle) {
           setSelectedCycleId(defaultCycle.id)
@@ -178,13 +180,12 @@ export const TierLists = () => {
     return name
   }
 
-  // Получаем активный цикл
   const activeCycle = useMemo(() => {
     const activeTierList = tierListsAll.find(t => t.name === urlName)
     if (!activeTierList || !activeTierList.cycles) return null
     return (
       activeTierList.cycles.find(c => c.id === selectedCycleId) ||
-      activeTierList.cycles[0]
+      activeTierList.cycles[activeTierList.cycles.length - 1]
     )
   }, [tierListsAll, urlName, selectedCycleId])
 
@@ -274,11 +275,13 @@ export const TierLists = () => {
                 onChange={e => handleCycleChange(e.target.value)}
                 className="tier-lists__cycle-select"
               >
-                {filteredAndSorted[0].cycles.map((cycle: TierListCycle) => (
-                  <option key={cycle.id} value={cycle.id}>
-                    {cycle.name}
-                  </option>
-                ))}
+                {[...filteredAndSorted[0].cycles]
+                  .reverse()
+                  .map((cycle: TierListCycle) => (
+                    <option key={cycle.id} value={cycle.id}>
+                      {cycle.name}
+                    </option>
+                  ))}
               </select>
             </h2>
           </div>
@@ -292,7 +295,6 @@ export const TierLists = () => {
 
             return (
               <li className="tier-lists__item" key={tierList.id}>
-
                 <ul className="tier-lists__rows">
                   {currentRows.map((row: TierListRow, rowIndex: number) => {
                     const dpsResonators = getResonatorsByRole(row, "dps")
