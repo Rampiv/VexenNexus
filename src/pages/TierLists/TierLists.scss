@@ -194,20 +194,24 @@
 
 .tier-lists__cycle-title {
   @include textType08();
-  color: $white;
+  & {
+    color: $white;
+  }
 }
 .tier-lists__cycle-select {
   @include textType08();
-  background: $color1;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 2px 5px;
-  color: $white;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  outline: none;
+  & {
+    background: $color1;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 2px 5px;
+    color: $white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+  }
 
   &:hover {
     border-color: rgba(255, 255, 255, 0.4);
