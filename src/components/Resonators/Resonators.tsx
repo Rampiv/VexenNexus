@@ -1,7 +1,6 @@
 import { useMemo, useState, useEffect } from "react"
 import { collection, getDocs, query, orderBy } from "firebase/firestore"
 import "./Resonators.scss"
-import { Link } from "react-router"
 import { db } from "../../firebase/config" // Убедитесь, что путь верный
 import type { Resonator } from "../../types/resonator"
 import { Loader } from "../Loader"
@@ -21,8 +20,8 @@ interface MechanicData {
   link: string
 }
 
-interface WeaponsTypeData {
-  id: string
+export interface WeaponsTypeData {
+  id: "Sword" | "Broadblade" | "Gauntlets" | "Pistols" | "Rectifier"
   type: string
   link: string
 }
@@ -245,10 +244,11 @@ export const Resonators = ({ customClassname, filterBackImg }: Prop) => {
         <ul className="resonators-list__list">
           {filteredAndSortedResonators.map(item => (
             <li
-              className={`resonators-list__item ${item.rarity == 4 ? "resonators-list__item-4" : "resonators-list__item-5"}`.trim()}
+              className={`resonators-list__item`}
+              // className={`resonators-list__item ${item.rarity == 4 ? "resonators-list__item-4" : "resonators-list__item-5"}`.trim()}
               key={item.id}
             >
-              <ResonatorLink item={item} elements={elements} />
+              <ResonatorLink item={item} elements={elements} weaponsTypes={weaponsType}/>
             </li>
           ))}
         </ul>

@@ -162,9 +162,13 @@
     @include listReset();
     & {
       display: grid;
-      grid-template-columns: repeat(10, 1fr);
+      // grid-template-columns: repeat(10, 1fr);
       gap: 10px;
       width: 100%;
+    }
+    // новое значение для новых карточек огромных
+    & {
+      grid-template-columns: repeat(5, 1fr);
     }
   }
 
@@ -208,8 +212,10 @@
 @media (max-width: 850px) {
   .resonators-list {
     &__list {
-      grid-template-columns: repeat(6, 1fr);
+      // grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(4, 1fr);
     }
+    //
   }
 }
 
@@ -221,7 +227,7 @@
   }
   .resonators-list {
     &__list {
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 }
@@ -229,7 +235,7 @@
 @media (max-width: 500px) {
   .resonators-list {
     &__list {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 5px;
     }
   }
@@ -297,6 +303,11 @@
       &::placeholder {
         font-size: 15px;
       }
+    }
+  }
+  .resonators-list {
+    &__list {
+      grid-template-columns: 1fr;
     }
   }
 }

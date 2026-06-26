@@ -48,6 +48,12 @@
       grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
     }
   }
+  .echo-sets__resonators-list {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+  .echo-sets__resonators-item {
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 750px) {
@@ -57,7 +63,7 @@
 }
 
 @media (max-width: 500px) {
-  .echo-sets__list{
+  .echo-sets__list {
     grid-template-columns: 1fr;
   }
 }
