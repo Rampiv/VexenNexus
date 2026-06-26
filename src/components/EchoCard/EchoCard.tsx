@@ -135,7 +135,7 @@ export const EchoCard = ({ EchoSet: item, index, allResonators }: Props) => {
                   className="echo-sets__resonators-item"
                   key={`карточки резонатора в эхо карточке ${index} ${res.id}`}
                 >
-                  <ResonatorLink item={res} elements={elements} />
+                  <ResonatorLink item={res} elements={elements} weaponsTypes={[]} />
                 </li>
               ))}
             </ul>

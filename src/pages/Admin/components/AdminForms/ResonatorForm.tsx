@@ -148,21 +148,23 @@ export const ResonatorForm: React.FC<ResonatorFormProps> = ({
             }
             placeholder="Информация..."
           />
-          <ArrayEditor
-            title="Заключение по персонажу"
-            items={form.result || []}
-            setItems={newResult =>
-              setForm(prev => ({
-                ...prev,
-                result:
-                  typeof newResult === "function"
-                    ? newResult(prev.result || [])
-                    : newResult,
-              }))
-            }
-            placeholder="Перс заебись"
-          />
         </>
+      )}
+      {(admin.isAdmin || admin.isTiermake) && (
+        <ArrayEditor
+          title="Заключение по персонажу"
+          items={form.result || []}
+          setItems={newResult =>
+            setForm(prev => ({
+              ...prev,
+              result:
+                typeof newResult === "function"
+                  ? newResult(prev.result || [])
+                  : newResult,
+            }))
+          }
+          placeholder="Перс заебись"
+        />
       )}
       {(admin.isAdmin || admin.isTiermake) && (
         <TeamEditor

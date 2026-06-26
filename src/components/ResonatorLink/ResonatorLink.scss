@@ -51,4 +51,41 @@
       text-align: center;
     }
   }
+  // Новые стили для новых карточек
+  & {
+    flex-direction: column;
+    background: $color1;
+    border-radius: 12px;
+  }
+  &__img {
+    max-width: 264px;
+    width: 100%;
+    min-height: 313px;
+    object-fit: cover;
+  }
+  &__content {
+    width: 100%;
+  }
+  &__content-container {
+    @include flexible();
+    & {
+      width: 100%;
+    }
+  }
+  &__element-new {
+    position: relative;
+    width: 30px;
+    height: 30px;
+  }
+  &__weapon-type {
+    width: 30px;
+    height: 30px;
+  }
+  &__h3 {
+    @include textType2();
+    & {
+      position: relative;
+      text-transform: uppercase;
+    }
+  }
 }
