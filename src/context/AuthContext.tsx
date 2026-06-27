@@ -11,49 +11,16 @@ import {
   getDoc,
 } from "firebase/firestore"
 import Cookies from "js-cookie"
-import { useLocation } from "react-router"
 
 // ============================================================================
-// 🔐 КОНФИГУРАЦИЯ РОЛЕЙ (добавление новой роли = одна строка здесь)
+// 🍪 КОНФИГУРАЦИЯ COOKIE
 // ============================================================================
 
-export type UserRole = "admin" | "moderator" | "tiermake"
-
-interface RoleConfig {
-  cookieId: string
-  cookieHash: string
-  firestoreField: string
-  label: string
-}
-
-export const ROLES: Record<UserRole, RoleConfig> = {
-  admin: {
-    cookieId: "vexen_admin_id",
-    cookieHash: "vexen_admin_hash",
-    firestoreField: "admin",
-    label: "Админ",
-  },
-  moderator: {
-    cookieId: "vexen_moderator_id",
-    cookieHash: "vexen_moderator_hash",
-    firestoreField: "moderator",
-    label: "Модератор",
-  },
-  tiermake: {
-    cookieId: "vexen_tiermake_id",
-    cookieHash: "vexen_tiermake_hash",
-    firestoreField: "tiermake",
-    label: "Тирмейкер",
-  },
-}
-
-// Определяем роль по URL
-const detectRoleFromPath = (): UserRole => {
-  const path = window.location.pathname
-  if (path.includes("/moderator")) return "moderator"
-  if (path.includes("/tiermake")) return "tiermake"
-  return "admin"
-}
+const COOKIE_KEYS = {
+  roleId: "vexen_role_id",
+  userName: "vexen_user_name",
+  sessionHash: "vexen_session_hash",
+} as const
 
 // ============================================================================
 // 🔧 УТИЛИТЫ
@@ -73,11 +40,14 @@ const simpleHash = (str: string): string => {
 // 🎯 AUTH CONTEXT
 // ============================================================================
 
+export type UserRole = string
+
 interface AuthContextType {
-  userRole: UserRole | null
+  userRole: string | null
+  userName: string | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (key: string, role: UserRole, rememberMe?: boolean) => Promise<boolean>
+  login: (username: string, password: string) => Promise<boolean>
   logout: () => void
 }
 
@@ -96,86 +66,94 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [userRole, setUserRole] = useState<UserRole | null>(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [userName, setUserName] = useState<string | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const location = useLocation()
 
+  // Проверка сохранённой сессии при загрузке
   useEffect(() => {
-    const detectedRole = detectRoleFromPath()
-    setUserRole(detectedRole)
-    setIsAuthenticated(false)
-    checkSavedSession(detectedRole)
-  }, [location.pathname])
+    checkSavedSession()
+  }, [])
 
-  const checkSavedSession = async (role: UserRole) => {
-    const config = ROLES[role]
+  const checkSavedSession = async () => {
     try {
-      const savedDocId = Cookies.get(config.cookieId)
-      const savedKeyHash = Cookies.get(config.cookieHash)
+      const savedRoleId = Cookies.get(COOKIE_KEYS.roleId)
+      const savedUserName = Cookies.get(COOKIE_KEYS.userName)
+      const savedHash = Cookies.get(COOKIE_KEYS.sessionHash)
 
-      if (!savedDocId || !savedKeyHash) return
+      if (!savedRoleId || !savedUserName || !savedHash) {
+        setIsLoading(false)
+        return
+      }
 
-      const docSnap = await getDoc(doc(db, "admin_keys", savedDocId))
+      const docSnap = await getDoc(doc(db, "roles", savedRoleId))
 
       if (!docSnap.exists()) {
-        clearCookies(role)
+        clearSession()
         return
       }
 
       const data = docSnap.data()
-      const currentKey = data[config.firestoreField]
+      const currentPassword = data.password
 
-      if (!currentKey || simpleHash(currentKey) !== savedKeyHash) {
-        clearCookies(role)
+      if (!currentPassword || simpleHash(currentPassword) !== savedHash) {
+        clearSession()
         return
       }
 
-      setUserRole(role)
+      setUserRole(savedRoleId)
+      setUserName(savedUserName)
       setIsAuthenticated(true)
     } catch (error) {
       console.error("Ошибка проверки сессии:", error)
-      clearCookies(role)
+      clearSession()
     } finally {
       setIsLoading(false)
     }
   }
 
+  // Вход по имени роли и паролю
   const login = async (
-    key: string,
-    role: UserRole,
-    rememberMe: boolean = false,
+    username: string,
+    password: string,
   ): Promise<boolean> => {
-    const config = ROLES[role]
     try {
       const q = query(
-        collection(db, "admin_keys"),
-        where(config.firestoreField, "==", key.trim()),
+        collection(db, "roles"),
+        where("name", "==", username.trim()),
       )
 
       const querySnapshot = await getDocs(q)
       if (querySnapshot.empty) return false
 
       const docSnap = querySnapshot.docs[0]
-      const validKey = docSnap.data()[config.firestoreField]
-      if (!validKey) return false
+      const roleData = docSnap.data()
 
-      setUserRole(role)
+      if (roleData.password !== password.trim()) return false
+
+      const roleId = docSnap.id
+      const sessionHash = simpleHash(password.trim())
+
+      Cookies.set(COOKIE_KEYS.roleId, roleId, {
+        expires: 7,
+        secure: true,
+        sameSite: "strict",
+      })
+      Cookies.set(COOKIE_KEYS.userName, username.trim(), {
+        expires: 7,
+        secure: true,
+        sameSite: "strict",
+      })
+      Cookies.set(COOKIE_KEYS.sessionHash, sessionHash, {
+        expires: 7,
+        secure: true,
+        sameSite: "strict",
+      })
+
+      setUserRole(roleId)
+      setUserName(username.trim())
       setIsAuthenticated(true)
-
-      const expires = rememberMe ? 7 : undefined
-      const keyHash = simpleHash(validKey)
-
-      Cookies.set(config.cookieId, docSnap.id, {
-        expires,
-        secure: true,
-        sameSite: "strict",
-      })
-      Cookies.set(config.cookieHash, keyHash, {
-        expires,
-        secure: true,
-        sameSite: "strict",
-      })
 
       return true
     } catch (error) {
@@ -183,22 +161,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return false
     }
   }
+
   const logout = () => {
-    if (userRole) clearCookies(userRole)
+    clearSession()
     setUserRole(null)
+    setUserName(null)
     setIsAuthenticated(false)
   }
 
-  const clearCookies = (role: UserRole) => {
-    const config = ROLES[role]
-    Cookies.remove(config.cookieId)
-    Cookies.remove(config.cookieHash)
+  const clearSession = () => {
+    Cookies.remove(COOKIE_KEYS.roleId)
+    Cookies.remove(COOKIE_KEYS.userName)
+    Cookies.remove(COOKIE_KEYS.sessionHash)
   }
 
   return (
     <AuthContext.Provider
       value={{
         userRole,
+        userName,
         isAuthenticated,
         isLoading,
         login,

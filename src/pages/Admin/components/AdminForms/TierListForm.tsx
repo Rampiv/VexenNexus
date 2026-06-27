@@ -7,6 +7,8 @@ import type {
 } from "../../../../types/TierList"
 import type { Resonator } from "../../../../types/resonator"
 import { TierListEditor } from "../../../../components"
+import { useAdminData } from "../../hooks/useAdminData"
+import type { TierListFields } from "../../../../types/roles"
 
 interface TierListFormProps {
   form: {
@@ -49,77 +51,80 @@ export const TierListForm: React.FC<TierListFormProps> = ({
   updateCurrentCycleRows,
   registerTag,
 }) => {
+  const admin = useAdminData()
+  const canEdit = (field: keyof TierListFields) =>
+    admin.hasFieldPermission("tierlist", field)
+
   return (
     <>
       <div className="form-row">
-        <InputGroup
-          label="Название тир-листа (RU)"
-          name="name"
-          value={form.name}
-          onChange={(e: { target: { value: any } }) =>
-            setForm(prev => ({
-              ...prev,
-              name: e.target.value,
-            }))
-          }
-          required
-        />
-        <InputGroup
-          label="Ссылка на картинку тир листа"
-          name="nameImg"
-          value={form.nameImg}
-          onChange={(e: { target: { value: any } }) =>
-            setForm(prev => ({
-              ...prev,
-              nameImg: e.target.value,
-            }))
-          }
-        />
+        {canEdit("name") && (
+          <InputGroup
+            label="Название тир-листа (RU)"
+            name="name"
+            value={form.name}
+            onChange={(e: any) =>
+              setForm(prev => ({ ...prev, name: e.target.value }))
+            }
+            required
+          />
+        )}
+        {canEdit("nameImg") && (
+          <InputGroup
+            label="Ссылка на картинку тир листа"
+            name="nameImg"
+            value={form.nameImg}
+            onChange={(e: any) =>
+              setForm(prev => ({ ...prev, nameImg: e.target.value }))
+            }
+          />
+        )}
       </div>
 
-      {/* Управление циклами */}
-      <div className="cycles-management">
-        <h3>Управление циклами</h3>
-        <div className="cycles-tabs">
-          {form.cycles.map((cycle, index) => (
-            <div
-              key={cycle.id}
-              className={`cycle-tab ${activeCycleIndex === index ? "active" : ""}`}
-            >
-              Цикл:
-              <button
-                type="button"
-                onClick={() => switchCycle(index)}
-                className="cycle-tab-btn"
+      {canEdit("cycles") && (
+        <div className="cycles-management">
+          <h3>Управление циклами</h3>
+          <div className="cycles-tabs">
+            {form.cycles.map((cycle, index) => (
+              <div
+                key={cycle.id}
+                className={`cycle-tab ${activeCycleIndex === index ? "active" : ""}`}
               >
-                {cycle.name}
-              </button>
-              <input
-                type="text"
-                value={cycle.name}
-                onChange={e => updateCycleName(index, e.target.value)}
-                className="cycle-name-input"
-                placeholder="Название цикла"
-              />
-              {form.cycles.length > 1 && (
+                Цикл:
                 <button
                   type="button"
-                  onClick={() => removeCycle(index)}
-                  className="cycle-remove-btn"
-                  title="Удалить цикл"
+                  onClick={() => switchCycle(index)}
+                  className="cycle-tab-btn"
                 >
-                  ×
+                  {cycle.name}
                 </button>
-              )}
-            </div>
-          ))}
-          <button type="button" onClick={addCycle} className="cycle-add-btn">
-            + Добавить цикл
-          </button>
+                <input
+                  type="text"
+                  value={cycle.name}
+                  onChange={e => updateCycleName(index, e.target.value)}
+                  className="cycle-name-input"
+                  placeholder="Название цикла"
+                />
+                {form.cycles.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeCycle(index)}
+                    className="cycle-remove-btn"
+                    title="Удалить цикл"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+            <button type="button" onClick={addCycle} className="cycle-add-btn">
+              + Добавить цикл
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {form.cycles[activeCycleIndex] && (
+      {canEdit("rows") && form.cycles[activeCycleIndex] && (
         <TierListEditor
           rows={form.cycles[activeCycleIndex].rows}
           setRows={updateCurrentCycleRows}

@@ -20,11 +20,13 @@ export const Admin = () => {
   if (!admin.isAuthenticated)
     return (
       <AuthScreen
-        inputKey={admin.inputKey}
-        setInputKey={admin.setInputKey}
+        inputUsername={admin.inputUsername}
+        setInputUsername={admin.setInputUsername}
+        inputPassword={admin.inputPassword}
+        setInputPassword={admin.setInputPassword}
         handleLogin={admin.handleLogin}
         authError={admin.authError}
-        authLoading={false}
+        authLoading={admin.authLoading}
       />
     )
 
@@ -41,7 +43,7 @@ export const Admin = () => {
       </div>
 
       <div className="admin-tabs">
-        {(admin.isAdmin || admin.isTiermake) && (
+        {admin.hasTabPermission("resonators") && (
           <button
             className={`tab-btn ${admin.activeTab === "resonators" ? "active" : ""}`}
             onClick={() => admin.handleTabChange("resonators")}
@@ -49,7 +51,7 @@ export const Admin = () => {
             Персонажи
           </button>
         )}
-        {admin.isAdmin && (
+        {admin.hasTabPermission("weapons") && (
           <button
             className={`tab-btn ${admin.activeTab === "weapons" ? "active" : ""}`}
             onClick={() => admin.handleTabChange("weapons")}
@@ -57,7 +59,7 @@ export const Admin = () => {
             Оружие
           </button>
         )}
-        {admin.isAdmin && (
+        {admin.hasTabPermission("mechanics") && (
           <button
             className={`tab-btn ${admin.activeTab === "mechanics" ? "active" : ""}`}
             onClick={() => admin.handleTabChange("mechanics")}
@@ -65,7 +67,7 @@ export const Admin = () => {
             Механики
           </button>
         )}
-        {admin.isAdmin && (
+        {admin.hasTabPermission("echoSets") && (
           <button
             className={`tab-btn ${admin.activeTab === "echoSets" ? "active" : ""}`}
             onClick={() => admin.handleTabChange("echoSets")}
@@ -73,7 +75,7 @@ export const Admin = () => {
             Эхо Сеты
           </button>
         )}
-        {(admin.isAdmin || admin.isTiermake) && (
+        {admin.hasTabPermission("tierlist") && (
           <button
             className={`tab-btn ${admin.activeTab === "tierlist" ? "active" : ""}`}
             onClick={() => admin.handleTabChange("tierlist")}
@@ -81,7 +83,7 @@ export const Admin = () => {
             Тир-лист
           </button>
         )}
-        {(admin.isAdmin || admin.isTiermake) && (
+        {admin.hasTabPermission("settings") && (
           <button
             className={`tab-btn ${admin.activeTab === "settings" ? "active" : ""}`}
             onClick={() => admin.handleTabChange("settings")}

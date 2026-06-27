@@ -223,7 +223,7 @@
 }
 
 // =============================================================================
-// 🔐 ЭКРАН АВТОРИЗАЦИИ
+// 🔐 ЭКРАН АВТОРИЗАЦИИ (ОБНОВЛЕННЫЙ)
 // =============================================================================
 
 .admin-auth-screen {
@@ -234,75 +234,78 @@
   background-color: #121212;
 }
 
-.admin-auth-links {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 5px;
-  margin-bottom: 5px;
-  a {
-    border: 1px solid $white;
-    display: block;
-    color: $white;
-  }
-  .active {
-    border: 1px solid green;
-  }
-}
-
 .admin-auth-box {
   background: #1e1e1e;
-  padding: 2rem;
+  padding: 2.5rem;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   text-align: center;
-  max-width: 400px;
+  max-width: 450px;
   width: 90%;
   border: 1px solid #333;
 
   h2 {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     color: #fff;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
   }
 
   p {
     color: #aaa;
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
   }
 }
 
 .admin-key-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 
-  input {
-    padding: 0.8rem;
-    background: #2a2a2a;
-    border: 1px solid #444;
-    border-radius: 6px;
-    color: #fff;
-    font-size: 1rem;
-    text-align: center;
-    letter-spacing: 2px;
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: left;
 
-    &:focus {
-      outline: none;
-      border-color: #7d40ff;
-      box-shadow: 0 0 0 2px rgba(125, 64, 255, 0.2);
+    label {
+      font-size: 0.9rem;
+      color: #aaa;
+      font-weight: 500;
+    }
+
+    input {
+      padding: 0.9rem;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 1rem;
+      transition: all 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #7d40ff;
+        box-shadow: 0 0 0 2px rgba(125, 64, 255, 0.2);
+      }
+
+      &::placeholder {
+        color: #666;
+      }
     }
   }
 
   button {
-    padding: 0.8rem;
+    padding: 1rem;
     background: #7d40ff;
     color: white;
     border: none;
     border-radius: 6px;
     font-weight: bold;
+    font-size: 1rem;
     cursor: pointer;
     transition: background 0.2s;
+    margin-top: 0.5rem;
 
     &:hover {
       background: #6a35d6;
@@ -320,6 +323,19 @@
   margin-top: 1rem;
   font-size: 0.9rem;
   animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 // =============================================================================
@@ -1188,5 +1204,134 @@
   &:focus {
     outline: none;
     border-color: #7d40ff;
+  }
+}
+
+// =============================================================================
+// 👑 УПРАВЛЕНИЕ РОЛЯМИ (ROLE MANAGEMENT)
+// =============================================================================
+
+.role-management-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #444;
+
+  h3 {
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+}
+
+.role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+
+  .role-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2a2a2a;
+    padding: 0.8rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #333;
+
+    span {
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .role-actions {
+      display: flex;
+      gap: 0.5rem;
+
+      button {
+        background: transparent;
+        border: 1px solid #444;
+        color: #fff;
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+          background: #333;
+        }
+
+        &.btn-delete-role:hover {
+          background: #ff4444;
+          border-color: #ff4444;
+        }
+      }
+    }
+  }
+
+  .btn-add-role {
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    align-self: flex-start;
+    margin-top: 0.5rem;
+
+    &:hover {
+      background: #45a049;
+    }
+  }
+}
+
+.role-editor-form {
+  background: #252525;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #3a3a3a;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.permissions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  h4 {
+    color: #aaa;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5rem;
+  }
+
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.8rem;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #ddd;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #333;
+    }
+
+    input[type="checkbox"] {
+      width: 1.1rem;
+      height: 1.1rem;
+      accent-color: #7d40ff;
+      cursor: pointer;
+    }
   }
 }
