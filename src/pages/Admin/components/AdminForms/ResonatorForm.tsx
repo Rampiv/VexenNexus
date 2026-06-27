@@ -11,6 +11,7 @@ import {
   EchoSetSelector,
   TeamEditor,
 } from "../../../../components"
+import type { RolePermissions } from "../../../../types/roles"
 
 interface ResonatorFormProps {
   form: ResonatorFormType
@@ -28,129 +29,153 @@ export const ResonatorForm: React.FC<ResonatorFormProps> = ({
   allEchoSets,
 }) => {
   const admin = useAdminData()
+
+  const canEdit = (field: keyof RolePermissions["fields"]["resonators"]) =>
+    admin.hasFieldPermission("resonators", field)
+
   return (
     <>
-      {admin.isAdmin && (
-        <>
-          <div className="form-row">
-            <InputGroup
-              label="Имя (RU)"
-              name="name"
-              value={form.name || ""}
-              onChange={onChange}
-              required
-            />
-            <InputGroup
-              label="Имя (ENG)"
-              name="engName"
-              value={form.engName || ""}
-              onChange={onChange}
-              required
-            />
-          </div>
-          <div className="form-row">
-            <SelectGroup
-              label="Элемент"
-              name="element"
-              value={form.element || "Havoc"}
-              onChange={onChange}
-              options={[
-                "Havoc",
-                "Aero",
-                "Fusion",
-                "Spectro",
-                "Glacio",
-                "Electro",
-              ]}
-            />
-            <SelectGroup
-              label="Редкость"
-              name="rarity"
-              value={form.rarity || 5}
-              onChange={onChange}
-              options={[5, 4]}
-              type="number"
-            />
-            <SelectGroup
-              label="Оружие"
-              name="weaponType"
-              value={form.weaponType || "Sword"}
-              onChange={onChange}
-              options={[
-                "Sword",
-                "Broadblade",
-                "Gauntlets",
-                "Pistols",
-                "Rectifier",
-              ]}
-            />
-          </div>
+      <div className="form-row">
+        {canEdit("name") && (
           <InputGroup
-            label="URL большой картинки (в гайде)"
-            name="resonatorImg"
-            value={form.resonatorImg || ""}
+            label="Имя (RU)"
+            name="name"
+            value={form.name || ""}
             onChange={onChange}
-            placeholder="https://..."
+            required
           />
+        )}
+        {canEdit("engName") && (
           <InputGroup
-            label="URL мини картинки (на карточках)"
-            name="resonatorImgMini"
-            value={form.resonatorImgMini || ""}
+            label="Имя (ENG)"
+            name="engName"
+            value={form.engName || ""}
             onChange={onChange}
-            placeholder="https://..."
+            required
           />
-          <InputGroup
-            label="URL фото карточки персонажа для баннера"
-            name="resonatorImgBanner"
-            value={form.resonatorImgBanner || ""}
+        )}
+      </div>
+
+      <div className="form-row">
+        {canEdit("element") && (
+          <SelectGroup
+            label="Элемент"
+            name="element"
+            value={form.element || "Havoc"}
             onChange={onChange}
-            placeholder="https://..."
+            options={[
+              "Havoc",
+              "Aero",
+              "Fusion",
+              "Spectro",
+              "Glacio",
+              "Electro",
+            ]}
           />
-          <InputGroup
-            label="URL Превью ютуб ролика"
-            name="resonatorPreview"
-            value={form.resonatorPreview || ""}
+        )}
+        {canEdit("rarity") && (
+          <SelectGroup
+            label="Редкость"
+            name="rarity"
+            value={form.rarity || 5}
             onChange={onChange}
-            placeholder="https://..."
+            options={[5, 4]}
+            type="number"
           />
-          <InputGroup
-            label="URL ютуб ролика"
-            name="resonatorYTLink"
-            value={form.resonatorYTLink || ""}
+        )}
+        {canEdit("weaponType") && (
+          <SelectGroup
+            label="Оружие"
+            name="weaponType"
+            value={form.weaponType || "Sword"}
             onChange={onChange}
-            placeholder="https://..."
+            options={[
+              "Sword",
+              "Broadblade",
+              "Gauntlets",
+              "Pistols",
+              "Rectifier",
+            ]}
           />
-          <InputGroup
-            label="URL гайда"
-            name="resonatorImgGuide"
-            value={form.resonatorImgGuide || ""}
-            onChange={onChange}
-            placeholder="https://..."
-          />
-          <InputGroup
-            label="URL Детального подсчета"
-            name="resonatorImgDetails"
-            value={form.resonatorImgDetails || ""}
-            onChange={onChange}
-            placeholder="https://..."
-          />
-          <ArrayEditor
-            title="Описание персонажа (под большой картинкой)"
-            items={form.descr || []}
-            setItems={newDescr =>
-              setForm(prev => ({
-                ...prev,
-                descr:
-                  typeof newDescr === "function"
-                    ? newDescr(prev.descr || [])
-                    : newDescr,
-              }))
-            }
-            placeholder="Информация..."
-          />
-        </>
+        )}
+      </div>
+
+      {/* Images */}
+      {canEdit("resonatorImg") && (
+        <InputGroup
+          label="URL большой картинки"
+          name="resonatorImg"
+          value={form.resonatorImg || ""}
+          onChange={onChange}
+        />
       )}
-      {(admin.isAdmin || admin.isTiermake) && (
+      {canEdit("resonatorImgMini") && (
+        <InputGroup
+          label="URL мини картинки"
+          name="resonatorImgMini"
+          value={form.resonatorImgMini || ""}
+          onChange={onChange}
+        />
+      )}
+      {canEdit("resonatorImgBanner") && (
+        <InputGroup
+          label="URL фото для баннера"
+          name="resonatorImgBanner"
+          value={form.resonatorImgBanner || ""}
+          onChange={onChange}
+        />
+      )}
+      {canEdit("resonatorPreview") && (
+        <InputGroup
+          label="URL Превью ютуб ролика"
+          name="resonatorPreview"
+          value={form.resonatorPreview || ""}
+          onChange={onChange}
+        />
+      )}
+      {canEdit("resonatorYTLink") && (
+        <InputGroup
+          label="URL ютуб ролика"
+          name="resonatorYTLink"
+          value={form.resonatorYTLink || ""}
+          onChange={onChange}
+        />
+      )}
+      {canEdit("resonatorImgGuide") && (
+        <InputGroup
+          label="URL гайда"
+          name="resonatorImgGuide"
+          value={form.resonatorImgGuide || ""}
+          onChange={onChange}
+        />
+      )}
+      {canEdit("resonatorImgDetails") && (
+        <InputGroup
+          label="URL Детального подсчета"
+          name="resonatorImgDetails"
+          value={form.resonatorImgDetails || ""}
+          onChange={onChange}
+        />
+      )}
+
+      {canEdit("descr") && (
+        <ArrayEditor
+          title="Описание персонажа"
+          items={form.descr || []}
+          setItems={newDescr =>
+            setForm(prev => ({
+              ...prev,
+              descr:
+                typeof newDescr === "function"
+                  ? newDescr(prev.descr || [])
+                  : newDescr,
+            }))
+          }
+          placeholder="Информация..."
+        />
+      )}
+
+      {canEdit("result") && (
         <ArrayEditor
           title="Заключение по персонажу"
           items={form.result || []}
@@ -166,7 +191,8 @@ export const ResonatorForm: React.FC<ResonatorFormProps> = ({
           placeholder="Перс заебись"
         />
       )}
-      {(admin.isAdmin || admin.isTiermake) && (
+
+      {canEdit("teams") && (
         <TeamEditor
           teams={form.teams || []}
           setTeams={newTeams =>
@@ -183,7 +209,7 @@ export const ResonatorForm: React.FC<ResonatorFormProps> = ({
         />
       )}
 
-      {admin.isAdmin && (
+      {canEdit("echoSets") && (
         <EchoSetSelector
           selections={form.echoSets || []}
           setSelections={newSelections =>

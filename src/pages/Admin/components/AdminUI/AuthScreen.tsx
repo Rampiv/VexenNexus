@@ -1,77 +1,63 @@
-import type { UserRole } from "@contexts/AuthContext"
 import type React from "react"
-import { Link, useLocation } from "react-router"
 
 interface AuthScreenProps {
-  inputKey: string
-  setInputKey: (value: string) => void
+  inputUsername: string
+  setInputUsername: (value: string) => void
+  inputPassword: string
+  setInputPassword: (value: string) => void
   handleLogin: (e: React.FormEvent) => void
   authError: string
   authLoading: boolean
 }
 
-// Маппинг путей к ролям
-const PATH_TO_ROLE: Record<string, UserRole> = {
-  "/admin": "admin",
-  "/moderator": "moderator",
-  "/tiermake": "tiermake",
-}
-
-const ROLE_TO_PATH: Record<UserRole, string> = {
-  admin: "/admin",
-  moderator: "/moderator",
-  tiermake: "/tiermake",
-}
-
 export const AuthScreen: React.FC<AuthScreenProps> = ({
-  inputKey,
-  setInputKey,
+  inputUsername,
+  setInputUsername,
+  inputPassword,
+  setInputPassword,
   handleLogin,
   authError,
   authLoading,
 }) => {
-  const location = useLocation()
-
-  // Определяем текущую роль по pathname
-  const currentRole: UserRole =
-    PATH_TO_ROLE[location.pathname] || "admin"
-
   return (
     <section className="admin-auth-screen">
       <div className="admin-auth-box">
-        <h2>Доступ ограничен</h2>
-
-        <div className="admin-auth-links">
-          {(Object.keys(ROLE_TO_PATH) as UserRole[]).map(role => (
-            <Link
-              key={role}
-              to={ROLE_TO_PATH[role]}
-              className={`auth-link ${currentRole === role ? "active" : ""}`}
-              onClick={()=>setInputKey('')}
-            >
-              {role === "admin"
-                ? "Admin"
-                : role === "moderator"
-                  ? "Moderator"
-                  : "Tiermake"}
-            </Link>
-          ))}
-        </div>
+        <h2>Вход в админ-панель</h2>
+        <p>Введите свои учетные данные для доступа</p>
 
         <form onSubmit={handleLogin} className="admin-key-form">
-          <input
-            type="password"
-            placeholder="Ключ..."
-            value={inputKey}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setInputKey(e.target.value)
-            }
-            autoFocus
-          />
+          <div className="form-group">
+            <label>Имя пользователя</label>
+            <input
+              type="text"
+              placeholder="Введите имя..."
+              value={inputUsername}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setInputUsername(e.target.value)
+              }
+              autoFocus
+              autoComplete="username"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Пароль</label>
+            <input
+              type="password"
+              placeholder="Введите пароль..."
+              value={inputPassword}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setInputPassword(e.target.value)
+              }
+              autoComplete="current-password"
+            />
+          </div>
+
           <button type="submit" disabled={authLoading}>
-            {authLoading ? "..." : "Войти"}
+            {authLoading ? "Вход..." : "Войти"}
           </button>
         </form>
+
         {authError && <p className="admin-error-msg">{authError}</p>}
       </div>
     </section>

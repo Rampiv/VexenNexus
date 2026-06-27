@@ -28,6 +28,7 @@ import type {
 import { db } from "../../../firebase/config"
 import type { SiteSettings } from "../../../types/siteSettings"
 import { convertOldTeamsToNew } from "../../../supp/ConvertOldTeamsToNew"
+import type { Role, RolePermissions, TabKey } from "../../../types/roles"
 
 const RESONATORS_COLLECTION = "resonators"
 const WEAPONS_COLLECTION = "weapons"
@@ -64,6 +65,8 @@ export interface WeaponForm extends Partial<Weapon> {}
 export interface MechanicForm extends Partial<Mechanic> {}
 export interface EchoSetForm extends Partial<EchoSet> {}
 
+const ROLES_COLLECTION = "roles"
+
 export const useAdminData = () => {
   const {
     userRole,
@@ -73,7 +76,8 @@ export const useAdminData = () => {
     logout,
   } = useAuth()
 
-  const [inputKey, setInputKey] = useState("")
+  const [inputUsername, setInputUsername] = useState("")
+  const [inputPassword, setInputPassword] = useState("")
   const [authError, setAuthError] = useState("")
 
   const isAdmin = userRole === "admin" && isAuthenticated
@@ -511,13 +515,20 @@ export const useAdminData = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setAuthError("")
-    if (!userRole) return
-    const success = await login(inputKey, userRole)
+
+    if (!inputUsername.trim() || !inputPassword.trim()) {
+      setAuthError("Введите имя и пароль")
+      return
+    }
+
+    const success = await login(inputUsername, inputPassword)
+
     if (success) {
-      setInputKey("")
+      setInputUsername("")
+      setInputPassword("")
       setTimeout(() => fetchData(), 100)
     } else {
-      setAuthError(`Неверный ключ доступа для роли: ${userRole}.`)
+      setAuthError("Неверное имя пользователя или пароль")
     }
   }
 
@@ -580,11 +591,9 @@ export const useAdminData = () => {
       let collectionName = "",
         dataToSave: any = {},
         objTitle = "",
-        objLink = "",
-        isSettings = false
+        objLink = ""
 
       if (activeTab === "settings") {
-        isSettings = true
         const settingsRef = doc(db, SETTINGS_COLLECTION, SETTINGS_DOC_ID)
         dataToSave = {
           nextBannerDate: settingsForm.nextBannerDate,
@@ -853,7 +862,6 @@ export const useAdminData = () => {
 
     try {
       await deleteDoc(doc(db, collectionName, id))
-      // 👇 Логируем удаление с userRole
       await addUpdateLog("Удалено", objTitle, objLink)
       fetchData()
     } catch (error) {
@@ -984,12 +992,249 @@ export const useAdminData = () => {
     searchTerm,
   ])
 
+  ////////////////////////////////////////////////////////////
+  // фича с ролями
+  ///////////////////////////////////////////////////////////
+  const getDefaultFields = () => ({
+    resonators: {
+      name: false,
+      engName: false,
+      element: false,
+      rarity: false,
+      weaponType: false,
+      resonatorImg: false,
+      resonatorImgMini: false,
+      resonatorImgBanner: false,
+      resonatorPreview: false,
+      resonatorYTLink: false,
+      resonatorImgGuide: false,
+      resonatorImgDetails: false,
+      descr: false,
+      result: false,
+      teams: false,
+      echoSets: false,
+    },
+    echoSets: {
+      name: false,
+      engName: false,
+      img: false,
+      patchNumber: false,
+      index: false,
+      onePartsDescr: false,
+      twoPartsDescr: false,
+      fivePartsDescr: false,
+      threePartsDescr: false,
+      important: false,
+    },
+    weapons: {
+      name: false,
+      engName: false,
+      type: false,
+      rarity: false,
+      stat1: false,
+      stat2: false,
+      img: false,
+      description: false,
+    },
+    mechanics: { title: false, engName: false, img: false, paragraphs: false },
+    tierlist: { name: false, nameImg: false, cycles: false, rows: false },
+    settings: {
+      nextBannerDate: false,
+      futureResonatorIds: false,
+      preview_img: false,
+      filter_img: false,
+      tierListDescriptions: false,
+    },
+  })
+
+  const [roles, setRoles] = useState<Role[]>([])
+  const [editingRoleId] = useState<string | null>(null)
+  const [roleForm, setRoleForm] = useState<Partial<Role>>({
+    name: "",
+    password: "",
+    description: "",
+    permissions: {
+      tabs: {
+        resonators: false,
+        weapons: false,
+        mechanics: false,
+        echoSets: false,
+        tierlist: false,
+        settings: false,
+      },
+      fields: getDefaultFields(),
+    },
+  })
+
+  const fetchRoles = useCallback(async () => {
+    try {
+      const q = query(collection(db, ROLES_COLLECTION), orderBy("name"))
+      const snap = await getDocs(q)
+      setRoles(snap.docs.map(d => ({ id: d.id, ...d.data() })) as Role[])
+    } catch (error) {
+      console.error("Error fetching roles:", error)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isAuthenticated && isDbReady) {
+      fetchData()
+      fetchRoles()
+    }
+  }, [isAuthenticated, isDbReady, fetchData, fetchRoles])
+
+  // Helper: Get current user's role object
+  const currentUserRole = useMemo(() => {
+    if (!userRole) return null
+    return roles.find(r => r.id === userRole || r.name === userRole) || null
+  }, [userRole, roles])
+
+  const isSuperAdmin = currentUserRole?.isSuperAdmin === true
+
+  // Helper: Check Tab Permission
+  const hasTabPermission = useCallback(
+    (tab: TabKey) => {
+      if (!isAuthenticated) return false
+      if (isSuperAdmin) return true
+
+      const perms = currentUserRole?.permissions.tabs
+      return perms ? perms[tab] : false
+    },
+    [isAuthenticated, isSuperAdmin, currentUserRole?.permissions.tabs],
+  )
+
+  // Helper: Check Field Permission
+  const hasFieldPermission = useCallback(
+    <T extends keyof RolePermissions["fields"]>(
+      formType: T,
+      field: keyof RolePermissions["fields"][T],
+    ): boolean => {
+      if (!isAuthenticated) return false
+      if (isSuperAdmin) return true
+
+      const fieldPerms = currentUserRole?.permissions?.fields?.[formType]
+      return fieldPerms ? !!(fieldPerms as any)[field] : false
+    },
+    [isAuthenticated, isSuperAdmin, currentUserRole],
+  )
+
+  const clearRoleForm = () => {
+    setRoleForm({
+      name: "",
+      password: "",
+      description: "",
+      permissions: {
+        tabs: {
+          resonators: false,
+          weapons: false,
+          mechanics: false,
+          echoSets: false,
+          tierlist: false,
+          settings: false,
+        },
+        fields: getDefaultFields(),
+      },
+    })
+  }
+
+  const startCreatingRole = () => {
+    clearRoleForm()
+    setEditingId("__new__")
+  }
+
+  const cancelRoleForm = () => {
+    setEditingId(null)
+    clearRoleForm()
+  }
+
+  const handleEditRole = (role: Role) => {
+    setEditingId(role.id)
+    setRoleForm(role)
+  }
+
+  const handleRoleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    try {
+      const roleId = editingId === "__new__" ? crypto.randomUUID() : editingId!
+
+      const roleData: any = {
+        name: roleForm.name,
+        description: roleForm.description,
+        permissions: roleForm.permissions,
+        isSuperAdmin: !!roleForm.isSuperAdmin,
+      }
+
+      if (roleForm.password) roleData.password = roleForm.password
+      else if (roleId && !roleForm.password && editingId === "__new__") {
+        alert("Пароль обязателен для новой роли!")
+        setIsSubmitting(false)
+        return
+      }
+
+      await setDoc(doc(db, ROLES_COLLECTION, roleId), roleData)
+      alert(editingId === "__new__" ? "Роль создана" : "Роль обновлена")
+
+      cancelRoleForm()
+      fetchRoles()
+    } catch (error) {
+      console.error("Error saving role:", error)
+      alert("Ошибка сохранения роли")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // 👇 Удаление роли
+  const handleDeleteRole = async (id: string) => {
+    if (!window.confirm("Вы уверены? Это действие нельзя отменить.")) return
+    try {
+      await deleteDoc(doc(db, ROLES_COLLECTION, id))
+      alert("Роль удалена")
+      fetchRoles()
+      if (editingId === id) cancelRoleForm()
+    } catch (error) {
+      console.error("Error deleting role:", error)
+      alert("Ошибка при удалении")
+    }
+  }
+
+  // Автоматическое переключение на первую доступную вкладку
+  useEffect(() => {
+    if (!isAuthenticated || !roles.length) return
+
+    // Проверяем, доступна ли текущая вкладка
+    const isCurrentTabAvailable = hasTabPermission(activeTab)
+
+    if (!isCurrentTabAvailable) {
+      // Ищем первую доступную вкладку
+      const allTabs: Tab[] = [
+        "resonators",
+        "weapons",
+        "mechanics",
+        "echoSets",
+        "tierlist",
+        "settings",
+      ]
+      const firstAvailableTab = allTabs.find(tab => hasTabPermission(tab))
+
+      if (firstAvailableTab && firstAvailableTab !== activeTab) {
+        setActiveTab(firstAvailableTab)
+        resetForms()
+        setSearchTerm("")
+      }
+    }
+  }, [isAuthenticated, roles, userRole, activeTab, hasTabPermission])
+
   return {
     // Auth
-    inputKey,
-    setInputKey,
+    inputUsername,
+    setInputUsername,
+    inputPassword,
+    setInputPassword,
     authError,
-    isAdmin,
+    isAdmin: isSuperAdmin,
+    isSuperAdmin,
     isModerator,
     isTiermake,
     isAuthenticated,
@@ -1050,5 +1295,17 @@ export const useAdminData = () => {
     registerTag,
     // Filtered data
     filteredList,
+    // roles
+    roles,
+    roleForm,
+    setRoleForm,
+    editingRoleId,
+    handleRoleSubmit,
+    handleEditRole,
+    handleDeleteRole,
+    startCreatingRole,
+    cancelRoleForm,
+    hasTabPermission,
+    hasFieldPermission,
   }
 }

@@ -1,7 +1,11 @@
 import type React from "react"
 import { InputGroup } from "../AdminUI"
-import type { EchoSetForm as EchoSetFormType } from "../../hooks/useAdminData"
+import {
+  useAdminData,
+  type EchoSetForm as EchoSetFormType,
+} from "../../hooks/useAdminData"
 import { ArrayEditor } from "../../../../components"
+import type { EchoSetFields } from "../../../../types/roles"
 
 interface EchoSetFormProps {
   form: EchoSetFormType
@@ -14,111 +18,124 @@ export const EchoSetForm: React.FC<EchoSetFormProps> = ({
   onChange,
   setForm,
 }) => {
+  const admin = useAdminData()
+  const canEdit = (field: keyof EchoSetFields) =>
+    admin.hasFieldPermission("echoSets", field)
+
   return (
     <>
-      <InputGroup
-        label="Название сета (RU)"
-        name="name"
-        value={form.name || ""}
-        onChange={onChange}
-        required
-      />
-      <InputGroup
-        label="Название сета (ENG)"
-        name="engName"
-        value={form.engName || ""}
-        onChange={onChange}
-        required
-      />
-      <InputGroup
-        label="URL Иконки сета"
-        name="img"
-        value={form.img || ""}
-        onChange={onChange}
-        placeholder="https://..."
-      />
-      <InputGroup
-        label="Номер патча, когда добавили сет"
-        name="patchNumber"
-        value={form.patchNumber || ""}
-        onChange={onChange}
-      />
-      <InputGroup
-        label="Номер по списку отображения"
-        name="index"
-        value={form.index || 0}
-        onChange={onChange}
-      />
-      <ArrayEditor
-        title="Описание сета 1 части"
-        items={form.onePartsDescr || []}
-        setItems={newDescription =>
-          setForm(prev => ({
-            ...prev,
-            onePartsDescr:
-              typeof newDescription === "function"
-                ? newDescription(prev.onePartsDescr || [])
-                : newDescription,
-          }))
-        }
-        placeholder="Описание сета"
-      />
-      <ArrayEditor
-        title="Описание сета 2 части"
-        items={form.twoPartsDescr || []}
-        setItems={newDescription =>
-          setForm(prev => ({
-            ...prev,
-            twoPartsDescr:
-              typeof newDescription === "function"
-                ? newDescription(prev.twoPartsDescr || [])
-                : newDescription,
-          }))
-        }
-        placeholder="Описание сета"
-      />
-      <ArrayEditor
-        title="Описание сета 5 частей"
-        items={form.fivePartsDescr || []}
-        setItems={newDescription =>
-          setForm(prev => ({
-            ...prev,
-            fivePartsDescr:
-              typeof newDescription === "function"
-                ? newDescription(prev.fivePartsDescr || [])
-                : newDescription,
-          }))
-        }
-        placeholder="Описание сета"
-      />
-      <ArrayEditor
-        title="Описание сета 3 части"
-        items={form.threePartsDescr || []}
-        setItems={newDescription =>
-          setForm(prev => ({
-            ...prev,
-            threePartsDescr:
-              typeof newDescription === "function"
-                ? newDescription(prev.threePartsDescr || [])
-                : newDescription,
-          }))
-        }
-        placeholder="Описание сета"
-      />
-      <ArrayEditor
-        title="Дополнение (важно)"
-        items={form.important || []}
-        setItems={newDescription =>
-          setForm(prev => ({
-            ...prev,
-            important:
-              typeof newDescription === "function"
-                ? newDescription(prev.important || [])
-                : newDescription,
-          }))
-        }
-        placeholder="Важно"
-      />
+      {canEdit("name") && (
+        <InputGroup
+          label="Название сета (RU)"
+          name="name"
+          value={form.name || ""}
+          onChange={onChange}
+          required
+        />
+      )}
+      {canEdit("engName") && (
+        <InputGroup
+          label="Название сета (ENG)"
+          name="engName"
+          value={form.engName || ""}
+          onChange={onChange}
+          required
+        />
+      )}
+      {canEdit("img") && (
+        <InputGroup
+          label="URL Иконки сета"
+          name="img"
+          value={form.img || ""}
+          onChange={onChange}
+          placeholder="https://..."
+        />
+      )}
+      {canEdit("patchNumber") && (
+        <InputGroup
+          label="Номер патча"
+          name="patchNumber"
+          value={form.patchNumber || ""}
+          onChange={onChange}
+        />
+      )}
+      {canEdit("index") && (
+        <InputGroup
+          label="Номер по списку"
+          name="index"
+          value={form.index || 0}
+          onChange={onChange}
+        />
+      )}
+      {canEdit("onePartsDescr") && (
+        <ArrayEditor
+          title="Описание 1 части"
+          items={form.onePartsDescr || []}
+          setItems={v =>
+            setForm(p => ({
+              ...p,
+              onePartsDescr:
+                typeof v === "function" ? v(p.onePartsDescr || []) : v,
+            }))
+          }
+          placeholder="Описание"
+        />
+      )}
+      {canEdit("twoPartsDescr") && (
+        <ArrayEditor
+          title="Описание 2 части"
+          items={form.twoPartsDescr || []}
+          setItems={v =>
+            setForm(p => ({
+              ...p,
+              twoPartsDescr:
+                typeof v === "function" ? v(p.twoPartsDescr || []) : v,
+            }))
+          }
+          placeholder="Описание"
+        />
+      )}
+      {canEdit("fivePartsDescr") && (
+        <ArrayEditor
+          title="Описание 5 частей"
+          items={form.fivePartsDescr || []}
+          setItems={v =>
+            setForm(p => ({
+              ...p,
+              fivePartsDescr:
+                typeof v === "function" ? v(p.fivePartsDescr || []) : v,
+            }))
+          }
+          placeholder="Описание"
+        />
+      )}
+      {canEdit("threePartsDescr") && (
+        <ArrayEditor
+          title="Описание 3 части"
+          items={form.threePartsDescr || []}
+          setItems={v =>
+            setForm(p => ({
+              ...p,
+              threePartsDescr:
+                typeof v === "function" ? v(p.threePartsDescr || []) : v,
+            }))
+          }
+          placeholder="Описание"
+        />
+      )}
+      {canEdit("important") && (
+        <ArrayEditor
+          title="Дополнение (важно)"
+          items={form.important || []}
+          setItems={v =>
+            setForm(p => ({
+              ...p,
+              important: typeof v === "function" ? v(p.important || []) : v,
+            }))
+          }
+          placeholder="Важно"
+        />
+      )}
     </>
   )
 }
