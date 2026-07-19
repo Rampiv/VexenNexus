@@ -126,22 +126,26 @@ export const EchoCard = ({ EchoSet: item, index, allResonators }: Props) => {
             })}
           </>
         )}
-        {suitableResonators && suitableResonators.length > 0 && (
-          <div className="echo-sets__resonators">
-            <h4 className="echo-sets__h4">Подходит персонажам:</h4>
-            <ul className="echo-sets__resonators-list">
-              {suitableResonators.map((res, index) => (
-                <li
-                  className="echo-sets__resonators-item"
-                  key={`карточки резонатора в эхо карточке ${index} ${res.id}`}
-                >
-                  <ResonatorLink item={res} elements={elements} weaponsTypes={[]} />
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
+      {suitableResonators && suitableResonators.length > 0 && (
+        <div className="echo-sets__resonators">
+          <h4 className="echo-sets__h4">Подходит персонажам:</h4>
+          <ul className="echo-sets__resonators-list">
+            {suitableResonators.map((res, index) => (
+              <li
+                className="echo-sets__resonators-item"
+                key={`карточки резонатора в эхо карточке ${index} ${res.id}`}
+              >
+                <ResonatorLink
+                  item={res}
+                  elements={elements}
+                  weaponsTypes={[]}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   )
 }

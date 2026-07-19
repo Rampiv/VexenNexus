@@ -6,6 +6,8 @@ import type {
   TierListTag,
 } from "../../types/TierList"
 import "./TierListEditor.scss"
+import { collection, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore"
+import { db } from "../../firebase/config"
 
 interface TierListEditorProps {
   rows: TierListRow[]
@@ -70,33 +72,115 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
   const SCROLL_THRESHOLD = 100
   const SCROLL_SPEED = 10
 
-  const globalTagPool = useMemo(() => {
-    const tagMap = new Map<string, TierListTag>()
-    if (rows && rows.length > 0) {
-      rows.forEach(row => {
-        if (row.resonatorSettings) {
-          Object.values(row.resonatorSettings).forEach((settings: any) => {
-            if (settings?.tags && Array.isArray(settings.tags)) {
-              settings.tags.forEach((tag: any) => {
-                if (tag?.id) {
-                  const uniqueKey = `${(tag.text || tag.name || "").toLowerCase()}_${tag.color || "#000000"}`
-                  if (!tagMap.has(uniqueKey)) {
-                    tagMap.set(uniqueKey, {
-                      id: tag.id,
-                      name: tag.text || tag.name || "",
-                      color: tag.color || "#7d40ff",
-                    })
-                  }
+  // теги
+  const [globalTagPool, setGlobalTagPool] = useState<TierListTag[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+
+    const fetchAndMigrateTags = async () => {
+      try {
+        const tagMap = new Map<string, TierListTag>()
+
+        // 1. Сначала загружаем теги из новой глобальной коллекции (самый быстрый способ)
+        const tagsSnapshot = await getDocs(collection(db, "tags"))
+        tagsSnapshot.forEach(docSnap => {
+          const data = docSnap.data()
+          if (data?.id) {
+            tagMap.set(data.id, {
+              id: data.id,
+              name: data.name || "",
+              color: data.color || "#7d40ff",
+            })
+          }
+        })
+
+        // 2. Загружаем старые данные из tier_lists для миграции
+        const tierListsSnapshot = await getDocs(collection(db, "tier_lists"))
+        const tagsToMigrate: TierListTag[] = []
+
+        tierListsSnapshot.forEach(docSnap => {
+          const data = docSnap.data()
+          const rows = data?.rows || []
+
+          rows.forEach((row: any) => {
+            if (row?.resonatorSettings) {
+              Object.values(row.resonatorSettings).forEach((settings: any) => {
+                if (settings?.tags && Array.isArray(settings.tags)) {
+                  settings.tags.forEach((tag: any) => {
+                    if (tag?.id && !tagMap.has(tag.id)) {
+                      const newTag: TierListTag = {
+                        id: tag.id,
+                        name: tag.text || tag.name || "",
+                        color: tag.color || "#7d40ff",
+                      }
+                      tagMap.set(tag.id, newTag)
+                      tagsToMigrate.push(newTag) // Сохраняем для фоновой миграции
+                    }
+                  })
                 }
               })
             }
           })
+        })
+
+        // 3. Фоновая миграция: сохраняем найденные старые теги в новую коллекцию `tags`
+        // Это гарантирует, что при следующем запуске шаг 2 будет работать быстрее
+        if (tagsToMigrate.length > 0) {
+          const migrationPromises = tagsToMigrate.map(tag =>
+            setDoc(doc(db, "tags", tag.id), tag, { merge: true }),
+          )
+          // Выполняем в фоне, не блокируя UI (await не обязателен здесь, но можно оставить)
+          Promise.all(migrationPromises).catch(err =>
+            console.warn("Не удалось мигрировать некоторые теги:", err),
+          )
         }
-      })
+
+        if (!cancelled) {
+          setGlobalTagPool(Array.from(tagMap.values()))
+        }
+      } catch (err) {
+        console.error("Ошибка загрузки и миграции тегов:", err)
+      }
     }
 
-    return Array.from(tagMap.values())
-  }, [rows])
+    fetchAndMigrateTags()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const handleDeleteGlobalTag = async (tagId: string) => {
+    const isUsed = rows.some(row =>
+      Object.values(row.resonatorSettings || {}).some(settings =>
+        settings.tags?.some(tag => tag.id === tagId),
+      ),
+    )
+
+    if (isUsed) {
+      alert(
+        "Этот тег используется в одном или нескольких тир-листах. Удалите его сначала из всех тир-листов.",
+      )
+      return
+    }
+    try {
+      await deleteDoc(doc(db, "tags", tagId))
+
+      setGlobalTagPool(prev => prev.filter(tag => tag.id !== tagId))
+
+      setModalSettings(prev => ({
+        ...prev,
+        tags: (prev.tags || []).filter(tag => tag.id !== tagId),
+      }))
+
+      setEditableTags(prev => prev.filter(tag => tag.id !== tagId))
+
+      console.log(`Тег с ID ${tagId} успешно удален`)
+    } catch (err) {
+      console.error("Ошибка при удалении тега:", err)
+    }
+  }
 
   const getResonatorById = useCallback(
     (id: string) => allResonators.find(r => r.id === id),
@@ -203,9 +287,25 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
 
     editableTags
       .filter(t => t.text.trim())
-      .forEach(tag => {
-        onTagCreated?.({ id: tag.id, name: tag.text, color: tag.color })
-        onTagRegistered?.({ id: tag.id, name: tag.text, color: tag.color })
+      .forEach(async tag => {
+        const newTag: TierListTag = {
+          id: tag.id,
+          name: tag.text,
+          color: tag.color,
+        }
+        onTagCreated?.(newTag)
+        onTagRegistered?.(newTag)
+
+        // Сохраняем тег в глобальную коллекцию tags
+        try {
+          await setDoc(doc(db, "tags", tag.id), newTag)
+          setGlobalTagPool(prev => {
+            if (prev.some(t => t.id === newTag.id)) return prev
+            return [...prev, newTag]
+          })
+        } catch (err) {
+          console.error("Не удалось сохранить тег в Firestore:", err)
+        }
       })
 
     closeSettingsModal()
@@ -362,7 +462,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     e.preventDefault()
     e.stopPropagation()
     const targetIndex = calculateDropIndex(e, container)
-    
+
     setTimeout(() => {
       if (!isDraggingRef.current) cleanupDragListeners()
     }, 0)
@@ -981,29 +1081,57 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                 <label className="modal-label">Теги</label>
 
                 <div className="tag-select-wrapper">
-                  <select
-                    value={selectedTagId}
-                    onChange={e => setSelectedTagId(e.target.value)}
-                    className="tag-select"
-                  >
-                    <option value="">— Выбрать из созданных —</option>
+                  {/* Убрали <select>, теперь здесь правильный div-контейнер */}
+                  <div className="global-tags-list">
+                    {globalTagPool.length === 0 && (
+                      <span
+                        style={{
+                          color: "#666",
+                          fontSize: "0.9rem",
+                          padding: "4px",
+                        }}
+                      >
+                        Теги загружаются или отсутствуют...
+                      </span>
+                    )}
+
                     {globalTagPool.map(tag => {
                       const exists = [
                         ...(modalSettings.tags || []),
                         ...editableTags,
                       ].some(t => t.id === tag.id)
+
                       return (
-                        <option
+                        <div
                           key={tag.id}
-                          value={tag.id}
-                          disabled={exists}
-                          style={{ color: tag.color }}
+                          className={`global-tag-item ${exists ? "exists" : ""} ${selectedTagId === tag.id ? "selected" : ""}`}
+                          onClick={() => {
+                            // Разрешаем выбирать только неиспользуемые теги
+                            if (!exists) {
+                              // Если кликнули на уже выбранный - снимаем выделение, иначе выбираем
+                              setSelectedTagId(
+                                selectedTagId === tag.id ? "" : tag.id,
+                              )
+                            }
+                          }}
                         >
-                          {tag.name}
-                        </option>
+                          <span style={{ color: tag.color }}>{tag.name}</span>
+                          <button
+                            type="button"
+                            className="btn-remove-tag"
+                            onClick={e => {
+                              e.stopPropagation() // Чтобы не срабатывал onClick родителя (выбор тега)
+                              handleDeleteGlobalTag(tag.id)
+                            }}
+                            title="Удалить тег из глобального пула"
+                          >
+                            ×
+                          </button>
+                        </div>
                       )
                     })}
-                  </select>
+                  </div>
+
                   <button
                     type="button"
                     className="btn-add-tag-select"

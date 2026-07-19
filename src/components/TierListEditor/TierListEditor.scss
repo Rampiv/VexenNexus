@@ -798,6 +798,91 @@
   }
 }
 
+.global-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  min-height: 44px;
+  background: #1e1e1e;
+  max-height: 150px;
+  overflow-y: auto;
+  width: 100%;
+
+  .global-tag-item {
+    display: flex;
+    align-items: center;
+    padding: 4px 12px;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+
+    &:hover:not(.exists) {
+      background: #333;
+      border-color: #7d40ff;
+
+      .btn-remove-tag {
+        opacity: 1;
+      }
+    }
+
+    // Состояние: тег выбран для добавления
+    &.selected {
+      border-color: #7d40ff;
+      background: rgba(125, 64, 255, 0.15);
+      box-shadow: 0 0 0 1px #7d40ff;
+    }
+
+    // Состояние: тег уже добавлен в список персонажа
+    &.exists {
+      opacity: 0.4;
+      cursor: not-allowed;
+      text-decoration: line-through;
+
+      &:hover {
+        background: #2a2a2a;
+        border-color: #444;
+      }
+
+      // Разрешаем удалять даже существующие теги из глобального пула
+      .btn-remove-tag {
+        opacity: 1;
+        text-decoration: none;
+      }
+    }
+
+    .btn-remove-tag {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: transparent;
+      color: #ff6b6b;
+      border: none;
+      margin-left: 8px;
+      opacity: 0; // Скрыт по умолчанию, показывается при наведении на тег
+      transition:
+        opacity 0.2s,
+        background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      line-height: 1;
+      padding: 0;
+
+      &:hover {
+        background: rgba(255, 107, 107, 0.2);
+      }
+    }
+  }
+}
+
 // =============================================================================
 // 🔄 КНОПКИ ПЕРЕМЕЩЕНИЯ СТРОК
 // =============================================================================
@@ -843,6 +928,8 @@
   display: flex;
   gap: 8px;
   margin-bottom: 10px;
+  align-items: center;
+  width: 100%;
 
   .tag-select {
     flex: 1;
@@ -853,6 +940,7 @@
     color: #fff;
     font-size: 0.9rem;
     cursor: pointer;
+
 
     &:focus {
       outline: none;
