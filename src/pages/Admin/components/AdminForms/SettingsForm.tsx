@@ -11,6 +11,7 @@ import type {
   SettingsFields,
   TabKey,
 } from "../../../../types/roles"
+import { useEffect } from "react"
 
 interface SettingsFormProps {
   form: SettingsFormType
@@ -38,6 +39,11 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
   const admin = useAdminData()
   const canEdit = (field: keyof SettingsFields) =>
     admin.hasFieldPermission("settings", field)
+
+   useEffect(() => {
+    refreshSettings()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Список всех доступных вкладок для чекбоксов
   const allTabs: TabKey[] = [

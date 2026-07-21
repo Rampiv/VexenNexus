@@ -164,6 +164,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
       )
       return
     }
+    
     try {
       await deleteDoc(doc(db, "tags", tagId))
 
