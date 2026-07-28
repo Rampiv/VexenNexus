@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from "react"
+import React, { useState, useCallback, useRef, useEffect } from "react"
 import type { Resonator } from "../../types/resonator"
 import type {
   TierListRow,
@@ -6,8 +6,9 @@ import type {
   TierListTag,
 } from "../../types/TierList"
 import "./TierListEditor.scss"
-import { collection, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore"
+import { deleteDoc, doc, setDoc } from "firebase/firestore"
 import { db } from "../../firebase/config"
+import { useAdminData } from "../../pages/Admin/hooks/useAdminData"
 
 interface TierListEditorProps {
   rows: TierListRow[]
@@ -43,14 +44,11 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
   canMoveUp,
   canMoveDown,
 }) => {
-  const [editingRow, setEditingRow] = useState<number | null>(null)
-  const [draggedItem, setDraggedItem] = useState<DragData | null>(null)
-  const [dragOverIndex, setDragOverIndex] = useState<{
-    rowIndex: number
-    role: Role
-    index: number
-  } | null>(null)
+  const { extractGlobalTags } = useAdminData()
 
+  // =========================================================================
+  // СОСТОЯНИЕ МОДАЛЬНОГО ОКНА И НАСТРОЕК ПЕРСОНАЖА
+  // =========================================================================
   const [modalOpen, setModalOpen] = useState(false)
   const [modalResonatorId, setModalResonatorId] = useState<string | null>(null)
   const [modalRowIndex, setModalRowIndex] = useState<number | null>(null)
@@ -59,130 +57,57 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     tags: [],
   })
 
+  // =========================================================================
+  // СОСТОЯНИЕ УПРАВЛЕНИЯ ТЕГАМИ
+  // =========================================================================
+  const [globalTagPool, setGlobalTagPool] = useState<TierListTag[]>([])
   const [editableTags, setEditableTags] = useState<
     Array<{ id: string; text: string; color: string }>
   >([])
   const [selectedTagId, setSelectedTagId] = useState<string>("")
 
-  const containerRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  // =========================================================================
+  // СОСТОЯНИЕ РЕДАКТИРОВАНИЯ СТРОК (РЯДОВ)
+  // =========================================================================
+  const [editingRow, setEditingRow] = useState<number | null>(null)
 
-  // прокрутка во время drag и drop
+  // =========================================================================
+  // СОСТОЯНИЕ DRAG & DROP И ПРОКРУТКИ
+  // =========================================================================
+  const [draggedItem, setDraggedItem] = useState<DragData | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<{
+    rowIndex: number
+    role: Role
+    index: number
+  } | null>(null)
+
+  const containerRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const isDraggingRef = useRef(false)
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const SCROLL_THRESHOLD = 100
   const SCROLL_SPEED = 10
 
-  // теги
-  const [globalTagPool, setGlobalTagPool] = useState<TierListTag[]>([])
-
+  // =========================================================================
+  // ИНИЦИАЛИЗАЦИЯ ДАННЫХ
+  // =========================================================================
   useEffect(() => {
-    let cancelled = false
-
-    const fetchAndMigrateTags = async () => {
-      try {
-        const tagMap = new Map<string, TierListTag>()
-
-        // 1. Сначала загружаем теги из новой глобальной коллекции (самый быстрый способ)
-        const tagsSnapshot = await getDocs(collection(db, "tags"))
-        tagsSnapshot.forEach(docSnap => {
-          const data = docSnap.data()
-          if (data?.id) {
-            tagMap.set(data.id, {
-              id: data.id,
-              name: data.name || "",
-              color: data.color || "#7d40ff",
-            })
-          }
-        })
-
-        // 2. Загружаем старые данные из tier_lists для миграции
-        const tierListsSnapshot = await getDocs(collection(db, "tier_lists"))
-        const tagsToMigrate: TierListTag[] = []
-
-        tierListsSnapshot.forEach(docSnap => {
-          const data = docSnap.data()
-          const rows = data?.rows || []
-
-          rows.forEach((row: any) => {
-            if (row?.resonatorSettings) {
-              Object.values(row.resonatorSettings).forEach((settings: any) => {
-                if (settings?.tags && Array.isArray(settings.tags)) {
-                  settings.tags.forEach((tag: any) => {
-                    if (tag?.id && !tagMap.has(tag.id)) {
-                      const newTag: TierListTag = {
-                        id: tag.id,
-                        name: tag.text || tag.name || "",
-                        color: tag.color || "#7d40ff",
-                      }
-                      tagMap.set(tag.id, newTag)
-                      tagsToMigrate.push(newTag) // Сохраняем для фоновой миграции
-                    }
-                  })
-                }
-              })
-            }
-          })
-        })
-
-        // 3. Фоновая миграция: сохраняем найденные старые теги в новую коллекцию `tags`
-        // Это гарантирует, что при следующем запуске шаг 2 будет работать быстрее
-        if (tagsToMigrate.length > 0) {
-          const migrationPromises = tagsToMigrate.map(tag =>
-            setDoc(doc(db, "tags", tag.id), tag, { merge: true }),
-          )
-          // Выполняем в фоне, не блокируя UI (await не обязателен здесь, но можно оставить)
-          Promise.all(migrationPromises).catch(err =>
-            console.warn("Не удалось мигрировать некоторые теги:", err),
-          )
-        }
-
-        if (!cancelled) {
-          setGlobalTagPool(Array.from(tagMap.values()))
-        }
-      } catch (err) {
-        console.error("Ошибка загрузки и миграции тегов:", err)
+    let isMounted = true
+    const loadTags = async () => {
+      const tagMap = await extractGlobalTags()
+      if (isMounted && tagMap) {
+        // Преобразуем Map в массив для удобного рендеринга в JSX
+        setGlobalTagPool(Array.from(tagMap.values()))
       }
     }
-
-    fetchAndMigrateTags()
-
+    loadTags()
     return () => {
-      cancelled = true
+      isMounted = false
     }
-  }, [])
+  }, [extractGlobalTags])
 
-  const handleDeleteGlobalTag = async (tagId: string) => {
-    const isUsed = rows.some(row =>
-      Object.values(row.resonatorSettings || {}).some(settings =>
-        settings.tags?.some(tag => tag.id === tagId),
-      ),
-    )
-
-    if (isUsed) {
-      alert(
-        "Этот тег используется в одном или нескольких тир-листах. Удалите его сначала из всех тир-листов.",
-      )
-      return
-    }
-    
-    try {
-      await deleteDoc(doc(db, "tags", tagId))
-
-      setGlobalTagPool(prev => prev.filter(tag => tag.id !== tagId))
-
-      setModalSettings(prev => ({
-        ...prev,
-        tags: (prev.tags || []).filter(tag => tag.id !== tagId),
-      }))
-
-      setEditableTags(prev => prev.filter(tag => tag.id !== tagId))
-
-      console.log(`Тег с ID ${tagId} успешно удален`)
-    } catch (err) {
-      console.error("Ошибка при удалении тега:", err)
-    }
-  }
-
+  // =========================================================================
+  // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (ПОИСК И ФОРМАТИРОВАНИЕ)
+  // =========================================================================
   const getResonatorById = useCallback(
     (id: string) => allResonators.find(r => r.id === id),
     [allResonators],
@@ -205,6 +130,9 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     }
   }
 
+  // =========================================================================
+  // УПРАВЛЕНИЕ СТРОКАМИ (ДОБАВЛЕНИЕ, УДАЛЕНИЕ, ПЕРЕМЕЩЕНИЕ, НАСТРОЙКА)
+  // =========================================================================
   const handleAddRow = () => {
     setRows(prev => [
       ...prev,
@@ -241,6 +169,35 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     )
   }
 
+  const handleRemoveFromRow = (
+    rowIndex: number,
+    resonatorId: string,
+    role: Role,
+  ) => {
+    setRows(prev =>
+      prev.map((row, idx) => {
+        if (idx !== rowIndex) return row
+        const updatedRow = { ...row }
+        if (role === "dps")
+          updatedRow.dpsResonatorIds = (row.dpsResonatorIds || []).filter(
+            id => id !== resonatorId,
+          )
+        else if (role === "hybrid")
+          updatedRow.hybridResonatorIds = (row.hybridResonatorIds || []).filter(
+            id => id !== resonatorId,
+          )
+        else
+          updatedRow.supportResonatorIds = (
+            row.supportResonatorIds || []
+          ).filter(id => id !== resonatorId)
+        return updatedRow
+      }),
+    )
+  }
+
+  // =========================================================================
+  // УПРАВЛЕНИЕ МОДАЛЬНЫМ ОКНОМ И ТЕГАМИ ПЕРСОНАЖА
+  // =========================================================================
   const openSettingsModal = (resonatorId: string, rowIndex: number) => {
     const row = rows[rowIndex]
     const existingSettings = row?.resonatorSettings?.[resonatorId]
@@ -297,7 +254,6 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
         onTagCreated?.(newTag)
         onTagRegistered?.(newTag)
 
-        // Сохраняем тег в глобальную коллекцию tags
         try {
           await setDoc(doc(db, "tags", tag.id), newTag)
           setGlobalTagPool(prev => {
@@ -374,6 +330,101 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     }))
   }
 
+  const handleDeleteGlobalTag = async (tagId: string) => {
+    const isUsed = rows.some(row =>
+      Object.values(row.resonatorSettings || {}).some(settings =>
+        settings.tags?.some(tag => tag.id === tagId),
+      ),
+    )
+
+    if (isUsed) {
+      alert(
+        "Этот тег используется в одном или нескольких тир-листах. Удалите его сначала из всех тир-листов.",
+      )
+      return
+    }
+
+    try {
+      await deleteDoc(doc(db, "tags", tagId))
+      setGlobalTagPool(prev => prev.filter(tag => tag.id !== tagId))
+      setModalSettings(prev => ({
+        ...prev,
+        tags: (prev.tags || []).filter(tag => tag.id !== tagId),
+      }))
+      setEditableTags(prev => prev.filter(tag => tag.id !== tagId))
+    } catch (err) {
+      console.error("Ошибка при удалении тега:", err)
+    }
+  }
+
+  // =========================================================================
+  // УПРАВЛЕНИЕ ПРЕСЕТАМИ ТЕГОВ ДЛЯ ПЕРСОНАЖЕЙ
+  // =========================================================================
+  const handleSaveAsPresetTags = async () => {
+    if (!modalResonatorId) return
+
+    const allTags = [
+      ...(modalSettings.tags || []),
+      ...editableTags.filter(t => t.text.trim()),
+    ]
+
+    if (allTags.length === 0) {
+      alert("Нет тегов для сохранения")
+      return
+    }
+
+    try {
+      const presetData = {
+        id: modalResonatorId,
+        tags: allTags,
+        updatedAt: new Date().toISOString(),
+      }
+
+      await setDoc(doc(db, "tags_resonators", modalResonatorId), presetData)
+      alert("Пресет тегов сохранен!")
+    } catch (err) {
+      console.error("Ошибка при сохранении пресета:", err)
+      alert("Не удалось сохранить пресет")
+    }
+  }
+
+  const handleLoadPresetTags = async () => {
+    if (!modalResonatorId) return
+
+    try {
+      const { getDoc } = await import("firebase/firestore")
+      const presetDoc = await getDoc(
+        doc(db, "tags_resonators", modalResonatorId),
+      )
+
+      if (presetDoc.exists()) {
+        const presetData = presetDoc.data()
+        const loadedTags = presetData.tags || []
+
+        setEditableTags(prev => [
+          ...prev,
+          ...loadedTags.map(
+            (tag: { id: any; name: any; text: any; color: any }) => ({
+              id: tag.id,
+              text: tag.name || tag.text,
+              color: tag.color,
+            }),
+          ),
+        ])
+
+        alert(`Загружено ${loadedTags.length} тегов`)
+      } else {
+        alert("Пресет для этого персонажа не найден")
+      }
+    } catch (err) {
+      console.error("Ошибка при загрузке пресета:", err)
+      alert("Не удалось загрузить пресет")
+    }
+  }
+
+  // =========================================================================
+  // ЛОГИКА DRAG & DROP (ПЕРЕТАСКИВАНИЕ)
+  // =========================================================================
   const handleDragStart = (
     e: React.DragEvent,
     resonatorId: string,
@@ -399,7 +450,6 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
 
     setDraggedItem(data)
     isDraggingRef.current = true
-
     document.addEventListener("dragend", handleGlobalDragEnd)
 
     requestAnimationFrame(() => {
@@ -480,6 +530,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
         const currentTargetRow = prev[targetRowIndex]
         if (!currentTargetRow) return prev
 
+        // Перемещение внутри одной и той же колонки
         if (
           source === "row" &&
           sourceRowIndex === targetRowIndex &&
@@ -514,6 +565,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
           })
         }
 
+        // Перемещение из другой колонки или из пула
         let newRows = [...prev]
 
         if (source === "row" && sourceRowIndex !== undefined) {
@@ -575,47 +627,9 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     setDragOverIndex({ rowIndex, role, index })
   }
 
-  const handleRemoveFromRow = (
-    rowIndex: number,
-    resonatorId: string,
-    role: Role,
-  ) => {
-    setRows(prev =>
-      prev.map((row, idx) => {
-        if (idx !== rowIndex) return row
-        const updatedRow = { ...row }
-        if (role === "dps")
-          updatedRow.dpsResonatorIds = (row.dpsResonatorIds || []).filter(
-            id => id !== resonatorId,
-          )
-        else if (role === "hybrid")
-          updatedRow.hybridResonatorIds = (row.hybridResonatorIds || []).filter(
-            id => id !== resonatorId,
-          )
-        else
-          updatedRow.supportResonatorIds = (
-            row.supportResonatorIds || []
-          ).filter(id => id !== resonatorId)
-        return updatedRow
-      }),
-    )
-  }
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeSettingsModal()
-    }
-    if (modalOpen) {
-      document.addEventListener("keydown", handleEscape)
-      document.body.style.overflow = "hidden"
-    }
-    return () => {
-      document.removeEventListener("keydown", handleEscape)
-      document.body.style.overflow = ""
-    }
-  }, [modalOpen])
-
-  // логика прокрутки страницы drag и drop
+  // =========================================================================
+  // АВТОМАТИЧЕСКАЯ ПРОКРУТКА ПРИ DRAG & DROP
+  // =========================================================================
   const cleanupDragListeners = useCallback(() => {
     if (scrollIntervalRef.current) {
       clearInterval(scrollIntervalRef.current)
@@ -631,18 +645,14 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
 
     let scrolled = false
 
-    // Прокрутка вверх
     if (cursorY < SCROLL_THRESHOLD && scrollTop > 0) {
       window.scrollBy({ top: -SCROLL_SPEED, behavior: "auto" })
       scrolled = true
-    }
-    // Прокрутка вниз
-    else if (viewportHeight - cursorY < SCROLL_THRESHOLD) {
+    } else if (viewportHeight - cursorY < SCROLL_THRESHOLD) {
       window.scrollBy({ top: SCROLL_SPEED, behavior: "auto" })
       scrolled = true
     }
 
-    // Продолжаем интервал только если была прокрутка И всё ещё тащим
     if (scrolled && isDraggingRef.current) {
       scrollIntervalRef.current = setTimeout(() => {
         if (isDraggingRef.current) checkAndScroll(clientY)
@@ -667,12 +677,10 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
   useEffect(() => {
     if (!isDraggingRef.current) return
 
-    // Добавляем слушатели
     document.addEventListener("mousemove", handleGlobalMouseMove)
     document.addEventListener("dragend", handleGlobalDragEnd)
     document.addEventListener("mouseup", cleanupDragListeners)
 
-    // Очистка при размонтировании или остановке drag
     return () => {
       document.removeEventListener("mousemove", handleGlobalMouseMove)
       document.removeEventListener("dragend", handleGlobalDragEnd)
@@ -681,6 +689,26 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
     }
   }, [handleGlobalMouseMove, handleGlobalDragEnd, cleanupDragListeners])
 
+  // =========================================================================
+  // ОБРАБОТКА ГОРЯЧИХ КЛАВИШ
+  // =========================================================================
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeSettingsModal()
+    }
+    if (modalOpen) {
+      document.addEventListener("keydown", handleEscape)
+      document.body.style.overflow = "hidden"
+    }
+    return () => {
+      document.removeEventListener("keydown", handleEscape)
+      document.body.style.overflow = ""
+    }
+  }, [modalOpen])
+
+  // =========================================================================
+  // РЕНДЕРИНГ КОМПОНЕНТА (JSX)
+  // =========================================================================
   return (
     <div className="tierlist-editor">
       <div className="tierlist-rows-container">
@@ -1082,7 +1110,6 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                 <label className="modal-label">Теги</label>
 
                 <div className="tag-select-wrapper">
-                  {/* Убрали <select>, теперь здесь правильный div-контейнер */}
                   <div className="global-tags-list">
                     {globalTagPool.length === 0 && (
                       <span
@@ -1107,9 +1134,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                           key={tag.id}
                           className={`global-tag-item ${exists ? "exists" : ""} ${selectedTagId === tag.id ? "selected" : ""}`}
                           onClick={() => {
-                            // Разрешаем выбирать только неиспользуемые теги
                             if (!exists) {
-                              // Если кликнули на уже выбранный - снимаем выделение, иначе выбираем
                               setSelectedTagId(
                                 selectedTagId === tag.id ? "" : tag.id,
                               )
@@ -1121,7 +1146,7 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                             type="button"
                             className="btn-remove-tag"
                             onClick={e => {
-                              e.stopPropagation() // Чтобы не срабатывал onClick родителя (выбор тега)
+                              e.stopPropagation()
                               handleDeleteGlobalTag(tag.id)
                             }}
                             title="Удалить тег из глобального пула"
@@ -1235,6 +1260,22 @@ export const TierListEditor: React.FC<TierListEditorProps> = ({
                   editableTags.length === 0 && (
                     <p className="tags-empty">Нет добавленных тегов</p>
                   )}
+                <div className="tags-presets-btns">
+                  <button
+                    className="tags-presets-btns__create"
+                    onClick={handleSaveAsPresetTags}
+                    type="button"
+                  >
+                    💾 Сохранить как пресет
+                  </button>
+                  <button
+                    className="tags-presets-btns__load"
+                    onClick={handleLoadPresetTags}
+                    type="button"
+                  >
+                    Загрузить пресет
+                  </button>
+                </div>
               </div>
             </div>
 

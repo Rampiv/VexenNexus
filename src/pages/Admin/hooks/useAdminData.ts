@@ -223,29 +223,25 @@ export const useAdminData = () => {
     [userRole],
   )
 
-  const extractGlobalTags = useCallback(
-    (lists: TierList[]): Map<string, TierListTag> => {
-      const tagMap = new Map<string, TierListTag>()
-      lists.forEach(list => {
-        list.cycles?.forEach(cycle => {
-          cycle.rows?.forEach(row => {
-            Object.values(row.resonatorSettings || {}).forEach(
-              (settings: any) => {
-                settings?.tags?.forEach((tag: TierListTag) => {
-                  if (!tagMap.has(tag.id)) tagMap.set(tag.id, { ...tag })
-                })
-              },
-            )
+  const extractGlobalTags = useCallback(async () => {
+    const tagMap = new Map<string, TierListTag>()
+    try {
+      const tagsSnapshot = await getDocs(collection(db, "tags"))
+      tagsSnapshot.forEach(docSnap => {
+        const data = docSnap.data()
+        if (data?.id) {
+          tagMap.set(data.id, {
+            id: data.id,
+            name: data.name || "",
+            color: data.color || "#7d40ff",
           })
-        })
-        list.usedTags?.forEach(tag => {
-          if (!tagMap.has(tag.id)) tagMap.set(tag.id, { ...tag })
-        })
+        }
       })
       return tagMap
-    },
-    [],
-  )
+    } catch (err) {
+      console.log("Ошибка загрузки тегов")
+    }
+  }, [])
 
   const registerTag = useCallback((tag: TierListTag) => {
     setGlobalTagRegistry(prev => {
@@ -449,8 +445,10 @@ export const useAdminData = () => {
       })) as TierList[]
       setTierLists(loadedTierLists)
 
-      const tags = extractGlobalTags(loadedTierLists)
-      setGlobalTagRegistry(tags)
+      const tags = await extractGlobalTags()
+      if (tags) {
+        setGlobalTagRegistry(tags)
+      }
 
       await fetchSettings()
     } catch (error) {
@@ -1292,7 +1290,9 @@ export const useAdminData = () => {
     updateCycleName,
     switchCycle,
     updateCurrentCycleRows,
+    // tags
     registerTag,
+    extractGlobalTags,
     // Filtered data
     filteredList,
     // roles
