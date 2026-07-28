@@ -883,6 +883,42 @@
   }
 }
 
+.tags-presets-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+
+  &__create,
+  &__load {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid #7d40ff;
+    border-radius: 6px;
+    background: white;
+    color: #7d40ff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #7d40ff;
+      color: white;
+    }
+
+    &__load {
+      border-color: #4a90e2;
+      color: #4a90e2;
+
+      &:hover {
+        background: #4a90e2;
+        color: white;
+      }
+    }
+  }
+}
+
 // =============================================================================
 // 🔄 КНОПКИ ПЕРЕМЕЩЕНИЯ СТРОК
 // =============================================================================
@@ -940,7 +976,6 @@
     color: #fff;
     font-size: 0.9rem;
     cursor: pointer;
-
 
     &:focus {
       outline: none;
